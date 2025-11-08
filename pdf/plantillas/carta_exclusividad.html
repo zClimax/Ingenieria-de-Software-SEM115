@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Carta de Exclusividad</title>
+<style>
+  @page { margin: 25mm 20mm 25mm 25mm; }
+  body { font-family: "Times New Roman", serif; font-size: 10pt; color: #000; }
+  .fecha { text-align: right; font-style: italic; margin-bottom: 10mm; }
+  .titulo { text-align: center; font-weight: bold; margin: 0; }
+  .subtitulo { text-align: center; font-weight: bold; margin: 0 0 10mm 0; }
+  p { text-align: justify; margin: 0 0 4mm 0; line-height: 1.35; }
+  .atentamente { text-align: center; margin-top: 14mm; }
+  .firma { text-align: center; margin-top: 12mm; }
+  .firma-linea { width: 85%; height: 1px; background: #000; margin: 0 auto 2mm auto; }
+  .nombre { text-align: center; font-weight: bold; }
+  .cargo { text-align: center; }
+  .nota { font-size: 9pt; color: #333; position: fixed; bottom: 12mm; left: 0; right: 0; text-align: left; }
+</style>
+</head>
+<body>
+
+<div class="fecha">({ciudad} a {fecha_larga})</div>
+
+<h3 class="titulo">CARTA DE EXCLUSIVIDAD LABORAL</h3>
+<h4 class="subtitulo">DOCENTES CON PLAZA DE TIEMPO COMPLETO*</h4>
+
+<p>El (La) que suscribe <u>{nombre_docente}</u>, con filiación: <u>{rfc}</u>, Docente de tiempo completo, con clave presupuestal: <u>{clave_presupuestal}</u>, por medio de este documento manifiesto MI COMPROMISO con el Tecnológico Nacional de México, campus <u>{campus}</u>. </p>
+
+<p>Declaro que en caso de haber laborado en otra(s) institución(es) pública(s) o federal(es), la jornada no excedió las 12 horas‑semana‑mes durante el periodo a evaluar del destacado, y en caso de estar laborando actualmente en otra(s) institución(es), la jornada no excederá las 12 horas‑semana‑mes y los horarios establecidos para el desempeño de las mismas, por lo que autorizo que se verifique con el departamento de recursos humanos, la compatibilidad de horarios en mi institución de adscripción. </p>
+
+<p>Asimismo, manifiesto mi disposición para realizar las actividades propias de la Educación Superior Tecnológica enfocadas a satisfacer las necesidades de la dedicación, la calidad en el desempeño y permanencia en las actividades de la docencia, que la autoridad correspondiente en mi institución me encomiende y podré realizar estudios de posgrado siempre y cuando queden compatibles con la carga horaria reglamentaria asignada, en el entendido de que en todos los productos derivados de mis actividades como profesor de tiempo completo de la institución, tales como: patentes, modelos de utilidad, derechos de autor, publicaciones en revistas, congresos y libros, mencionaré mi adscripción al Tecnológico Nacional de México, excepto cuando la institución determine lo contrario; adicionalmente me comprometo a no incurrir en conflicto de interés. </p>
+
+<p>En caso de que se compruebe la NO EXCLUSIVIDAD LABORAL, me haré acreedor a la aplicación de las sanciones correspondientes de la normatividad vigente y perderé de manera permanente el derecho a participar en el Programa de Estímulos al Desempeño del Personal Docente. </p>
+
+<div class="atentamente">ATENTAMENTE</div>
+
+<div class="firma">
+  <div class="firma-linea">
+    <table class="pie">
+        <tr>
+          <td class="col-izq firma-bloque">
+            <img class="firma-img" src="{path_firma_jefa_rh}" alt="Firma">
+            <div class="nombre-firma">{nombre_jefe_rh}</div>
+          </td>
+          <td class="col-der">
+            <img class="qr" src="{path_qr_autenticidad}" alt="QR de Verificación">
+            <div class="institucion">QR de Verificación</div>
+          </td>
+        </tr>
+      </table>
+  </div>
+  <div class="nombre">{nombre_docente}</div>
+  <div class="cargo">Nombre y cargo del Docente</div>
+</div>
+
+<div class="nota">1 - {nota_piedepagina}</div>
+
+</body>
+</html>
