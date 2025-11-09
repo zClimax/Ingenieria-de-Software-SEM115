@@ -44,14 +44,84 @@ Session::start();
   </style>
 </head>
 <body>
+
+<!-- Modal Convocatoria -->
+<div id="convModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;max-width:720px;width:92%;border-radius:14px;padding:16px;border:1px solid #e5e7eb;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+    <h2 style="margin:6px 0 8px">Convocatoria activa</h2>
+    <div id="convMeta" style="color:#374151;font-size:14px;margin-bottom:8px"></div>
+    <div>
+      <strong>Requisitos</strong>
+      <ul id="reqList" style="margin-top:6px;padding-left:18px"></ul>
+    </div>
+    <div id="convMsg" style="margin-top:8px;color:#111827"></div>
+    <div style="margin-top:12px;text-align:right">
+      <button id="btnConvOk" style="background:#0b1a52;color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const modal   = document.getElementById('convModal');
+  const meta    = document.getElementById('convMeta');
+  const ul      = document.getElementById('reqList');
+  const msg     = document.getElementById('convMsg');
+  const btn     = document.getElementById('btnConvOk');
+  let convId    = 0;
+
+  function openModal(){ modal.style.display='flex'; }
+  function closeModal(){ modal.style.display='none'; }
+
+  async function loadConv(){
+    try{
+      const r = await fetch('/SIGED/public/index.php?action=conv_get', {credentials:'same-origin'});
+      const j = await r.json();
+      if(!j.ok){ console.warn(j); return; }
+      if(!j.mostrar_modal){ return; } // nada que mostrar
+
+      convId = Number(j.convocatoria?.id || 0);
+      const clave = j.convocatoria?.clave || '';
+      const nombre= j.convocatoria?.nombre || '';
+      const ini   = (j.convocatoria?.fecha_ini || '').toString().slice(0,10);
+      const fin   = (j.convocatoria?.fecha_fin || '').toString().slice(0,10);
+
+      meta.textContent = `${clave ? clave + ' — ' : ''}${nombre} (${ini} a ${fin})`;
+      ul.innerHTML = '';
+      (j.requisitos || []).forEach(rq=>{
+        const li = document.createElement('li');
+        li.textContent = `${rq.nombre} ${rq.cumple ? '✓' : '✕'}`;
+        ul.appendChild(li);
+      });
+      msg.textContent = j.mensaje || '';
+      openModal();
+    }catch(e){ console.error(e); }
+  }
+
+  btn?.addEventListener('click', async ()=>{
+    try{
+      if(!convId){ closeModal(); return; }
+      const fd = new FormData(); fd.append('id_convocatoria', String(convId));
+      const r = await fetch('/SIGED/public/index.php?action=conv_ack', { method:'POST', body:fd, credentials:'same-origin' });
+      const j = await r.json();
+      if(j && j.ok){ closeModal(); }
+    }catch(e){ console.error(e); closeModal(); }
+  });
+
+  // Dispara al cargar el home
+  document.addEventListener('DOMContentLoaded', loadConv);
+})();
+</script>
+
   <div class="layout">
     <aside class="sidebar">
       <div class="brand"><span style="background:#fff;color:#0b1a52;border-radius:8px;padding:2px 6px;font-weight:900">S</span><span>SIGED</span></div>
       <nav class="menu">
-        <a href="#" class="active">Generador de actas</a>
-        <a href="#">Usuario</a>
-        <a href="#">Tickets</a>
-      </nav>
+  <a href="/SIGED/public/index.php?action=sol_mis">Generador de actas</a>
+  <a href="/SIGED/public/index.php?action=home_docente" class="active">Usuario</a>
+  <a href="/SIGED/public/index.php?action=tk_list">Tickets</a>
+  <a href="/siged/public/index.php?action=doc_firma">Mi firma</a>
+    </nav>
       <div class="avatar-mini">
         <div class="pic"></div>
         <div style="font-size:12px" id="miniName">Docente</div>
@@ -87,19 +157,26 @@ Session::start();
             <div class="pill"><strong>MATRÍCULA:</strong> <span id="docMatricula">—</span></div>
           </div>
         </div>
-
+      <div class = "section">
+        
+      </div>
         <div class="section">
           <div class="title-sec">Barra de progreso</div>
           <div class="bar-wrap"><div class="bar" id="bar"></div></div>
           <div class="bar-meta"><span id="ptsLabel">0 pts.</span> <span id="pctLabel">0%</span></div>
           <div style="margin-top:10px">
-            <button class="btn" id="btnHist">Histórico de convocatorias</button>
+          <button class="btn" id="btnHist">Histórico de convocatorias</button>
+        <script>
+        document.getElementById('btnHist').addEventListener('click', ()=>{
+         location.href = '/SIGED/public/index.php?action=doc_hist';
+        });
+        </script>
+
           </div>
         </div>
       </div>
     </main>
   </div>
-
   <script>
   (function(){
     const base = location.pathname.includes('/public/index.php')
@@ -136,10 +213,10 @@ fetch(base + '?action=doc_home_data', { credentials:'same-origin' })
         document.getElementById('ptsLabel').textContent = (pr.puntos||0) + ' pts.';
         document.getElementById('pctLabel').textContent = pct + '%';
 
-        // Botón histórico (placeholder)
-        document.getElementById('btnHist').addEventListener('click', ()=>{
-          alert('Próximamente: histórico de convocatorias.');
-        });
+    // Botón histórico
+    document.getElementById('btnHist').addEventListener('click', ()=>{
+    location.href = '/SIGED/public/index.php?action=doc_hist';
+    });
       })
       .catch(err=>console.error(err));
   })();

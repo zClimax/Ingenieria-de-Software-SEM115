@@ -13,9 +13,7 @@ $user = Session::user();
 </head>
 
 <?php
-// === BLOQUE MODAL CONVOCATORIA (APPEND) ===
-// Se dibuja solo si el usuario en sesión es DOCENTE.
-// Si tu archivo ya incluyó Session/Config, no pasa nada; si no, intentamos cargarlo.
+
 if (!class_exists('Session')) {
   @require_once __DIR__ . '/../utils/session.php';
 }
@@ -69,7 +67,6 @@ if ($___rol === 'DOCENTE'):
   const overlay = document.getElementById('siged-modal-overlay');
   if(!overlay) return;
 
-  // 🚩 Importante: respeta mayúsculas de la carpeta del proyecto: /SIGED/
   fetch('/SIGED/public/index.php?action=conv_get', {credentials:'same-origin'})
     .then(r=>r.json())
     .then(data=>{
@@ -132,7 +129,7 @@ if ($___rol === 'DOCENTE'):
     .catch(err => console.error('conv_get error', err));
 })();
 </script>
-<?php endif; // fin solo DOCENTE ?>
+<?php endif;  ?>
 
 
 

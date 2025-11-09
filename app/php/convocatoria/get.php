@@ -21,7 +21,7 @@ $user = Session::user();
 $stmt = $pdo->prepare("SELECT {$D['ID']} AS id_doc FROM {$D['TABLE']} WHERE {$D['ID_USR']}=:u");
 $stmt->execute([':u'=>$user['id']]);
 $doc = $stmt->fetch();
-if(!$doc){ echo json_encode(['ok'=>true,'mostrar_modal'=>true]); exit; }
+if(!$doc){ echo json_encode(['ok'=>true,'mostrar_modal'=>false]); exit; }
 $idDoc = (int)$doc['id_doc'];
 
 /* Convocatoria activa */

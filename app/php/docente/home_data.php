@@ -14,13 +14,12 @@ try {
   // Tablas
   $T_DOC   = 'dbo.DOCENTE';
   $T_USER  = 'dbo.USUARIOS';
-  $T_DEPTS = 'dbo.DEPARTAMENTO'; // si tu catálogo usa otro nombre, ajusta aquí
+  $T_DEPTS = 'dbo.DEPARTAMENTO'; 
 
   // Usuario en sesión
   $u = Session::user();
   $idUsuario = (int)$u['id'];
 
-  // 1) Datos del docente + depto (si existe catálogo DEPARTAMENTOS)
   $sql = "
     SELECT D.ID_DOCENTE,
            D.NOMBRE_DOCENTE, D.APELLIDO_PATERNO_DOCENTE, D.APELLIDO_MATERNO_DOCENTE,

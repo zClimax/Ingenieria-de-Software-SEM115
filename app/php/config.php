@@ -20,6 +20,7 @@ final class Config {
       'USER'     => 'NOMBRE_USUARIO',    // login para JEFE
       'PASS'     => 'CONTRASENA',        // texto plano en dev (luego hasheamos)
       'ACTIVO'   => 'ACTIVO',
+      'NOMBRE_COMPLETO' => 'NOMBRE_COMPLETO',
     ],
     'DOCENTE' => [
       'TABLE'     => 'dbo.DOCENTE',
