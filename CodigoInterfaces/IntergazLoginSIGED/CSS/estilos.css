@@ -1,0 +1,143 @@
+/* --- 1. FONDO Y ANIMACIÓN --- */
+body {
+    font-family: 'Arial', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(45deg, #000428, #004e92, #000428, #001f3f, #000428);
+    background-size: 400% 400%;
+    animation: gradient 7s ease infinite;
+    margin: 0; /* Importante: quita el margen por defecto */
+}
+
+@keyframes gradient {
+    0% {background-position: 0% 50%;}
+    25% {background-position: 50% 100%;}
+    50% {background-position: 100% 50%;}
+    75% {background-position: 50% 0%;}
+    100% {background-position: 0% 50%;}
+}
+
+/* --- 2. CONTENEDOR PRINCIPAL --- */
+.Contenedora-login-medio {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* --- 3. FORMULARIO (LA CAJA BLANCA) --- */
+.Formularion-login {
+    width: 300px;
+    height: auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 14px;
+    font-family: 'calibri', 'Arial', sans-serif;
+    box-shadow: 7px 13px 37px #000;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Clave: alinea tus labels */
+    gap: 15px; /* <-- ESTO AÑADE ESPACIO ENTRE TUS <article> */
+}
+
+/* --- 4. ELEMENTOS DENTRO DEL FORMULARIO --- */
+.logo-tecnm2 img {
+    width: 250px;
+    height: auto;
+    display: block;
+    margin: 0 auto; /* Centra la imagen dentro del article */
+}
+
+.TITULO-SIGED-GRANDE-AZUL {
+    text-align: center;
+    color: #000428;
+    font-size: 2.5rem;
+    font-weight: 900;
+    font-style: italic;
+    margin: 0; /* Quita márgenes por si acaso */
+}
+
+/* ESTA ES LA REGLA NUEVA MÁS IMPORTANTE */
+.labels-formulario {
+    display: flex;
+    flex-direction: column; /* Apila el label sobre el input */
+    gap: 5px; /* Espacio pequeño entre el label y su input */
+}
+
+.labels-formulario label {
+    text-align: left;
+    color: #000428;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.labels-formulario input {
+    font-family: 'calibri', 'Arial', sans-serif;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc; /* Un borde sutil */
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* --- 5. BOTONES (BASADO EN TU HTML) --- */
+
+/* Estilo para "Iniciar sesión" y "Autentica con correo" */
+.button-azul-completo {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    
+    background-color: #000428; /* Estilo primario azul */
+    color: white;
+}
+
+.button-azul-completo:hover {
+    background-color: #004e92;
+}
+
+/* Estilo para el botón "soporte SIGED" */
+.Formularion-login article:last-child button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    border: 1px solid #ccc; /* Borde sutil */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+
+    background-color: #f0f0f0; /* Estilo terciario gris */
+    color: #444;
+}
+
+.Formularion-login article:last-child button:hover {
+    background-color: #e0e0e0;
+}
+
+/* --- 6. FOOTER (PIE DE PÁGINA) --- */
+.footer-info {
+    /* Estilos para que se vea bien */
+    text-align: center;
+    color: #ccc;
+    font-size: 0.9rem;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+}
+.footer-info a {
+    color: #fff;
+    font-weight: bold;
+}
