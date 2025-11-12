@@ -1,48 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="CSS/estilos.css">
-    <title>Document</title>
+    <title>SIGED - Login</title>
 </head>
 <body>
     <section class="Contenedora-login-medio">
-        <form class="Formularion-login">
-        <article class="logo-tecnm2">
-            <img src="img/tecnm.png" alt="logo-tecnm">
-        </article>
-        <article class="TITULO-SIGED-GRANDE-AZUL">
-            SIGED
-        </article>
+        <form class="Formularion-login" id="loginForm">
+            <article class="logo-tecnm2">
+                <img src="img/tecnm.png" alt="logo-tecnm">
+            </article>
+            <article class="TITULO-SIGED-GRANDE-AZUL">
+                SIGED
+            </article>
 
-        <article class="labels-formulario">
-        <label for="username">Usuario:</label>
-        <input type="text" id="username" name="username" required, placeholder="example@culiacan.tecnm.mx">
-        </article>
-        
-        <article class="labels-formulario">
-        <label for="password">Contraseña:</label>
-        <input type="password" id="password" name="password" required, placeholder="Enter your password">
-        </article>
+            <!-- Mensaje de error (inicialmente oculto) -->
+            <article class="mensaje-error" id="mensajeError" style="display: none;">
+                <p></p>
+            </article>
 
+            <article class="labels-formulario">
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" name="username" required placeholder="example@culiacan.tecnm.mx">
+            </article>
+            
+            <article class="labels-formulario">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </article>
 
-        <article class="button-azul">
-        <button class="button-azul-completo" type="submit">Iniciar sesión</button>
-        </article>
+            <article class="button-azul">
+                <button class="button-azul-completo" type="submit">Iniciar sesión</button>
+            </article>
 
-        <article class="button-azul">
-        <button class="button-azul-completo" type="submit">Autentica con correo</button>
-        </article>
+            <article class="button-azul">
+                <button class="button-azul-completo" type="button">Autentica con correo</button>
+            </article>
 
-        
-        <article>
-        <button type="submit">soporte SIGED</button>
-        </article>
-
-
+            <article>
+                <button type="button">soporte SIGED</button>
+            </article>
+        </form>
     </section>
-
 
     <footer class="footer-info">
         <p class="texto-importante">
@@ -56,5 +58,6 @@
         </p>
     </footer>
 
+    <script src="js/validacion.js"></script>
 </body>
 </html>

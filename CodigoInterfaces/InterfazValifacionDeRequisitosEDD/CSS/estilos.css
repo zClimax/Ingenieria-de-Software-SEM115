@@ -1,0 +1,66 @@
+/* Reset básico para consistencia entre navegadores */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* --- 1. FONDO Y ANIMACIÓN --- */
+body {
+    font-family: 'Arial', sans-serif;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(45deg, #000428, #004e92, #000428, #001f3f, #000428);
+    background-size: 400% 400%;
+    animation: gradient 7s ease infinite;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes gradient {
+    0% {background-position: 0% 50%;}
+    25% {background-position: 50% 100%;}
+    50% {background-position: 100% 50%;}
+    75% {background-position: 50% 0%;}
+    100% {background-position: 0% 50%;}
+}
+
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-0.625rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Media query para pantallas pequeñas */
+@media screen and (max-width: 480px) {
+    .Formularion-login {
+        padding: 1.25rem;
+        max-width: 90%;
+    }
+    
+    .logo-tecnm2 img {
+        max-width: 12.5rem;
+    }
+    
+    .footer-info {
+        font-size: 0.8rem;
+        padding: 1rem;
+    }
+}
+
+.SIGED-header{
+    background-color: #092c4b;
+    padding: 1rem;
+    text-align: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
