@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="css/estilos.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    
+    <title>MenuPrincipal - SIGED</title>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="left">
+            <div class="menu-container" id="menuToggle">
+                <div class="menu">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+            <div class="brand">
+                <span class="name">SIGED</span>
+            </div>
+        </div>
+        
+        <div class="right">
+            <a href="#" title="Chat">
+                <i class='bx bx-message-rounded'></i>
+            </a>
+            <a href="#" title="Ayuda">
+                <i class='bx bx-help-circle'></i>
+            </a>
+            <a href="#" title="Notificaciones">
+                <i class='bx bx-bell'></i>
+            </a>
+            <button class="btn-salir">Salir</button>
+        </div>
+    </header>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="#" class="nav-link active" title="Inicio">
+                        <i class='bx bx-home'></i>
+                        <span class="nav-text">Inicio</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" title="Perfil">
+                        <i class='bx bx-user-circle'></i>
+                        <span class="nav-text">Perfil</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" title="Documentos">
+                        <i class='bx bx-file'></i>
+                        <span class="nav-text">Documentos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" title="Calendario">
+                        <i class='bx bx-calendar'></i>
+                        <span class="nav-text">Calendario</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" title="Reportes">
+                        <i class='bx bx-bar-chart-alt-2'></i>
+                        <span class="nav-text">Reportes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" title="Configuración">
+                        <i class='bx bx-cog'></i>
+                        <span class="nav-text">Configuración</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <img src="img/User.png" alt="Usuario" class="user-avatar-img">
+                    <!-- Si no hay foto, se muestra el ícono -->
+                    <i class='bx bx-user' style="display: none;"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name">Dr. Víctor Bátiz</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content" id="mainContent">
+        <div class="content-wrapper">
+            <section class="identificacion">
+                <h2>Identificación</h2>
+                <div class="info-card">
+                    <div class="avatar-large">
+                        <img src="img/User.png" alt="Usuario" class="avatar-img">
+                        <!-- Si no hay foto, se muestra el ícono -->
+                        <i class='bx bx-user' style="display: none;"></i>
+                    </div>
+                    <div class="info-details">
+                        <h3>Dr. Víctor Bátiz</h3>
+                        <p><strong>34170013</strong> victor.bb@culiacan.tecnm.mx</p>
+                        <p>Docente Departamento de Sistemas y Computación</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="datos-personales">
+                <h2>Datos personales</h2>
+                <div class="datos-grid">
+                    <p><strong>CLAVE DE EMPLEADO:</strong> 7629</p>
+                    <p><strong>NSS:</strong> 82710112982</p>
+                    <p><strong>FECHA DE INGRESO:</strong> 23 DE AGOSTO DE 2009</p>
+                    <p><strong>RFC:</strong> VIBA001111273</p>
+                    <p><strong>MATRICULA:</strong> 22170013</p>
+                </div>
+            </section>
+
+            <div class="historico-btn">
+                <button class="btn-outline">Histórico de convocatorias</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/menu.js"></script>
+</body>
+</html>
