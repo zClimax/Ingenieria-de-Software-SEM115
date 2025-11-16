@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Constancia CVU-TecNM</title>
+  <style>
+    body { font-family: DejaVu Sans, Arial, Helvetica, sans-serif; font-size: 12px; color:#111; }
+    .enc { text-align:right; margin-bottom:10px; }
+    .tit { text-align:center; font-size:16px; font-weight:700; margin:10px 0 14px; letter-spacing:.4px; }
+    .p   { line-height:1.55; margin:10px 0; }
+    .firma { text-align:center; margin-top:38px; }
+    .firma img { height:70px; }
+    hr { border:0; border-top:1px solid #999; margin:8px 0 14px; }
+    .pie { margin-top: 12px; font-size:11px; color:#333; }
+  </style>
+</head>
+<body>
+
+  <div class="enc">{lugar_fecha}</div>
+  <hr>
+  <div class="tit">CONSTANCIA DE REGISTRO Y ACTUALIZACIÓN DE CVU-TecNM</div>
+
+  <p class="p">
+    La persona titular del <strong>Departamento de Desarrollo Académico</strong> hace constar que
+    <strong>{nombre_docente}</strong> (RFC: {rfc_docente}, CURP: {curp_docente})
+    tiene registrado y actualizado su <strong>CVU-TecNM</strong> ante este Departamento.
+  </p>
+
+  <p class="p">
+    Para la emisión de la presente constancia, el/la docente entregó su CVU-TecNM en extenso a este Departamento,
+    en formato <em>impreso</em> o <em>electrónico</em>, para su verificación y resguardo.
+  </p>
+
+  <div class="firma">
+    <img src="{firma_jefe_depto}" alt="Firma Jefe Dpto. Desarrollo Académico"><br>
+    <strong>{nombre_jefe_depto}</strong><br>
+    TITULAR DEL DEPARTAMENTO DE DESARROLLO ACADÉMICO
+  </div>
+
+  <div class="pie">
+    Folio: <strong>{folio}</strong> &nbsp; | &nbsp; Verificación: {url_verificacion}
+  </div>
+</body>
+</html>

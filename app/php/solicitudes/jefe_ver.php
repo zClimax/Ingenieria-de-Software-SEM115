@@ -14,6 +14,8 @@ $sol = $pdo->query("SELECT ".$S['ID']." AS id, ".$S['TIPO']." AS tipo, ".$S['EST
                     FROM ".$S['TABLE']." WHERE ".$S['ID']."=$id")->fetch();
 if (!$sol) { die('Solicitud no encontrada'); }
 
+
+
 // Evidencias
 $ev = $pdo->query("SELECT ".$E['ID']." AS id, ".$E['NOM']." AS nombre FROM ".$E['TABLE']." WHERE ".$E['SOL']."=$id")->fetchAll();
 
@@ -31,7 +33,7 @@ $nombreDoc = trim(($doc['nom']??'').' '.($doc['ap']??'').' '.($doc['am']??''));
     <h1>Solicitud #<?= (int)$sol['id']?> · <?= htmlspecialchars($sol['tipo'])?></h1>
     <p>Docente: <strong><?= htmlspecialchars($nombreDoc) ?></strong></p>
     <p>Estado actual: <strong><?= htmlspecialchars($sol['estado']) ?></strong></p>
-
+    <?php require __DIR__ . '/ci_mount.php'; ?>
     <h3>Evidencias</h3>
     <ul>
       <?php foreach($ev as $f): ?>
@@ -41,6 +43,18 @@ $nombreDoc = trim(($doc['nom']??'').' '.($doc['ap']??'').' '.($doc['am']??''));
     </ul>
 
     <?php if ($sol['estado']==='ENVIADA'): ?>
+      <?php
+// Mostrar formulario CI sólo si el tipo es ACI
+if (($sol['TIPO_DOCUMENTO'] ?? '') === 'ACI') {
+  require __DIR__ . '/ci_form.php';
+}
+?>
+<?php
+// RED: formulario del Depto (asignatura + programa)
+if (($sol['tipo'] ?? '') === 'RED') {
+  require __DIR__ . '/dep_form.php';
+}
+?>
     <h3>Decisión</h3>
     <form method="post" action="/siged/public/index.php?action=jefe_decidir">
       <input type="hidden" name="id" value="<?= (int)$sol['id'] ?>">

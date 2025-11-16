@@ -143,7 +143,9 @@ if ($usaCartaExclusividad) {
   $pdf->Text(157, 77, 'Folio: '.$folio);
   $pdf->Text(157, 81, 'Hash: '.substr($hash,0,12).'…');
 
-} else {
+}
+
+else {
   /* === Otros tipos: plantilla genérica (fallback) === */
   require_once __DIR__ . '/../../pdf/plantillas/plantilla_generica.php';
   $data = [

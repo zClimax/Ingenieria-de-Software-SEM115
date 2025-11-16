@@ -18,6 +18,30 @@ $tu = $U['TABLE'];  // dbo.USUARIOS
 $user = Session::user();
 $idUsuario = (int)$user['id'];
 
+
+$depJefe = (int)($user['id_departamento'] ?? 0);
+if ($depJefe <= 0) {
+  $qDep = $pdo->prepare("SELECT ID_DEPARTAMENTO FROM dbo.USUARIOS WHERE ID_USUARIO=:u");
+  $qDep->execute([':u' => (int)$user['id']]);
+  $depJefe = (int)($qDep->fetchColumn() ?: 0);
+}
+
+
+// === Correcciones pendientes para este departamento
+$sqlC = $pdo->prepare("
+  SELECT c.ID_CORRECCION, c.ID_SOLICITUD, c.MOTIVO, c.CREATED_AT,
+         s.TIPO_DOCUMENTO,
+         d.NOMBRE_DOCENTE, d.APELLIDO_PATERNO_DOCENTE, d.APELLIDO_MATERNO_DOCENTE
+  FROM dbo.DOC_CORRECCION c
+  JOIN dbo.SOLICITUD_DOCUMENTO s ON s.ID_SOLICITUD = c.ID_SOLICITUD
+  JOIN dbo.DOCENTE d ON d.ID_DOCENTE = s.ID_DOCENTE
+  WHERE c.ESTATUS IN ('ABIERTA','EN_EDICION')
+    AND c.ID_DEP_DESTINO = :dep
+  ORDER BY c.CREATED_AT DESC
+");
+$sqlC->execute([':dep' => $depJefe]);
+$correcciones = $sqlC->fetchAll(PDO::FETCH_ASSOC);
+
 /* ✅ Obtener SIEMPRE el dep del jefe desde BD (evita caché de sesión) */
 $sqlDepJefe = "SELECT {$U['DEP']} AS dep FROM $tu WHERE {$U['ID']} = :uid";
 $stmt = $pdo->prepare($sqlDepJefe);
@@ -82,5 +106,25 @@ $rows = $stmt->fetchAll();
     <?php endforeach; ?>
     <?php if(!$rows): ?><li><em>Sin solicitudes ENVIADAS para tu filtro.</em></li><?php endif; ?>
     </ul>
+    <section class="card" style="padding:1rem;margin-top:1rem">
+  <h3 style="margin:0 0 8px">Correcciones pendientes (<?= count($correcciones) ?>)</h3>
+  <?php if (!$correcciones): ?>
+    <p><em>Sin correcciones para tu departamento.</em></p>
+  <?php else: ?>
+    <ul>
+      <?php foreach ($correcciones as $c): ?>
+        <li>
+          #<?= (int)$c['ID_SOLICITUD'] ?> · <?= htmlspecialchars($c['TIPO_DOCUMENTO']) ?> —
+          <?= htmlspecialchars(trim($c['NOMBRE_DOCENTE'].' '.$c['APELLIDO_PATERNO_DOCENTE'].' '.$c['APELLIDO_MATERNO_DOCENTE'])) ?>
+          — “<?= htmlspecialchars($c['MOTIVO']) ?>”
+          <a style="margin-left:8px"
+             href="/siged/public/index.php?action=corr_editar&id=<?= (int)$c['ID_SOLICITUD'] ?>">
+            Atender
+          </a>
+        </li>
+      <?php endforeach; ?>
+    </ul>
+  <?php endif; ?>
+</section>
   </main>
 </body></html>

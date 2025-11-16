@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Constancia Centro de Información</title>
+  <style>
+    body { font-family: DejaVu Sans, Arial, Helvetica, sans-serif; color:#111; font-size:12px; }
+    .enc { text-align:right; margin-bottom:6px; }
+    hr { border:0; border-top:1px solid #999; margin:6px 0 12px; }
+    .tit { text-align:center; font-size:15px; font-weight:700; margin:4px 0 2px; }
+    .sub { text-align:center; font-size:12px; color:#333; margin-bottom:14px; }
+    .p { line-height:1.6; text-align:justify; margin:8px 0; }
+    .firmaGrid { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-top:26px; }
+    .firma { text-align:center; }
+    .firma img { height:70px; }
+    .pie { margin-top:12px; font-size:11px; color:#333; }
+  </style>
+</head>
+<body>
+
+  <div class="enc">
+    {lugar}, {fecha_corta}<br>
+    OFICIO No.: <strong>{oficio_no}</strong><br>
+    ASUNTO: <strong>Constancia</strong>
+  </div>
+  <hr>
+
+  <div class="tit">CONSTANCIA</div>
+  <div class="sub">Centro de Información</div>
+
+  <p class="p">
+    Por medio del presente se hace constar que la/el C. <strong>{nombre_docente}</strong>,
+    participó satisfactoriamente en las actividades realizadas como
+    <strong>{actividad}</strong> en el <strong>{periodo}</strong>, con número de dictamen
+    <strong>{dictamen}</strong>, atendiendo un total de <strong>{alumnos_total}</strong> alumnos,
+    de los cuales <strong>{alumnos_credito}</strong> obtuvieron su crédito complementario,
+    conforme a los lineamientos establecidos.
+  </p>
+
+  <p class="p">
+    Se extiende la presente en la ciudad de {lugar}, a los <strong>{fecha_larga}</strong>, para los fines que al
+    interesado(a) convengan.
+  </p>
+
+  <div class="firmaGrid">
+    <div class="firma">
+      <img src="{firma_jefe}" alt="Firma Jefe CI">
+      <div><strong>{nombre_jefe}</strong></div>
+      <div>Jefe(a) del Centro de Información</div>
+    </div>
+    <div class="firma">
+      <!-- Vo.Bo. impreso (sin validación en sistema) -->
+      <img src="{firma_subdir}" alt="Firma Subdirección" />
+      <div><strong>{nombre_subdir}</strong></div>
+      <div>Vo.Bo. Subdirección Académica</div>
+    </div>
+  </div>
+
+  <div class="pie">
+    Folio: <strong>{folio}</strong> &nbsp; | &nbsp; Verificación: {url_verificacion}
+  </div>
+
+</body>
+</html>

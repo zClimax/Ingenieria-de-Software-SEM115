@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Constancia de Carga Académica</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: DejaVu Sans, Arial, Helvetica, sans-serif; font-size: 10px; color: #111; }
+    .encabezado { text-align: right; margin-bottom: 8px; }
+    .titulo     { text-align: center; font-weight: 700; margin: 10px 0 14px; font-size: 12px; letter-spacing: .5px; }
+    .bloque     { margin: 10px 0 14px; line-height: 1.5; }
+    .label      { color:#444; }
+    hr { border:0; border-top:1px solid #999; margin: 8px 0 10px; }
+
+    h3 { font-size: 11px; margin: 14px 0 6px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+    th, td { padding: 6px 8px; border: 1px solid #e5e7eb; }
+    th { background: #f5f7fa; text-align: left; font-weight: 600; }
+    td.num { text-align: center; white-space: nowrap; }
+
+    .totales { margin-top: 6px; }
+    .firmas  { text-align:center; margin-top: 28px; }
+    .firma-img { height: 70px; }
+    .nota { color:#555; font-size: 10px; margin-top: 8px; }
+    .pie  { margin-top: 12px; font-size: 11px; color:#333; }
+  </style>
+</head>
+<body>
+
+  <div class="encabezado">{lugar_fecha}</div>
+  <hr>
+
+  <div class="titulo">CONSTANCIA DE CARGA ACADÉMICA</div>
+
+  <div class="bloque">
+    El que suscribe, Jefe del Departamento de <strong>{nombre_departamento}</strong>, hace constar que la persona que a continuación se indica
+    cumple con la carga académica correspondiente a los periodos señalados.
+  </div>
+
+  <div class="bloque">
+    <div><span class="label">Docente:</span> <strong>{nombre_docente}</strong></div>
+    <div>
+      <span class="label">RFC:</span> {rfc_docente}
+      &nbsp;&nbsp;&nbsp; <span class="label">CURP:</span> {curp_docente}
+    </div>
+    <div>
+      <span class="label">Nombramiento:</span> {nombramiento}
+      &nbsp;&nbsp;&nbsp; <span class="label">Horas base:</span> {horas_base}
+      &nbsp;&nbsp;&nbsp; <span class="label">Antigüedad:</span> {antiguedad_texto}
+    </div>
+  </div>
+
+  <!-- Periodo 1 -->
+  <h3>ENERO – JUNIO {anio_anterior}</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Asignatura / Actividad</th>
+        <th>Nivel</th>
+        <th>Grupo</th>
+        <th class="num">H/sem</th>
+        <th class="num">Total horas</th>
+      </tr>
+    </thead>
+    <tbody>
+      {filas_tabla_2024_1}
+    </tbody>
+  </table>
+
+  <!-- Periodo 2 -->
+  <h3>AGOSTO – DICIEMBRE {anio_anterior}</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Asignatura / Actividad</th>
+        <th>Nivel</th>
+        <th>Grupo</th>
+        <th class="num">H/sem</th>
+        <th class="num">Total horas</th>
+      </tr>
+    </thead>
+    <tbody>
+      {filas_tabla_2024_2}
+    </tbody>
+  </table>
+
+
+  <div class="totales">
+    <strong>Total horas frente a grupo:</strong> {tot_horas_fg}
+    &nbsp;&nbsp;&nbsp; <strong>Total global:</strong> {tot_horas_global}
+  </div>
+
+  <div class="firmas">
+    <!-- Imagen de firma del Jefe de Departamento (PNG con fondo transparente) -->
+    <div>
+      <img src="{firma_jefe_depto}" class="firma-img" alt="Firma Jefe de Departamento">
+    </div>
+    <div><strong>{nombre_jefe_depto}</strong><br>JEFE DEL DEPARTAMENTO ACADÉMICO</div>
+  </div>
+
+  <div class="nota">
+    Esta constancia se expide para los fines administrativos que al interesado convengan.
+  </div>
+
+  <div class="pie">
+    Folio: <strong>{folio}</strong>
+    &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;
+    Verificación: <span>{url_verificacion}</span>
+  </div>
+
+</body>
+</html>

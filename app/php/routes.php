@@ -7,20 +7,20 @@ function route(string $action): void {
     case 'logout':  require __DIR__ . '/auth/logout.php'; break;
 
     // ===== Docente =====
-    case 'home_docente':
+      case 'home_docente':
       require __DIR__ . '/utils/roles.php';
       requireRole(['DOCENTE']);
       require __DIR__ . '/docente/home_docente.php';  // << usa la versión nueva
       break;
 
 // === Firma del Docente ===
-case 'doc_firma':
+  case 'doc_firma':
   require __DIR__ . '/utils/roles.php';
   requireRole(['DOCENTE']);
   require __DIR__ . '/docente/firma.php';
   break;
 
-case 'doc_firma_guardar':
+  case 'doc_firma_guardar':
   require __DIR__ . '/utils/roles.php';
   requireRole(['DOCENTE']);
   require __DIR__ . '/docente/doc_firma_guardar.php';
@@ -49,9 +49,16 @@ case 'doc_firma_guardar':
     case 'jefe_bandeja':  require __DIR__ . '/utils/roles.php'; requireRole(['JEFE_DEPARTAMENTO']); require __DIR__ . '/solicitudes/jefe_bandeja.php'; break;
     case 'jefe_ver':      require __DIR__ . '/utils/roles.php'; requireRole(['JEFE_DEPARTAMENTO']); require __DIR__ . '/solicitudes/jefe_ver.php'; break;
     case 'jefe_decidir':  require __DIR__ . '/utils/roles.php'; requireRole(['JEFE_DEPARTAMENTO']); require __DIR__ . '/solicitudes/jefe_decidir.php'; break;
+    case 'ci_guardar':  require __DIR__ . '/utils/roles.php'; requireRole(['JEFE_DEPARTAMENTO']); require __DIR__ . '/solicitudes/ci_guardar.php'; break;
     case 'doc_pdf': require __DIR__ . '/docente/pdf_generar.php'; break;
-    // ===== PDF demo =====
-    case 'pdf_demo': require __DIR__ . '/utils/roles.php'; requireLogin(); require __DIR__ . '/../../pdf/plantillas/demo_tcpdf.php'; break;
+
+    // DOCENTE: solicitar corrección (solo si ESTADO=APROBADA)
+    case 'sol_corr_new':     require __DIR__ . '/solicitudes/corr_new.php'; break;
+    case 'sol_corr_guardar': require __DIR__ . '/solicitudes/corr_guardar.php'; break;
+
+
+       // ===== PDF demo =====
+         case 'pdf_demo': require __DIR__ . '/utils/roles.php'; requireLogin(); require __DIR__ . '/../../pdf/plantillas/demo_tcpdf.php'; break;
       
         // ===== Convocatoria (modal) =====
         case 'conv_get':  require __DIR__ . '/convocatoria/get.php';  break;
@@ -76,6 +83,10 @@ case 'doc_firma_guardar':
       require __DIR__ . '/usuarios/jefe_home_data.php'; 
       break;
 
+
+    
+
+
       // --- Firma del Jefe ---
   case 'jefe_firma_guardar':
   require __DIR__ . '/utils/roles.php';
@@ -89,7 +100,11 @@ case 'doc_firma_guardar':
       require __DIR__ . '/usuarios/home_jefe.php';
       break;
 
-  
+  // JEFE: atender corrección
+  case 'corr_editar':  require __DIR__ . '/solicitudes/corr_editar.php'; break;
+  case 'corr_aplicar': require __DIR__ . '/solicitudes/corr_aplicar.php'; break;
+  case 'dep_guardar': require __DIR__ . '/solicitudes/dep_guardar.php'; break;
+
       
       // JEFE · Tickets
     case 'tkj_list':     require __DIR__ . '/utils/roles.php'; requireRole(['JEFE_DEPARTAMENTO']); require __DIR__ . '/tickets_jefe/list.php'; break;
@@ -98,8 +113,7 @@ case 'doc_firma_guardar':
     case 'tkj_comentar': require __DIR__ . '/utils/roles.php'; requireRole(['JEFE_DEPARTAMENTO']); require __DIR__ . '/tickets_jefe/comentar.php'; break;
     case 'tkj_estado':   require __DIR__ . '/utils/roles.php'; requireRole(['JEFE_DEPARTAMENTO']); require __DIR__ . '/tickets_jefe/estado.php'; break;
     
-
-
+   
 
 
     default:

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Constancia de Recurso Educativo Digital</title>
+</head>
+<body style="font-family: helvetica; font-size:11pt; color:#000;">
+
+  <!-- Encabezado con logos (opcionales) -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:6pt;">
+    <tr>
+      <td width="50%" align="left">
+        <!-- si no tienes logos aún, deja {logo_sep} vacío y no se mostrará -->
+        <img src="{logo_sep}" style="width:210px; height:auto;" />
+      </td>
+      <td width="50%" align="right">
+        <img src="{logo_tecnm}" style="width:170px; height:auto;" />
+      </td>
+    </tr>
+  </table>
+
+  <div style="border-top:1px solid #000; height:0; margin:2pt 0 12pt 0;"></div>
+
+  <!-- Sellos / asunto -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:10pt;">
+    <tr>
+      <td width="60%" style="font-size:10pt; color:#000;">
+        <div style="font-weight:600; letter-spacing:.5px;">CONSTANCIA</div>
+      </td>
+      <td width="40%" align="right" style="font-size:10pt;">
+        <div>{CIUDAD}, {FECHA_LARGA}</div>
+        <div><strong>ASUNTO:</strong> Constancia</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Título -->
+  <div style="font-weight:700; font-size:16pt; color:#000; margin:0 0 10pt 0;">
+    Constancia de Recurso Educativo Digital
+  </div>
+
+  <!-- Cuerpo -->
+  <p style="text-align:justify; line-height:1.45; margin:0 0 10pt 0;">
+    La que suscribe, Jefa(e) de <strong>{DEPTO_NOMBRE}</strong>, hace constar que el(a) C.
+    <strong>{DOCENTE_NOMBRE}</strong> elaboró un recurso educativo digital para la asignatura
+    <strong>{ASIGNATURA}</strong>, correspondiente al programa educativo
+    <strong>{PROGRAMA}</strong>, mismo que fue aprobado y utilizado en la academia.
+  </p>
+
+  <p style="text-align:justify; line-height:1.45; margin:0 0 10pt 0;">
+    Se expide la presente para los fines que al(la) interesado(a) convengan.
+  </p>
+
+  <p style="margin:0 0 18pt 0;">Excelencia en Educación Tecnológica®</p>
+
+  <!-- Firma -->
+  <div style="text-align:center; margin:0 0 4pt 0;">
+    {path_firma_jefe_img}
+  </div>
+  <div style="text-align:center; font-size:10.5pt; margin:2pt 0 0 0;">
+    <div style="margin-top:2pt;">{JEFE_NOMBRE}</div>
+    <div style="margin-top:1pt;">Jefa(e) del {DEPTO_NOMBRE}</div>
+  </div>
+
+  <div style="border-top:1px solid #000; height:0; margin:18pt 0 8pt 0;"></div>
+
+  <!-- Pie -->
+  <div style="font-size:9pt; color:#000;">
+    <div>Folio: <strong>{folio}</strong></div>
+    <div>Verificación: {url_verificacion}</div>
+  </div>
+
+</body>
+</html>

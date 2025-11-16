@@ -10,6 +10,17 @@ $user = (array)(Session::user() ?? []);
 $uid  = (int)($user['id'] ?? 0);
 if ($uid <= 0) { http_response_code(403); exit('Sesión inválida'); }
 
+// ===== Helpers
+function corrOpen(PDO $pdo, int $idSol): bool {
+  $q = $pdo->prepare("SELECT 1
+                      FROM dbo.DOC_CORRECCION
+                      WHERE ID_SOLICITUD=:id AND ESTATUS IN('ABIERTA','EN_EDICION')");
+  $q->execute([':id'=>$idSol]);
+  return (bool)$q->fetchColumn();
+}
+
+
+
 $sql = "
 SELECT
   S.ID_SOLICITUD         AS id,
@@ -163,7 +174,12 @@ function chipTipo(string $t): array {
                       <a class="link" href="/siged/public/index.php?action=sol_editar&id=<?= $id ?>">Editar</a>
                     <?php elseif (strtoupper($eText)==='APROBADA'): ?>
                       <a class="link" href="/siged/public/index.php?action=doc_pdf&id=<?= $id ?>">Generar / Ver PDF</a>
-                    <?php endif; ?>
+                      <?php if (!corrOpen($pdo, $id)): ?>
+            · <a href="/siged/public/index.php?action=sol_corr_new&id=<?= $id ?>">Solicitar corrección</a>
+          <?php else: ?>
+            · <span style="background:#FEF3C7;color:#92400E;padding:2px 6px;border-radius:6px;font-size:12px">Corrección en proceso</span>
+          <?php endif; ?>
+                    <?php endif; ?>   
                   </td>
                 </tr>
                 <?php if ($coment): ?>

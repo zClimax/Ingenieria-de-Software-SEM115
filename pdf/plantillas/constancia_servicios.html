@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Constancia de Servicios Escolares</title>
+  <style>
+    body { font-family: DejaVu Sans, Arial, Helvetica, sans-serif; color:#111; font-size:12px; }
+    .enc { text-align:right; margin-bottom:8px; }
+    .tit { text-align:center; font-size:15px; font-weight:700; margin:8px 0 12px; }
+    .sub { text-align:center; font-size:12px; color:#333; margin-top:-6px; margin-bottom:10px; }
+    .p   { line-height:1.55; margin:8px 0; text-align:justify; }
+    hr { border:0; border-top:1px solid #999; margin:6px 0 10px; }
+
+    table { width:100%; border-collapse:collapse; margin-top:6px; }
+    th, td { border:1px solid #444; padding:5px 6px; }
+    th { background:#f2f2f2; font-weight:700; font-size:11px; text-align:center; }
+    td { font-size:11px; }
+    .right { text-align:right; }
+    .center { text-align:center; }
+    .total-row td { font-weight:700; }
+
+    .firma { text-align:center; margin-top:28px; }
+    .firma img { height:70px; }
+    .pie { margin-top:10px; font-size:11px; color:#333; }
+  </style>
+</head>
+<body>
+
+  <div class="enc">{lugar_fecha}</div>
+  <hr>
+
+  <div class="tit">CONSTANCIA</div>
+  <div class="sub">Depto. de Servicios Escolares</div>
+
+  <p class="p">
+    La que suscribe, Titular del <strong>Departamento de Servicios Escolares</strong>,
+    hace constar que según los registros existentes en el archivo escolar, la C. / el C.
+    <strong>{nombre_docente}</strong>, expediente <strong>{expediente}</strong>,
+    impartió las siguientes materias durante los periodos indicados del año <strong>{anio}</strong>:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>PERIODO</th>
+        <th>NIVEL</th>
+        <th>CLAVE DE LA MATERIA</th>
+        <th>NOMBRE DE LA MATERIA</th>
+        <th>ALUMNOS ATENDIDOS</th>
+      </tr>
+    </thead>
+    <tbody>
+      {filas_tabla}
+      <tr class="total-row">
+        <td colspan="4" class="right">Total</td>
+        <td class="center">{total_alumnos}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="p">
+    Se extiende la presente para los fines que convengan al interesado.
+  </p>
+
+  <div class="firma">
+    <img src="{firma_jefe}" alt="Firma">
+    <div><strong>{nombre_jefe}</strong></div>
+    <div>Titular del Departamento de Servicios Escolares</div>
+  </div>
+
+  <div class="pie">
+    Folio: <strong>{folio}</strong> &nbsp; | &nbsp; Verificación: {url_verificacion}
+  </div>
+
+</body>
+</html>
