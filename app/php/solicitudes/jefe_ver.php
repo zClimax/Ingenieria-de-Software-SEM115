@@ -54,6 +54,15 @@ if (($sol['TIPO_DOCUMENTO'] ?? '') === 'ACI') {
 if (($sol['tipo'] ?? '') === 'RED') {
   require __DIR__ . '/dep_form.php';
 }
+
+  if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'ESTR') {
+    require __DIR__ . '/estr_mount.php';
+  }
+
+   if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'TUT') {
+    require __DIR__ . '/tut_mount.php';
+  } 
+  
 ?>
     <h3>Decisión</h3>
     <form method="post" action="/siged/public/index.php?action=jefe_decidir">

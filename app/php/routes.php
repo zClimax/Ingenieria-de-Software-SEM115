@@ -104,7 +104,10 @@ function route(string $action): void {
   case 'corr_editar':  require __DIR__ . '/solicitudes/corr_editar.php'; break;
   case 'corr_aplicar': require __DIR__ . '/solicitudes/corr_aplicar.php'; break;
   case 'dep_guardar': require __DIR__ . '/solicitudes/dep_guardar.php'; break;
+  case 'estr_guardar': require __DIR__ . '/solicitudes/estr_guardar.php'; break;
 
+
+  case 'tut_guardar':  require __DIR__ . '/solicitudes/tut_guardar.php'; break;
       
       // JEFE · Tickets
     case 'tkj_list':     require __DIR__ . '/utils/roles.php'; requireRole(['JEFE_DEPARTAMENTO']); require __DIR__ . '/tickets_jefe/list.php'; break;

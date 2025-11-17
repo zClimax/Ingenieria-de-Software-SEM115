@@ -553,6 +553,11 @@ if ($tipo === 'CVU') {
   $folio  = $row['FOLIO'] ?: ('CVU-'.date('Y').'-'.$sid);
   $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
 
+  $ASSETS = str_replace('\\','/', realpath($root.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
+
   // 6) Render HTML (reemplazo de placeholders)
   $html = file_get_contents($tpl);
   $repl = [
@@ -567,6 +572,12 @@ if ($tipo === 'CVU') {
     '{nombre_departamento}'=> $nombreDept,
   ];
   $html = strtr($html, $repl);
+
+  $html = str_replace(
+    ['{logo_sep}','{logo_tecnm}','{CIUDAD}','{FECHA_LARGA}'],
+    [$logoSep,     $logoTecNM,       $ciudad,  $fechaLarga],
+    $html
+  );
 
   // 7) Escribir al PDF
   $pdf->SetFont('helvetica','',11);
@@ -764,6 +775,12 @@ if ($tipo === 'ACI') {
   $folio  = $row['FOLIO'] ?: ('ACI-'.date('Y').'-'.$sid);
   $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
 
+  // Rutas de logos (opcionales)
+$ASSETS = str_replace('\\','/', realpath($root.'/pdf/assets'));
+$logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+$logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
+
   // 6) Reemplazos
   $html = file_get_contents($tpl);
   $repl = [
@@ -784,9 +801,17 @@ if ($tipo === 'ACI') {
     '{folio}'            => $folio,
     '{url_verificacion}' => $urlVer,
   ];
+
+  $html = str_replace(
+    ['{logo_sep}','{logo_tecnm}','{CIUDAD}','{FECHA_LARGA}'],
+    [$logoSep,     $logoTecNM,                 $ciudad,  $fechaLarga],
+    $html
+  );
+
   $html = strtr($html, $repl);
 
   // 7) Render y persistencia
+  $pdf->SetMargins(22, 0, 22);
   $pdf->SetFont('helvetica','',11);
   $pdf->writeHTML($html, true, false, true, false, '');
 
@@ -966,6 +991,199 @@ if ($tipo === 'RED') {
 }
 
   
+/* ================= ESTR · Estrategias Didácticas ================= */
+if ($tipo === 'ESTR') {
+  $idSol = (int)($_GET['id'] ?? $_REQUEST['id'] ?? 0);
+  if ($idSol <= 0) { http_response_code(400); exit('ID inválido'); }
+
+  // Docente + depto aprobador
+  $st = $pdo->prepare("
+    SELECT S.ID_SOLICITUD, S.ID_DOCENTE, S.ID_DEPARTAMENTO_APROBADOR, S.FOLIO,
+           D.NOMBRE_DOCENTE, D.APELLIDO_PATERNO_DOCENTE, D.APELLIDO_MATERNO_DOCENTE
+    FROM dbo.SOLICITUD_DOCUMENTO S
+    JOIN dbo.DOCENTE D ON D.ID_DOCENTE = S.ID_DOCENTE
+    WHERE S.ID_SOLICITUD = :id
+  ");
+  $st->execute([':id'=>$idSol]);
+  $cab = $st->fetch(PDO::FETCH_ASSOC);
+  if (!$cab) { http_response_code(404); exit('Solicitud no encontrada'); }
+
+  $depApr    = (int)$cab['ID_DEPARTAMENTO_APROBADOR'];
+  $nombreDoc = trim(($cab['NOMBRE_DOCENTE'] ?? '').' '.($cab['APELLIDO_PATERNO_DOCENTE'] ?? '').' '.($cab['APELLIDO_MATERNO_DOCENTE'] ?? ''));
+
+  // Datos capturados por Jefe
+  $r = $pdo->prepare("SELECT TOP 1 * FROM dbo.DOC_DEP_ESTRAT WHERE ID_SOLICITUD=:id ORDER BY ID_ESTRAT DESC");
+  $r->execute([':id'=>$idSol]);
+  $estr = $r->fetch(PDO::FETCH_ASSOC) ?: ['ASIGNATURA'=>'','ESTRATEGIA'=>'','PROGRAMA_EDUCATIVO'=>'','LUGAR'=>'Culiacán, Sinaloa','FECHA_EMISION'=>null];
+
+  // Dept & jefe
+  $depNombre = (string)$pdo->query("SELECT NOMBRE_DEPARTAMENTO FROM dbo.DEPARTAMENTO WHERE ID_DEPARTAMENTO={$depApr}")->fetchColumn();
+  $jefeNombre = (string)$pdo->query("SELECT TOP 1 NOMBRE_COMPLETO FROM dbo.USUARIOS WHERE ID_ROL=2 AND ID_DEPARTAMENTO={$depApr} AND ACTIVO=1 ORDER BY COALESCE(FECHA_FIRMA,'1900-01-01') DESC, ID_USUARIO DESC")->fetchColumn();
+
+  // firma absoluta
+  if (!function_exists('siged_firma_abs_path')) require_once __DIR__ . '/../../pdf/firma_pdf.php';
+  $idJefe = (int)$pdo->query("SELECT TOP 1 ID_USUARIO FROM dbo.USUARIOS WHERE ID_ROL=2 AND ID_DEPARTAMENTO={$depApr} AND ACTIVO=1 ORDER BY COALESCE(FECHA_FIRMA,'1900-01-01') DESC, ID_USUARIO DESC")->fetchColumn();
+  $firmaAbs = $idJefe ? siged_firma_abs_path($pdo,$idJefe) : '';
+
+  // PDF cosmetics
+  $pdf->SetTextColor(0,0,0);
+  $pdf->SetDrawColor(0,0,0);
+  $pdf->SetLineWidth(0.25);
+  $pdf->SetMargins(22,18,22);
+  $pdf->SetAutoPageBreak(true,18);
+
+  $root   = str_replace('\\','/', realpath(__DIR__.'/../../..'));
+  $tpl    = $root.'/pdf/plantillas/constancia_estrategia.html';
+  $ASSETS = str_replace('\\','/', realpath($root.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
+  $html = file_exists($tpl) ? file_get_contents($tpl) : '<p>Plantilla no disponible.</p>';
+
+  $fechaEmi = $estr['FECHA_EMISION'] ? (new DateTime($estr['FECHA_EMISION']))->format('d/m/Y') : date('d/m/Y');
+  $firmaTag = ($firmaAbs && is_readable($firmaAbs))
+    ? '<img src="'.htmlspecialchars($firmaAbs,ENT_QUOTES,'UTF-8').'" style="width:190px;height:auto;display:inline-block;" />'
+    : '';
+
+  // folio y verificación
+  $folio  = $cab['FOLIO'] ?: ('ESTR-'.date('Y').'-'.$idSol);
+  $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
+
+  $repl = [
+    '{logo_sep}'            => $logoSep,
+    '{logo_tecnm}'          => $logoTecNM,
+    '{CIUDAD}'              => ($estr['LUGAR'] ?: 'Culiacán, Sinaloa'),
+    '{FECHA_LARGA}'         => $fechaLarga,
+    '{DOCENTE_NOMBRE}'      => $nombreDoc,
+    '{ASIGNATURA}'          => (string)$estr['ASIGNATURA'],
+    '{ESTRATEGIA}'          => (string)$estr['ESTRATEGIA'],
+    '{PROGRAMA}'            => (string)$estr['PROGRAMA_EDUCATIVO'],
+    '{DEPTO_NOMBRE}'        => ($depNombre ?: 'Departamento'),
+    '{JEFE_NOMBRE}'         => ($jefeNombre ?: 'Jefe de Departamento'),
+    '{path_firma_jefe_img}' => $firmaTag,
+    '{folio}'               => $folio,
+    '{url_verificacion}'    => $urlVer,
+  ];
+  $html = strtr($html, $repl);
+
+  $pdf->writeHTML($html, true, false, true, false, '');
+
+  // Guardar y servir
+  $absOut = $root.'/storage/pdfs/SOL_'.$idSol.'_ESTR.pdf';
+  if (!is_dir(dirname($absOut))) @mkdir(dirname($absOut),0777,true);
+  $pdf->Output($absOut,'F');
+
+  $webPath = '/siged/storage/pdfs/'.basename($absOut);
+  $pdo->prepare("UPDATE dbo.SOLICITUD_DOCUMENTO SET RUTA_PDF=:p WHERE ID_SOLICITUD=:id")
+      ->execute([':p'=>$webPath, ':id'=>$idSol]);
+
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: inline; filename="'.basename($absOut).'"');
+  readfile($absOut);
+  exit;
+}
+
+/* ================= TUT · Tutorados (Servicios Escolares) ================= */
+if ($tipo === 'TUT') {
+  $idSol = (int)($_GET['id'] ?? $_REQUEST['id'] ?? 0);
+  if ($idSol <= 0) { http_response_code(400); exit('ID inválido'); }
+
+  // Cabecera: docente + aprobador
+  $st = $pdo->prepare("
+    SELECT S.ID_SOLICITUD, S.ID_DOCENTE, S.ID_DEPARTAMENTO_APROBADOR, S.FOLIO,
+           D.NOMBRE_DOCENTE, D.APELLIDO_PATERNO_DOCENTE, D.APELLIDO_MATERNO_DOCENTE,
+           D.MATRICULA, D.CLAVE_EMPLEADO
+    FROM dbo.SOLICITUD_DOCUMENTO S
+    JOIN dbo.DOCENTE D ON D.ID_DOCENTE = S.ID_DOCENTE
+    WHERE S.ID_SOLICITUD = :id
+  ");
+  $st->execute([':id'=>$idSol]);
+  $cab = $st->fetch(PDO::FETCH_ASSOC);
+  if (!$cab) { http_response_code(404); exit('Solicitud no encontrada'); }
+
+  $depApr    = (int)$cab['ID_DEPARTAMENTO_APROBADOR']; // debe ser 14
+  $nombreDoc = trim(($cab['NOMBRE_DOCENTE'] ?? '').' '.($cab['APELLIDO_PATERNO_DOCENTE'] ?? '').' '.($cab['APELLIDO_MATERNO_DOCENTE'] ?? ''));
+  $exped     = (string)($cab['MATRICULA'] ?: $cab['CLAVE_EMPLEADO'] ?: '—');
+
+  // Datos guardados por Jefe
+  $r = $pdo->prepare("
+    SELECT TOP 1 TUT_EJ_2024, TUT_AD_2024, LUGAR, FECHA_EMISION
+    FROM dbo.DOC_SE_TUTORADOS
+    WHERE ID_SOLICITUD=:id
+    ORDER BY ID_TUT DESC
+  ");
+  $r->execute([':id'=>$idSol]);
+  $tu = $r->fetch(PDO::FETCH_ASSOC) ?: ['TUT_EJ_2024'=>0,'TUT_AD_2024'=>0,'LUGAR'=>'Culiacán, Sinaloa','FECHA_EMISION'=>null];
+
+  // Jefa(e) Servicios Escolares y firma
+  if (!function_exists('siged_firma_abs_path')) require_once __DIR__ . '/../../pdf/firma_pdf.php';
+  $jefeNombre = (string)$pdo->query("
+    SELECT TOP 1 NOMBRE_COMPLETO
+    FROM dbo.USUARIOS
+    WHERE ID_ROL=2 AND ID_DEPARTAMENTO=14 AND ACTIVO=1
+    ORDER BY COALESCE(FECHA_FIRMA,'1900-01-01') DESC, ID_USUARIO DESC
+  ")->fetchColumn();
+  $idJefe = (int)$pdo->query("
+    SELECT TOP 1 ID_USUARIO
+    FROM dbo.USUARIOS
+    WHERE ID_ROL=2 AND ID_DEPARTAMENTO=14 AND ACTIVO=1
+    ORDER BY COALESCE(FECHA_FIRMA,'1900-01-01') DESC, ID_USUARIO DESC
+  ")->fetchColumn();
+  $firmaAbs = $idJefe ? siged_firma_abs_path($pdo,$idJefe) : '';
+
+  // PDF cosmetics
+  $pdf->SetTextColor(0,0,0);
+  $pdf->SetDrawColor(0,0,0);
+  $pdf->SetLineWidth(0.25);
+  $pdf->SetMargins(22,18,22);
+  $pdf->SetAutoPageBreak(true,18);
+
+  $root   = str_replace('\\','/', realpath(__DIR__.'/../../..'));
+  $tpl    = $root.'/pdf/plantillas/tutorados.html';
+  $ASSETS = str_replace('\\','/', realpath($root.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+
+  $html = file_exists($tpl) ? file_get_contents($tpl) : '<p>Plantilla no disponible.</p>';
+
+  $fechaTxt = $tu['FECHA_EMISION'] ? (new DateTime($tu['FECHA_EMISION']))->format('d/m/Y') : date('d/m/Y');
+  $firmaTag = ($firmaAbs && is_readable($firmaAbs))
+    ? '<img src="'.htmlspecialchars($firmaAbs,ENT_QUOTES,'UTF-8').'" style="width:190px;height:auto;display:inline-block;" />'
+    : '';
+
+  $folio  = $cab['FOLIO'] ?: ('TUT-'.date('Y').'-'.$idSol);
+  $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
+
+  // Reemplazos
+  $repl = [
+    '{logo_sep}'                  => $logoSep,
+    '{nombre_docente}'            => $nombreDoc,
+    '{expediente}'                => $exped,
+    '{tutorados_ene_jun_2024}'    => (string)(int)$tu['TUT_EJ_2024'],
+    '{tutorados_ago_dic_2024}'    => (string)(int)$tu['TUT_AD_2024'],
+    '{nombre_jefa_servicios}'     => ($jefeNombre ?: 'Jefa(e) de Servicios Escolares'),
+    // (Si tu HTML usa lugar/fecha, puedes añadirlos en la plantilla y reemplazarlos aquí)
+  ];
+  $html = strtr($html, $repl);
+
+  $pdf->writeHTML($html, true, false, true, false, '');
+
+  // Guardar y servir
+  $absOut = $root.'/storage/pdfs/SOL_'.$idSol.'_TUT.pdf';
+  if (!is_dir(dirname($absOut))) @mkdir(dirname($absOut),0777,true);
+  $pdf->Output($absOut,'F');
+
+  $webPath = '/siged/storage/pdfs/'.basename($absOut);
+  $pdo->prepare("UPDATE dbo.SOLICITUD_DOCUMENTO SET RUTA_PDF=:p WHERE ID_SOLICITUD=:id")
+      ->execute([':p'=>$webPath, ':id'=>$idSol]);
+
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: inline; filename="'.basename($absOut).'"');
+  readfile($absOut);
+  exit;
+}
+
+
+
 
 
 else {

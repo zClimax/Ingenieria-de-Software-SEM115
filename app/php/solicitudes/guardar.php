@@ -50,6 +50,17 @@ if ($tipo === 'RED' && $depApr !== $depDoc) {
   $depApr = $depDoc;
 }
 
+if ($tipo === 'ESTR') {
+  // depto del usuario que abre la solicitud
+  $depAprob = (int)($docRow['ID_DEPARTAMENTO'] ?? 0);
+}
+
+$depAprob = null;
+if ($tipo === 'TUT') {
+  $depAprob = 14; // Servicios Escolares
+}
+
+
 // 6) Crear solicitud en BORRADOR con aprobador fijo
 $sql = $pdo->prepare("
   INSERT INTO dbo.SOLICITUD_DOCUMENTO

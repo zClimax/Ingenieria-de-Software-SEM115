@@ -15,6 +15,7 @@
     .firma img { height:70px; }
     .pie { margin-top:12px; font-size:11px; color:#333; }
   </style>
+
 </head>
 <body>
 
@@ -24,7 +25,18 @@
     ASUNTO: <strong>Constancia</strong>
   </div>
   <hr>
-
+    <!-- Encabezado con logos (opcionales) -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:6pt;">
+      <tr>
+        <td width="50%" align="left">
+          <!-- si no tienes logos aún, deja {logo_sep} vacío y no se mostrará -->
+          <img src="{logo_sep}" style="width:150px; height:auto;" />
+        </td>
+        <td width="50%" align="right">
+          <img src="{logo_tecnm}" style="width:130px; height:auto;" />
+        </td>
+      </tr>
+    </table>
   <div class="tit">CONSTANCIA</div>
   <div class="sub">Centro de Información</div>
 
@@ -48,17 +60,9 @@
       <div><strong>{nombre_jefe}</strong></div>
       <div>Jefe(a) del Centro de Información</div>
     </div>
-    <div class="firma">
-      <!-- Vo.Bo. impreso (sin validación en sistema) -->
-      <img src="{firma_subdir}" alt="Firma Subdirección" />
-      <div><strong>{nombre_subdir}</strong></div>
-      <div>Vo.Bo. Subdirección Académica</div>
-    </div>
-  </div>
 
   <div class="pie">
     Folio: <strong>{folio}</strong> &nbsp; | &nbsp; Verificación: {url_verificacion}
   </div>
-
 </body>
 </html>

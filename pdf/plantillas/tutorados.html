@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: 'helvetica'; font-size: 11pt; }
+  img.logo-sep { position: absolute; top: 15px; left: 25px; height: 65px; }
+  h3 { text-align: center; font-weight: bold; margin-top: 90px; }
+  table { border-collapse: collapse; width: 70%; margin: 20px auto; font-size: 10pt; }
+  th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+  th { background-color: #f0f0f0; }
+  p { text-align: justify; }
+  .firma { text-align: center; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<img src="{logo_sep}" class="logo-sep">
+
+<h3>INSTITUTO TECNOLÓGICO DE CULIACÁN</h3>
+<p align="right"><b>Depto. de Servicios Escolares</b></p>
+<p align="right"><b>Asunto: Constancia.</b></p>
+<br><br>
+
+<p align="center"><b>COMISIÓN DE EVALUACIÓN DEL TECNM<br>
+PROGRAMA DE ESTÍMULOS AL DESEMPEÑO DEL PERSONAL DOCENTE<br>
+DE LOS INSTITUTOS TECNOLÓGICOS FEDERALES Y CENTROS</b></p>
+
+<p align="center"><b>P R E S E N T E .-</b></p>
+<br>
+
+<p>
+La que suscribe, hace constar que según registros que existen en el archivo escolar, la C. 
+<b>{nombre_docente}</b>, expediente <b>{expediente}</b>, atendió grupos de tutorados durante los periodos Enero-Junio y Agosto-Diciembre del año 2024, como se indica a continuación:
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Tutorados Ene-Jun 2024</th>
+      <th>Tutorados Ago-Dic 2024</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{tutorados_ene_jun_2024}</td>
+      <td>{tutorados_ago_dic_2024}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+Se extiende la presente, en la ciudad de Culiacán, Sinaloa, a los nueve días del mes de junio de dos mil veinticinco, 
+para los fines que más convengan al interesado.
+</p>
+
+<div class="firma">
+  <p><b>ATENTAMENTE</b></p>
+  <br><br>
+  <p><b>{nombre_jefa_servicios}</b><br>JEFA DEL DEPTO. DE SERVICIOS ESCOLARES</p>
+</div>
+
+</body>
+</html>

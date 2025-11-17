@@ -155,6 +155,7 @@ Session::start();
             <div class="pill"><strong>FECHA DE INGRESO:</strong> <span id="docIngreso">—</span></div>
             <div class="pill"><strong>RFC:</strong> <span id="docRfc">—</span></div>
             <div class="pill"><strong>MATRÍCULA:</strong> <span id="docMatricula">—</span></div>
+            <div class="pill"><strong>GRADO DE ESTUDIOS:</strong> <span id="docGrado">—</span></div>
           </div>
         </div>
       <div class = "section">
@@ -205,6 +206,8 @@ fetch(base + '?action=doc_home_data', { credentials:'same-origin' })
         document.getElementById('docIngreso').textContent  = d.fecha_ingreso || '—';
         document.getElementById('docRfc').textContent      = d.rfc || '—';
         document.getElementById('docMatricula').textContent= d.matricula || '—';
+        document.getElementById('docGrado').textContent = d.grado_texto || '—';
+
 
         // Barra
         const pct = Math.max(0, Math.min(100, pr.porcentaje|0));
