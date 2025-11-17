@@ -61,6 +61,13 @@ Session::start();
   </div>
 </div>
 
+<!-- BASE URL GLOBAL (una sola vez) -->
+<script>
+  window.SIGED_BASE = (location.pathname.includes('/public/index.php'))
+    ? location.pathname.replace(/\/public\/index\.php.*/,'') + '/public/index.php'
+    : location.pathname.replace(/index\.php.*/,'index.php');
+</script>
+
 <script>
 (function(){
   const modal   = document.getElementById('convModal');
@@ -75,10 +82,10 @@ Session::start();
 
   async function loadConv(){
     try{
-      const r = await fetch('/SIGED/public/index.php?action=conv_get', {credentials:'same-origin'});
+      const r = await fetch(SIGED_BASE + '?action=conv_get', {credentials:'same-origin'});
       const j = await r.json();
       if(!j.ok){ console.warn(j); return; }
-      if(!j.mostrar_modal){ return; } // nada que mostrar
+      if(!j.mostrar_modal){ return; }
 
       convId = Number(j.convocatoria?.id || 0);
       const clave = j.convocatoria?.clave || '';
@@ -102,13 +109,12 @@ Session::start();
     try{
       if(!convId){ closeModal(); return; }
       const fd = new FormData(); fd.append('id_convocatoria', String(convId));
-      const r = await fetch('/SIGED/public/index.php?action=conv_ack', { method:'POST', body:fd, credentials:'same-origin' });
+      const r = await fetch(SIGED_BASE + '?action=conv_ack', { method:'POST', body:fd, credentials:'same-origin' });
       const j = await r.json();
       if(j && j.ok){ closeModal(); }
     }catch(e){ console.error(e); closeModal(); }
   });
 
-  // Dispara al cargar el home
   document.addEventListener('DOMContentLoaded', loadConv);
 })();
 </script>
@@ -117,11 +123,11 @@ Session::start();
     <aside class="sidebar">
       <div class="brand"><span style="background:#fff;color:#0b1a52;border-radius:8px;padding:2px 6px;font-weight:900">S</span><span>SIGED</span></div>
       <nav class="menu">
-  <a href="/SIGED/public/index.php?action=sol_mis">Generador de actas</a>
-  <a href="/SIGED/public/index.php?action=home_docente" class="active">Usuario</a>
-  <a href="/SIGED/public/index.php?action=tk_list">Tickets</a>
-  <a href="/siged/public/index.php?action=doc_firma">Mi firma</a>
-    </nav>
+        <a href="/SIGED/public/index.php?action=sol_mis">Generador de actas</a>
+        <a href="/SIGED/public/index.php?action=home_docente" class="active">Usuario</a>
+        <a href="/SIGED/public/index.php?action=tk_list">Tickets</a>
+        <a href="/siged/public/index.php?action=doc_firma">Mi firma</a>
+      </nav>
       <div class="avatar-mini">
         <div class="pic"></div>
         <div style="font-size:12px" id="miniName">Docente</div>
@@ -133,96 +139,145 @@ Session::start();
         <div style="margin-left:18px"><a href="/SIGED/public/index.php?action=logout" class="btn">Salir</a></div>
       </div>
 
-      <div class="card">
-        <div class="section">
-          <div class="title-sec">Identificación</div>
-          <div class="id-row">
-            <div class="avatar">👤</div>
-            <div>
-              <div id="docNombre" style="font-weight:700;font-size:18px">—</div>
-              <div id="docRFC"    style="opacity:.8;margin-top:6px">—</div>
-              <div id="docCorreo" style="opacity:.8;margin-top:6px">—</div>
-              <div id="docDepto"  style="opacity:.8;margin-top:6px">—</div>
-            </div>
-          </div>
+      <div class="id-row">
+        <div class="avatar" id="docAvatar" style="background:#f8fafc center/cover no-repeat; position:relative;">
+          <span id="avatarFallback" style="font-size:54px;color:#94a3b8">👤</span>
         </div>
+        <div>
+          <div id="docNombre" style="font-weight:700;font-size:18px">—</div>
+          <div id="docRFC"    style="opacity:.8;margin-top:6px">—</div>
+          <div id="docCorreo" style="opacity:.8;margin-top:6px">—</div>
+          <div id="docDepto"  style="opacity:.8;margin-top:6px">—</div>
 
-        <div class="section">
-          <div class="title-sec">Datos personales</div>
-          <div class="grid">
-            <div class="pill"><strong>CLAVE DE EMPLEADO:</strong> <span id="docClave">—</span></div>
-            <div class="pill"><strong>NSS:</strong> <span id="docNss">—</span></div>
-            <div class="pill"><strong>FECHA DE INGRESO:</strong> <span id="docIngreso">—</span></div>
-            <div class="pill"><strong>RFC:</strong> <span id="docRfc">—</span></div>
-            <div class="pill"><strong>MATRÍCULA:</strong> <span id="docMatricula">—</span></div>
-            <div class="pill"><strong>GRADO DE ESTUDIOS:</strong> <span id="docGrado">—</span></div>
-          </div>
-        </div>
-      <div class = "section">
-        
-      </div>
-        <div class="section">
-          <div class="title-sec">Barra de progreso</div>
-          <div class="bar-wrap"><div class="bar" id="bar"></div></div>
-          <div class="bar-meta"><span id="ptsLabel">0 pts.</span> <span id="pctLabel">0%</span></div>
           <div style="margin-top:10px">
-          <button class="btn" id="btnHist">Histórico de convocatorias</button>
-        <script>
-        document.getElementById('btnHist').addEventListener('click', ()=>{
-         location.href = '/SIGED/public/index.php?action=doc_hist';
-        });
-        </script>
-
+            <button id="btnFoto" class="btn">Actualizar foto</button>
+            <input id="fileFoto" type="file" accept="image/*" style="display:none">
           </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title-sec">Datos personales</div>
+        <div class="grid">
+          <div class="pill"><strong>CLAVE DE EMPLEADO:</strong> <span id="docClave">—</span></div>
+          <div class="pill"><strong>NSS:</strong> <span id="docNss">—</span></div>
+          <div class="pill"><strong>FECHA DE INGRESO:</strong> <span id="docIngreso">—</span></div>
+          <div class="pill"><strong>RFC:</strong> <span id="docRfc">—</span></div>
+          <div class="pill"><strong>MATRÍCULA:</strong> <span id="docMatricula">—</span></div>
+          <div class="pill"><strong>GRADO DE ESTUDIOS:</strong> <span id="docGrado">—</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title-sec">Barra de progreso</div>
+        <div class="bar-wrap"><div class="bar" id="bar"></div></div>
+        <div class="bar-meta"><span id="ptsLabel">0 pts.</span> <span id="pctLabel">0%</span></div>
+        <div style="margin-top:10px">
+          <button class="btn" id="btnHist">Histórico de convocatorias</button>
+          <script>
+            document.getElementById('btnHist').addEventListener('click', ()=>{
+              location.href = '/SIGED/public/index.php?action=doc_hist';
+            });
+          </script>
         </div>
       </div>
     </main>
   </div>
-  <script>
-  (function(){
-    const base = location.pathname.includes('/public/index.php')
-  ? '/SIGED/public/index.php'  // si tu carpeta es SIGED (mayúsculas)
-  : (location.pathname.replace(/index\.php.*$/,'index.php'));
 
-fetch(base + '?action=doc_home_data', { credentials:'same-origin' })
-      .then(r=>r.json())
-      .then(data=>{
-        if(!data || !data.ok) { console.error(data); return; }
+<script>
+(function(){
+  const btnFoto  = document.getElementById('btnFoto');
+  const fileFoto = document.getElementById('fileFoto');
+  const avatar   = document.getElementById('docAvatar');
+  const fallback = document.getElementById('avatarFallback');
 
-        const d  = data.docente || {};
-        const pr = data.progreso || {puntos:0,max:300,porcentaje:0};
+  // Carga inicial de datos + pinta foto si existe
+  fetch(SIGED_BASE + '?action=doc_home_data', { credentials:'same-origin' })
+    .then(r=>r.json())
+    .then(data=>{
+      if(!data || !data.ok) { console.error(data); return; }
 
-        document.getElementById('miniName').textContent = d.nombre || 'Docente';
+      const d  = data.docente || {};
+      const pr = data.progreso || {puntos:0,max:300,porcentaje:0};
 
-        // Identificación
-        document.getElementById('docNombre').textContent = d.nombre || '—';
-        document.getElementById('docRFC').textContent    = d.rfc ? ('RFC: '+d.rfc) : '—';
-        document.getElementById('docCorreo').textContent = d.correo || '—';
-        document.getElementById('docDepto').textContent  = d.departamento || '—';
+      document.getElementById('miniName').textContent = d.nombre || 'Docente';
 
-        // Datos personales
-        document.getElementById('docClave').textContent    = d.clave_empleado || '—';
-        document.getElementById('docNss').textContent      = d.nss || '—';
-        document.getElementById('docIngreso').textContent  = d.fecha_ingreso || '—';
-        document.getElementById('docRfc').textContent      = d.rfc || '—';
-        document.getElementById('docMatricula').textContent= d.matricula || '—';
-        document.getElementById('docGrado').textContent = d.grado_texto || '—';
+      // Identificación
+      document.getElementById('docNombre').textContent = d.nombre || '—';
+      document.getElementById('docRFC').textContent    = d.rfc ? ('RFC: '+d.rfc) : '—';
+      document.getElementById('docCorreo').textContent = d.correo || '—';
+      document.getElementById('docDepto').textContent  = d.departamento || '—';
 
+      // Datos personales
+      document.getElementById('docClave').textContent     = d.clave_empleado || '—';
+      document.getElementById('docNss').textContent       = d.nss || '—';
+      document.getElementById('docIngreso').textContent   = d.fecha_ingreso || '—';
+      document.getElementById('docRfc').textContent       = d.rfc || '—';
+      document.getElementById('docMatricula').textContent = d.matricula || '—';
+      document.getElementById('docGrado').textContent     = d.grado_texto || '—';
 
-        // Barra
-        const pct = Math.max(0, Math.min(100, pr.porcentaje|0));
-        const bar = document.getElementById('bar');
-        bar.style.width = pct + '%';
-        document.getElementById('ptsLabel').textContent = (pr.puntos||0) + ' pts.';
-        document.getElementById('pctLabel').textContent = pct + '%';
+      // Foto (si viene URL)
+      if (d.foto_url) {
+        const bust = d.foto_url + (d.foto_url.includes('?') ? '&' : '?') + 'v=' + Date.now();
+        avatar.style.backgroundImage = `url('${bust}')`;
+        if (fallback) fallback.style.display = 'none';
+      }
 
-    // Botón histórico
-    document.getElementById('btnHist').addEventListener('click', ()=>{
-    location.href = '/SIGED/public/index.php?action=doc_hist';
-    });
-      })
-      .catch(err=>console.error(err));
-  })();
-  </script>
+      // Barra
+      const pct = Math.max(0, Math.min(100, pr.porcentaje|0));
+      document.getElementById('bar').style.width = pct + '%';
+      document.getElementById('ptsLabel').textContent = (pr.puntos||0) + ' pts.';
+      document.getElementById('pctLabel').textContent = pct + '%';
+    })
+    .catch(err=>console.error(err));
+
+  // Botón -> input
+  btnFoto?.addEventListener('click', () => fileFoto?.click());
+
+  // Upload de foto
+  fileFoto?.addEventListener('change', async (ev) => {
+    const f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+
+    if (f.size > 2 * 1024 * 1024) { // 2MB
+      alert('El archivo supera 2 MB.');
+      fileFoto.value = '';
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('foto', f);
+
+    btnFoto.disabled = true;
+    const oldTxt = btnFoto.textContent;
+    btnFoto.textContent = 'Subiendo…';
+
+    try {
+      const r = await fetch(SIGED_BASE + '?action=foto_upload', {
+        method: 'POST',
+        body: fd,
+        credentials: 'same-origin'
+      });
+      const j = await r.json();
+      if (!j || !j.ok) {
+        alert(j?.msg || 'No se pudo subir la foto.');
+        return;
+      }
+
+      const url = (j.url || '') + (j.url.includes('?') ? '&' : '?') + 'v=' + Date.now();
+      avatar.style.backgroundImage = `url('${url}')`;
+      if (fallback) fallback.style.display = 'none';
+    } catch (e) {
+      console.error(e);
+      alert('Error de red al subir la foto.');
+    } finally {
+      btnFoto.disabled = false;
+      btnFoto.textContent = oldTxt;
+      fileFoto.value = '';
+    }
+  });
+})();
+</script>
+
 </body>
 </html>

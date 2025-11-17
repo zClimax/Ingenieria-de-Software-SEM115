@@ -13,6 +13,13 @@ function route(string $action): void {
       require __DIR__ . '/docente/home_docente.php';  // << usa la versión nueva
       break;
 
+      case 'doc_foto_upload': require __DIR__ . '/docente/foto_upload.php'; break;
+
+      case 'foto_upload':
+        require __DIR__ . '/../php/docente/foto_upload.php'; 
+        break;
+  
+
 // === Firma del Docente ===
   case 'doc_firma':
   require __DIR__ . '/utils/roles.php';
