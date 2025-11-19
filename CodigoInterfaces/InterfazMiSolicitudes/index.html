@@ -10,75 +10,75 @@
     <title>Mis Solicitudes - SIGED</title>
 </head>
 <body>
-    <!-- HEADER -->
+    <!-- ENCABEZADO -->
     <header>
-        <div class="left">
-            <div class="menu-container" id="menuToggle">
+        <div class="izquierda">
+            <div class="contenedor-menu" id="alternarMenu">
                 <div class="menu">
                     <div></div>
                     <div></div>
                     <div></div>
                 </div>
             </div>
-            <div class="brand">
+            <div class="marca">
                 <i class='bx bx-file-blank'></i>
-                <span class="name">SISTEMA GENERADOR DE ACTAS</span>
+                <span class="nombre">SISTEMA GENERADOR DE ACTAS</span>
             </div>
         </div>
         
-        <div class="right">
-            <button class="btn-salir">Salir</button>
+        <div class="derecha">
+            <button class="boton-salir">Salir</button>
         </div>
     </header>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-        <nav class="sidebar-nav">
+    <!-- BARRA LATERAL -->
+    <aside class="barra-lateral" id="barraLateral">
+        <nav class="navegacion-barra">
             <ul>
                 <li>
-                    <a href="#" class="nav-link active" title="Mis Solicitudes">
+                    <a href="#" class="enlace-nav activo" title="Mis Solicitudes">
                         <i class='bx bx-file-blank'></i>
-                        <span class="nav-text">Mis Solicitudes</span>
+                        <span class="texto-nav">Mis Solicitudes</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-link" title="Perfil">
+                    <a href="#" class="enlace-nav" title="Perfil">
                         <i class='bx bx-user-circle'></i>
-                        <span class="nav-text">Perfil</span>
+                        <span class="texto-nav">Perfil</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-link" title="Mensajes">
+                    <a href="#" class="enlace-nav" title="Mensajes">
                         <i class='bx bx-message-rounded'></i>
-                        <span class="nav-text">Mensajes</span>
+                        <span class="texto-nav">Mensajes</span>
                     </a>
                 </li>
             </ul>
         </nav>
 
-        <div class="sidebar-footer">
-            <div class="user-info">
-                <div class="user-avatar">
-                    <img src="img/User.png" alt="Usuario" class="user-avatar-img">
+        <div class="pie-barra">
+            <div class="info-usuario">
+                <div class="avatar-usuario">
+                    <img src="img/User.png" alt="Usuario" class="imagen-avatar-usuario">
                     <i class='bx bx-user' style="display: none;"></i>
                 </div>
-                <div class="user-details">
-                    <span class="user-name">Usuario</span>
+                <div class="detalles-usuario">
+                    <span class="nombre-usuario">Usuario</span>
                 </div>
             </div>
         </div>
     </aside>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <main class="main-content" id="mainContent">
-        <div class="content-wrapper">
+    <main class="contenido-principal" id="contenidoPrincipal">
+        <div class="envoltorio-contenido">
             <!-- Sección de Filtros -->
-            <section class="filtros-section">
-                <h2 class="filtros-titulo">Filtro</h2>
-                <div class="filtros-grid">
-                    <div class="filtro-item">
+            <section class="seccion-filtros">
+                <h2 class="titulo-filtros">Filtro</h2>
+                <div class="cuadricula-filtros">
+                    <div class="elemento-filtro">
                         <label for="departamento">Departamento</label>
-                        <select id="departamento" class="filtro-select">
+                        <select id="departamento" class="seleccion-filtro">
                             <option value="">Todos</option>
                             <option value="desarrollo">Desarrollo Acad.</option>
                             <option value="promocion">Promoción y cultura</option>
@@ -86,9 +86,9 @@
                         </select>
                     </div>
                     
-                    <div class="filtro-item">
+                    <div class="elemento-filtro">
                         <label for="tipo">Tipo</label>
-                        <select id="tipo" class="filtro-select">
+                        <select id="tipo" class="seleccion-filtro">
                             <option value="">Todos</option>
                             <option value="tutoria">Tutoría</option>
                             <option value="complementaria">A.complementaria</option>
@@ -96,18 +96,18 @@
                         </select>
                     </div>
                     
-                    <div class="filtro-item">
+                    <div class="elemento-filtro">
                         <label for="busqueda">Búsqueda</label>
-                        <input type="text" id="busqueda" class="filtro-input" placeholder="Nombre, dep...">
+                        <input type="text" id="busqueda" class="entrada-filtro" placeholder="Nombre, dep...">
                     </div>
                 </div>
             </section>
 
             <!-- Sección de Actas -->
-            <section class="actas-section">
-                <h2 class="actas-titulo">Actas</h2>
+            <section class="seccion-actas">
+                <h2 class="titulo-actas">Actas</h2>
                 
-                <div class="tabla-container">
+                <div class="contenedor-tabla">
                     <table class="tabla-actas">
                         <thead>
                             <tr>
@@ -120,20 +120,20 @@
                                 <th>Prevista/descarga</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaActasBody">
+                        <tbody id="cuerpoTablaActas">
                             <tr>
                                 <td>1839</td>
                                 <td>C.Tutoría</td>
                                 <td>Tutoría</td>
                                 <td>22</td>
                                 <td>Desarrollo Acad.</td>
-                                <td><span class="badge badge-activa">Activa</span></td>
+                                <td><span class="insignia insignia-activa">Activa</span></td>
                                 <td>
                                     <div class="acciones">
-                                        <button class="btn-icon btn-vista" title="Vista previa">
+                                        <button class="boton-icono boton-vista" title="Vista previa">
                                             <i class='bx bx-show'></i>
                                         </button>
-                                        <button class="btn-icon btn-descarga" title="Descargar">
+                                        <button class="boton-icono boton-descarga" title="Descargar">
                                             <i class='bx bx-download'></i>
                                         </button>
                                     </div>
@@ -145,13 +145,13 @@
                                 <td>Tutoría</td>
                                 <td>22</td>
                                 <td>Desarrollo Acad.</td>
-                                <td><span class="badge badge-activa">Activa</span></td>
+                                <td><span class="insignia insignia-activa">Activa</span></td>
                                 <td>
                                     <div class="acciones">
-                                        <button class="btn-icon btn-vista" title="Vista previa">
+                                        <button class="boton-icono boton-vista" title="Vista previa">
                                             <i class='bx bx-show'></i>
                                         </button>
-                                        <button class="btn-icon btn-descarga" title="Descargar">
+                                        <button class="boton-icono boton-descarga" title="Descargar">
                                             <i class='bx bx-download'></i>
                                         </button>
                                     </div>
@@ -163,13 +163,13 @@
                                 <td>A.complementaria</td>
                                 <td>22</td>
                                 <td>Promoción y cultura</td>
-                                <td><span class="badge badge-cancelada">Cancelada</span></td>
+                                <td><span class="insignia insignia-cancelada">Cancelada</span></td>
                                 <td>
                                     <div class="acciones">
-                                        <button class="btn-icon btn-vista" title="Vista previa">
+                                        <button class="boton-icono boton-vista" title="Vista previa">
                                             <i class='bx bx-show'></i>
                                         </button>
-                                        <button class="btn-icon btn-descarga" title="Descargar">
+                                        <button class="boton-icono boton-descarga" title="Descargar">
                                             <i class='bx bx-download'></i>
                                         </button>
                                     </div>

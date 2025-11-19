@@ -33,13 +33,13 @@ header {
     box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.3);
 }
 
-.left {
+.izquierda {
     display: flex;
     align-items: center;
     gap: 1.5rem;
 }
 
-.menu-container {
+.contenedor-menu {
     height: 2rem;
     display: flex;
     align-items: center;
@@ -49,7 +49,7 @@ header {
     transition: background-color 0.3s ease;
 }
 
-.menu-container:hover {
+.contenedor-menu:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -69,31 +69,31 @@ header {
     transition: all 0.3s ease;
 }
 
-.brand {
+.marca {
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
-.brand i {
+.marca i {
     font-size: 2rem;
     color: #ffffff;
 }
 
-.brand .name {
+.marca .nombre {
     font-size: 1.2rem;
     font-weight: 700;
     color: #ffffff;
     letter-spacing: 0.1rem;
 }
 
-.right {
+.derecha {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.btn-salir {
+.boton-salir {
     background-color: rgba(255, 255, 255, 0.2);
     color: #ffffff;
     border: 0.125rem solid #ffffff;
@@ -104,14 +104,14 @@ header {
     transition: all 0.3s ease;
 }
 
-.btn-salir:hover {
+.boton-salir:hover {
     background-color: #ffffff;
     color: #000428;
     transform: translateY(-0.125rem);
 }
 
-/* ===== SIDEBAR ===== */
-.sidebar {
+/* ===== BARRA LATERAL ===== */
+.barra-lateral {
     position: fixed;
     left: 0;
     top: 3.5rem;
@@ -127,24 +127,24 @@ header {
     flex-direction: column;
 }
 
-.sidebar.minimized {
+.barra-lateral.minimizada {
     width: 4rem;
 }
 
-.sidebar-nav {
+.navegacion-barra {
     padding: 1rem 0;
     flex: 1;
 }
 
-.sidebar-nav ul {
+.navegacion-barra ul {
     list-style: none;
 }
 
-.sidebar-nav li {
+.navegacion-barra li {
     margin: 0.25rem 0;
 }
 
-.nav-link {
+.enlace-nav {
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -154,37 +154,37 @@ header {
     transition: all 0.3s ease;
 }
 
-.nav-link:hover {
+.enlace-nav:hover {
     background-color: rgba(255, 255, 255, 0.1);
     color: #ffffff;
 }
 
-.nav-link.active {
+.enlace-nav.activo {
     background-color: rgba(0, 78, 146, 0.5);
     color: #ffffff;
     border-left: 0.25rem solid #ffffff;
 }
 
-.nav-link i {
+.enlace-nav i {
     font-size: 1.5rem;
     flex-shrink: 0;
 }
 
-.nav-text {
+.texto-nav {
     white-space: nowrap;
     font-weight: 600;
 }
 
-.sidebar.minimized .nav-text {
+.barra-lateral.minimizada .texto-nav {
     display: none;
 }
 
-.sidebar.minimized .nav-link {
+.barra-lateral.minimizada .enlace-nav {
     justify-content: center;
     padding: 0.875rem;
 }
 
-.sidebar-footer {
+.pie-barra {
     width: 100%;
     padding: 1.5rem 1rem;
     border-top: 0.0625rem solid rgba(255, 255, 255, 0.1);
@@ -192,13 +192,13 @@ header {
     margin-top: auto;
 }
 
-.sidebar-footer .user-info {
+.pie-barra .info-usuario {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.sidebar-footer .user-avatar {
+.pie-barra .avatar-usuario {
     width: 3.5rem;
     height: 3.5rem;
     border-radius: 50%;
@@ -210,24 +210,24 @@ header {
     background: linear-gradient(135deg, #004e92 0%, #000428 100%);
 }
 
-.sidebar-footer .user-avatar-img {
+.pie-barra .imagen-avatar-usuario {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.sidebar-footer .user-avatar i {
+.pie-barra .avatar-usuario i {
     font-size: 1.8rem;
     color: #ffffff;
 }
 
-.sidebar-footer .user-details {
+.pie-barra .detalles-usuario {
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
-.sidebar-footer .user-name {
+.pie-barra .nombre-usuario {
     color: #ffffff;
     font-weight: 700;
     font-size: 0.95rem;
@@ -236,21 +236,21 @@ header {
     text-overflow: ellipsis;
 }
 
-.sidebar.minimized .sidebar-footer .user-details {
+.barra-lateral.minimizada .pie-barra .detalles-usuario {
     display: none;
 }
 
-.sidebar.minimized .sidebar-footer {
+.barra-lateral.minimizada .pie-barra {
     padding: 1rem 0.5rem;
 }
 
-.sidebar.minimized .sidebar-footer .user-avatar {
+.barra-lateral.minimizada .pie-barra .avatar-usuario {
     width: 2.5rem;
     height: 2.5rem;
 }
 
 /* ===== CONTENIDO PRINCIPAL ===== */
-.main-content {
+.contenido-principal {
     margin-left: 16rem;
     margin-top: 3.5rem;
     padding: 2rem;
@@ -259,17 +259,17 @@ header {
     background: #f5f5f5;
 }
 
-.sidebar.minimized ~ .main-content {
+.barra-lateral.minimizada ~ .contenido-principal {
     margin-left: 4rem;
 }
 
-.content-wrapper {
+.envoltorio-contenido {
     max-width: 75rem;
     margin: 0 auto;
 }
 
 /* ===== SECCIÓN DE FILTROS ===== */
-.filtros-section {
+.seccion-filtros {
     background: #ffffff;
     border-radius: 1rem;
     padding: 2rem;
@@ -277,7 +277,7 @@ header {
     box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
 }
 
-.filtros-titulo {
+.titulo-filtros {
     font-size: 1.5rem;
     font-style: italic;
     color: #000428;
@@ -285,26 +285,26 @@ header {
     font-weight: 700;
 }
 
-.filtros-grid {
+.cuadricula-filtros {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
     gap: 1.5rem;
 }
 
-.filtro-item {
+.elemento-filtro {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-.filtro-item label {
+.elemento-filtro label {
     font-weight: 700;
     color: #000428;
     font-size: 1rem;
 }
 
-.filtro-select,
-.filtro-input {
+.seleccion-filtro,
+.entrada-filtro {
     padding: 0.75rem;
     border: 0.125rem solid #d0d0d0;
     border-radius: 0.5rem;
@@ -314,13 +314,13 @@ header {
     transition: border-color 0.3s ease;
 }
 
-.filtro-select:focus,
-.filtro-input:focus {
+.seleccion-filtro:focus,
+.entrada-filtro:focus {
     outline: none;
     border-color: #000428;
 }
 
-.filtro-select {
+.seleccion-filtro {
     cursor: pointer;
     appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -331,14 +331,14 @@ header {
 }
 
 /* ===== SECCIÓN DE ACTAS ===== */
-.actas-section {
+.seccion-actas {
     background: #ffffff;
     border-radius: 1rem;
     padding: 2rem;
     box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
 }
 
-.actas-titulo {
+.titulo-actas {
     font-size: 1.5rem;
     font-style: italic;
     color: #000428;
@@ -346,7 +346,7 @@ header {
     font-weight: 700;
 }
 
-.tabla-container {
+.contenedor-tabla {
     overflow-x: auto;
 }
 
@@ -383,7 +383,7 @@ header {
 }
 
 /* Badges de estatus */
-.badge {
+.insignia {
     display: inline-block;
     padding: 0.375rem 0.875rem;
     border-radius: 1rem;
@@ -391,12 +391,12 @@ header {
     font-weight: 700;
 }
 
-.badge-activa {
+.insignia-activa {
     background-color: #e8f5e9;
     color: #2e7d32;
 }
 
-.badge-cancelada {
+.insignia-cancelada {
     background-color: #ffebee;
     color: #c62828;
 }
@@ -407,7 +407,7 @@ header {
     gap: 0.5rem;
 }
 
-.btn-icon {
+.boton-icono {
     width: 2.25rem;
     height: 2.25rem;
     border: none;
@@ -419,42 +419,42 @@ header {
     transition: all 0.3s ease;
 }
 
-.btn-icon i {
+.boton-icono i {
     font-size: 1.25rem;
 }
 
-.btn-vista {
+.boton-vista {
     background-color: #ff9800;
     color: #ffffff;
 }
 
-.btn-vista:hover {
+.boton-vista:hover {
     background-color: #f57c00;
     transform: translateY(-0.125rem);
 }
 
-.btn-descarga {
+.boton-descarga {
     background-color: #2196f3;
     color: #ffffff;
 }
 
-.btn-descarga:hover {
+.boton-descarga:hover {
     background-color: #1976d2;
     transform: translateY(-0.125rem);
 }
 
 /* ===== RESPONSIVE ===== */
 @media screen and (max-width: 768px) {
-    .sidebar {
+    .barra-lateral {
         transform: translateX(-100%);
         width: 16rem;
     }
 
-    .sidebar.active {
+    .barra-lateral.activa {
         transform: translateX(0);
     }
 
-    .main-content {
+    .contenido-principal {
         margin-left: 0;
     }
 
@@ -462,15 +462,15 @@ header {
         padding: 0.75rem 1rem;
     }
 
-    .brand .name {
+    .marca .nombre {
         font-size: 0.9rem;
     }
 
-    .filtros-grid {
+    .cuadricula-filtros {
         grid-template-columns: 1fr;
     }
 
-    .tabla-container {
+    .contenedor-tabla {
         overflow-x: scroll;
     }
 
