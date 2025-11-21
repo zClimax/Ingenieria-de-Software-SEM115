@@ -1,0 +1,69 @@
+<!-- Botón para mostrar el modal -->
+<button id="historico-btn" class="btn-outline">Histórico de convocatorias</button>
+
+<!-- Modal -->
+<div id="convocatoriasmodal" class="modal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h2>Convocatorias pasadas</h2>
+    </div>
+    <div class="modal-body">
+      <table>
+        <thead>
+          <tr>
+            <th>Convocatoria</th>
+            <th>Fecha</th>
+            <th>Estatus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><u>Convocatoria 2023</u></td>
+            <td>01/01/2023</td>
+            <td>Finalizada</td>
+          </tr>
+          <tr>
+            <td>Convocatoria 2022</td>
+            <td>01/01/2022</td>
+            <td>Finalizada</td>
+          </tr>
+          <tr>
+            <td>Convocatoria 2021</td>
+            <td>01/01/2021</td>
+            <td>Finalizada</td>
+          </tr>
+          <tr>
+            <td>Convocatoria 2020</td>
+            <td>01/01/2020</td>
+            <td>Finalizada</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button id="cerrarModal" class="cerrar-btn"><b>Cerrar</b></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var btn = document.getElementById('historico-btn');
+    var modal = document.getElementById('convocatoriasmodal');
+    var closeBtn = document.getElementById('cerrarModal');
+    if (!btn || !modal) return;
+    // Mostrar modal al hacer click en el botón
+    btn.addEventListener('click', function(){
+      modal.style.display = 'block';
+    });
+    // Cerrar al pulsar el botón Cerrar
+    if (closeBtn) closeBtn.addEventListener('click', function(){
+      modal.style.display = 'none';
+    });
+    // Cerrar al hacer click fuera del diálogo
+    modal.addEventListener('click', function(e){
+      if (e.target === modal) modal.style.display = 'none';
+    });
+  })();
+</script>
+

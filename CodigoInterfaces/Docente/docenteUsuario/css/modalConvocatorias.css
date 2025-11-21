@@ -1,0 +1,61 @@
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0; top: 0; width: 100vw; height: 100vh;
+  background: rgba(20, 20, 35, 0.7);
+  justify-content: center;
+  align-items: center;
+}
+.modal.show { display: flex; }
+.modal-dialog {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  width: 95vw; max-width: 520px;
+  overflow: hidden;
+  text-align: center;
+  padding: 0;
+  display: flex; flex-direction: column;
+}
+.modal-header h2 {
+  font-size: 2em; font-weight: 700;
+  margin: 1.2em 0 0.4em 0; color: #19376D;
+}
+.modal-body { padding: 0 2em 1.2em 2em; }
+table {
+  width: 100%; border-collapse: collapse;
+  margin: 0.7em 0 0.7em 0; font-size: 1.09em;
+}
+th, td {
+  padding: 0.7em 0.15em; border-bottom: 1px solid #EBEBEB;
+  text-align: center;
+}
+th {
+  color: #19376D; font-weight: 700; font-size: 1.09em;
+  background: transparent; border-bottom: 2px solid #C5D0E6;
+}
+tr:last-child td { border-bottom: none; }
+.modal-footer {
+  background: transparent;
+  padding: 1.3em; text-align: center;
+}
+.cerrar-btn {
+  padding: 0.5em 2em; border-radius: 8px;
+  background: #fff; font-weight: 600; font-size: 17px;
+  border: 2px solid #19376D; color: #19376D; cursor: pointer;
+  transition: background 0.15s;
+}
+.cerrar-btn:hover { background: #F5F5FF; }
+@media (max-width: 500px) {
+  .modal-dialog { padding: 0 1vw; }
+  .modal-body { padding: 0 0.5em 1em 0.5em; }
+  th, td { font-size: 0.97em; padding: 0.49em 0.09em; }
+}
+.historico-btn {
+  margin: 2rem 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGED Usuario</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <!-- Header Superior -->
+    <header class="header azul">
+        <div class="header-left">
+            <img src="PNG/Recurso 4TRES_LINEAS.png" alt="Menú" class="menu-icon" id="menu-toggle">
+        </div>
+        <div class="header-center">
+            <img src="PNG/Recurso 3SIGED_LOGO.png" alt="SIGED Logo" class="siged-logo">
+        </div>
+        <div class="header-right">
+            <input class="btn-salir" type="button" value="Salir">
+        </div>
+    </header>
+
+    <!-- Menú lateral -->
+    <nav class="menu" id="sidebar">
+        <article class="letra-menu blanco">
+         <ul>
+            <li>
+                <span class="lista disabled" aria-disabled="true" title="No disponible en esta ventana">
+                <img src="PNG/Recurso 5Icono_usuario.png" alt="Usuario">
+                <span class="menu-text">Usuario</span>
+                </span>
+            </li>
+            <li>
+                <span class="lista clickable active" data-action="generador">
+                <img src="PNG/Recurso 6Icono_GActas.png" alt="Generador de actas">
+                <span class="menu-text">Generador de actas</span>
+                </span>
+            </li>
+            <li>
+                <span class="lista disabled" aria-disabled="true" title="No disponible en esta ventana">
+                <img src="PNG/Recurso 7Icono_tickets.png" alt="Tickets">
+                <span class="menu-text">Tickets</span>
+                </span>
+            </li>
+         </ul>
+
+        </article>
+     </nav>
+       <!-- CONTENIDO PRINCIPAL -->
+    <main class="contenido-principal" id="contenidoPrincipal">
+        <div class="envoltorio-contenido">
+            <!-- Sección de Filtros -->
+            <section class="seccion-filtros">
+                <h2 class="titulo-filtros">Filtro</h2>
+                <div class="cuadricula-filtros">
+                    <div class="elemento-filtro">
+                        <label for="departamento">Departamento</label>
+                        <select id="departamento" class="seleccion-filtro">
+                            <option value="">Todos</option>
+                            <option value="desarrollo">Desarrollo Acad.</option>
+                            <option value="promocion">Promoción y cultura</option>
+                            <option value="sistemas">Sistemas y Computación</option>
+                        </select>
+                    </div>
+                    
+                    <div class="elemento-filtro">
+                        <label for="tipo">Tipo</label>
+                        <select id="tipo" class="seleccion-filtro">
+                            <option value="">Todos</option>
+                            <option value="tutoria">Tutoría</option>
+                            <option value="complementaria">A.complementaria</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                    
+                    <div class="elemento-filtro">
+                        <label for="busqueda">Búsqueda</label>
+                        <input type="text" id="busqueda" class="entrada-filtro" placeholder="Nombre, dep...">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de Actas -->
+            <section class="seccion-actas">
+                <h2 class="titulo-actas">Actas</h2>
+                
+                <div class="contenedor-tabla">
+                    <table class="tabla-actas">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Nombre</th>
+                                <th>Tipo</th>
+                                <th>Pts.</th>
+                                <th>Departamento</th>
+                                <th>Estatus</th>
+                                <th>Prevista/descarga</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoTablaActas">
+                            <tr>
+                                <td>1839</td>
+                                <td>C.Tutoría</td>
+                                <td>Tutoría</td>
+                                <td>22</td>
+                                <td>Desarrollo Acad.</td>
+                                <td><span class="insignia insignia-activa">Activa</span></td>
+                                <td>
+                                    <div class="acciones">
+                                        <button class="boton-icono boton-vista" title="Vista previa">
+                                            <i class='bx bx-show'></i>
+                                        </button>
+                                        <button class="boton-icono boton-descarga" title="Descargar">
+                                            <i class='bx bx-download'></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>1840</td>
+                                <td>C.Tutoría</td>
+                                <td>Tutoría</td>
+                                <td>22</td>
+                                <td>Desarrollo Acad.</td>
+                                <td><span class="insignia insignia-activa">Activa</span></td>
+                                <td>
+                                    <div class="acciones">
+                                        <button class="boton-icono boton-vista" title="Vista previa">
+                                            <i class='bx bx-show'></i>
+                                        </button>
+                                        <button class="boton-icono boton-descarga" title="Descargar">
+                                            <i class='bx bx-download'></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>1841</td>
+                                <td>Monitor de cine</td>
+                                <td>A.complementaria</td>
+                                <td>22</td>
+                                <td>Promoción y cultura</td>
+                                <td><span class="insignia insignia-cancelada">Cancelada</span></td>
+                                <td>
+                                    <div class="acciones">
+                                        <button class="boton-icono boton-vista" title="Vista previa">
+                                            <i class='bx bx-show'></i>
+                                        </button>
+                                        <button class="boton-icono boton-descarga" title="Descargar">
+                                            <i class='bx bx-download'></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="js/actas.js"></script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGED Usuario</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/modalConvocatorias.css">
+
+</head>
+<body>
+    <!-- Header Superior -->
+    <header class="header azul">
+        <div class="header-left">
+            <img src="PNG/Recurso 4TRES_LINEAS.png" alt="Menú" class="menu-icon" id="menu-toggle">
+        </div>
+        <div class="header-center">
+            <img src="PNG/Recurso 3SIGED_LOGO.png" alt="SIGED Logo" class="siged-logo">
+        </div>
+        <div class="header-right">
+            <input class="btn-salir" type="button" value="Salir">
+        </div>
+    </header>
+
+    <!-- Menú lateral -->
+    <nav class="menu" id="sidebar">
+        <article class="letra-menu blanco">
+         <ul>
+            <li>
+                <span class="lista active">
+                <img src="PNG/Recurso 5Icono_usuario.png" alt="Usuario">
+                <span class="menu-text">Usuario</span>
+                </span>
+            </li>
+            <li>
+                <span class="lista">
+                <img src="PNG/Recurso 6Icono_GActas.png" alt="Generador de actas">
+                <span class="menu-text">Generador de actas</span>
+                </span>
+            </li>
+            <li>
+                <span class="lista">
+                <img src="PNG/Recurso 7Icono_tickets.png" alt="Tickets">
+                <span class="menu-text">Tickets</span>
+                </span>
+            </li>
+         </ul>
+
+        </article>
+    </nav>
+    <!-- Contenido principal -->
+    <main class="main-content" id="mainContent">
+        <div class="content-wrapper">
+            <section class="identificacion">
+                <h2>Identificación</h2>
+                <div class="info-card">
+                    <div class="avatar-large">
+                        <img src="img/User.png" alt="Usuario" class="avatar-img">
+                        <!-- Si no hay foto, se muestra el ícono -->
+                    </div>
+                    <div class="info-details">
+                        <h3>Dr. Víctor Bátiz</h3>
+                        <p><strong>34170013</strong> victor.bb@culiacan.tecnm.mx</p>
+                        <p>Docente Departamento de Sistemas y Computación</p>
+                    </div>
+                </div>
+            </section>
+            <section class="datos-personales">
+                <h2>Datos personales</h2>
+                <div class="datos-grid">
+                    <p><strong>CLAVE DE EMPLEADO:</strong> 7629</p>
+                    <p><strong>NSS:</strong> 82710112982</p>
+                    <p><strong>FECHA DE INGRESO:</strong> 23 DE AGOSTO DE 2009</p>
+                    <p><strong>RFC:</strong> VIBA001111273</p>
+                    <p><strong>MATRICULA:</strong> 22170013</p>
+                </div>
+            </section>
+            <div class="barra-progreso-section">
+                <h2>Barra de progreso</h2>
+                <div class="progress-bar">
+                    <div class="progress-inner" style="width: 73%;">220 pts.</div>
+                </div>
+                <span class="progress-porcentaje">73%</span>
+            </div>
+            <div class="historico-btn">
+                <button id="historicoBtn" class="btn-outline">Histórico de convocatorias</button>
+
+            </div>
+                        
+            <!-- Modal -->
+            <div id="convocatoriasModal" class="modal">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                <h2>Convocatorias pasadas</h2>
+                </div>
+                <div class="modal-body">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Convocatoria</th>
+                        <th>Fecha</th>
+                        <th>Estatus</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><u>Convocatoria 2023</u></td>
+                        <td>01/01/2023</td>
+                        <td>Finalizada</td>
+                    </tr>
+                    <tr>
+                        <td>Convocatoria 2022</td>
+                        <td>01/01/2022</td>
+                        <td>Finalizada</td>
+                    </tr>
+                    <tr>
+                        <td>Convocatoria 2021</td>
+                        <td>01/01/2021</td>
+                        <td>Finalizada</td>
+                    </tr>
+                    <tr>
+                        <td>Convocatoria 2020</td>
+                        <td>01/01/2020</td>
+                        <td>Finalizada</td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+                <div class="modal-footer">
+                <button id="cerrarModal" class="cerrar-btn"><b>Cerrar</b></button>
+                </div>
+            </div>
+            </div>
+
+
+        </div>
+    </main>
+     <script src="js/menu.js"></script>
+     <script src="js/modalConvocatorias.js"></script>
+
+</body>
+</html>
