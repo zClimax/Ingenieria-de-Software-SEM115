@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets | SIGED</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/tickets.css">
+</head>
+<body>
+    <!-- Header Superior -->
+    <header class="header azul">
+        <div class="header-left">
+            <img src="PNG/Recurso 4TRES_LINEAS.png" alt="Menú" class="menu-icon" id="menu-toggle">
+        </div>
+        <div class="header-center">
+            <img src="PNG/Recurso 3SIGED_LOGO.png" alt="SIGED Logo" class="siged-logo">
+        </div>
+        <div class="header-right">
+            <input class="btn-salir" type="button" value="Salir">
+        </div>
+    </header>
+
+    <!-- Menú lateral -->
+    <nav class="menu" id="sidebar">
+        <article class="letra-menu blanco">
+            <ul>
+                <li>
+                    <span class="lista">
+                        <img src="PNG/Recurso 5Icono_usuario.png" alt="Usuario">
+                        <span class="menu-text">Usuario</span>
+                    </span>
+                </li>
+                <li>
+                    <span class="lista">
+                        <img src="PNG/Recurso 6Icono_GActas.png" alt="Generador de actas">
+                        <span class="menu-text">Generador de actas</span>
+                    </span>
+                </li>
+                <li>
+                    <span class="lista active">
+                        <img src="PNG/Recurso 7Icono_tickets.png" alt="Tickets">
+                        <span class="menu-text">Tickets</span>
+                    </span>
+                </li>
+            </ul>
+        </article>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="main-content" id="mainContent">
+        <div class="content-wrapper tickets-wrapper">
+            <h1 class="tickets-title">Tickets</h1>
+
+            <div class="tabs-container">
+                <button class="tab active" data-t="abiertos">Abiertos</button>
+                <button class="tab" data-t="cerrados">Cerrados</button>
+            </div>
+
+            <div class="table-container">
+                <table class="tickets-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Clave</th>
+                            <th>Descripción</th>
+                            <th>Estatus</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb">
+                        <!-- Los datos se cargarán dinámicamente con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="actions">
+                <button class="btn-crear-ticket" id="btnCrearTicket">Crear Ticket</button>
+            </div>
+        </div>
+
+        <!-- Footer con información del usuario -->
+        <div class="user-footer">
+            <div class="user-avatar">
+                <img src="img/User.png" alt="Usuario">
+            </div>
+            <div class="user-info">
+                <p class="user-name">Dr. Víctor Bátiz</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/menu.js"></script>
+    <script src="js/tickets.js"></script>
+</body>
+</html>

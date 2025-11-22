@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SIGED · Mi firma</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <!-- Header Superior -->
+    <header class="header azul">
+        <div class="header-left">
+            <img src="PNG/Recurso 4TRES_LINEAS.png" alt="Menú" class="menu-icon" id="menu-toggle">
+        </div>
+        <div class="header-center">
+            <img src="PNG/Recurso 3SIGED_LOGO.png" alt="SIGED Logo" class="siged-logo">
+        </div>
+        <div class="header-right">
+            <input class="btn-salir" type="button" value="Salir">
+        </div>
+    </header>
+
+    <!-- Menú lateral -->
+    <nav class="menu" id="sidebar">
+        <article class="letra-menu blanco">
+         <ul>
+            <li>
+                <span class="lista disabled" aria-disabled="true" title="No disponible en esta ventana">
+                <img src="PNG/Recurso 5Icono_usuario.png" alt="Usuario">
+                <span class="menu-text">Usuario</span>
+                </span>
+            </li>
+
+            <li>
+               <span class="lista disabled" aria-disabled="true"
+                <img src="PNG/Recurso 6Icono_GActas.png" alt="Generador de actas">
+                <span class="menu-text">Generador de actas</span>
+                </span>
+            </li>
+            <li>
+                <span class="lista clickable active" data-action="generador">
+                <img src="PNG/Recurso 6Icono_GActas.png" alt="Generador de actas">
+                <span class="menu-text">Firma</span>
+                </span>
+            </li>
+            
+            <li>
+                <span class="lista disabled" aria-disabled="true" title="No disponible en esta ventana">
+                <img src="PNG/Recurso 7Icono_tickets.png" alt="Tickets">
+                <span class="menu-text">Tickets</span>
+                </span>
+            </li>
+         </ul>
+
+        </article>
+     </nav>
+     
+    <!-- Menú lateral (opcional, mantiene consistencia visual) -->
+    <nav class="menu" id="sidebar" aria-hidden="true">
+        <article class="letra-menu blanco">
+            <ul>
+                <li>
+                    <span class="lista active">
+                        <img src="PNG/Recurso 5Icono_usuario.png" alt="Usuario">
+                        <span class="menu-text">Usuario</span>
+                    </span>
+                </li>
+            </ul>
+        </article>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="main-content" id="mainContent">
+        <div class="content-wrapper">
+            <section class="card">
+                <h1>Mi firma</h1>
+                <p class="ghost">Usuario: Nombre del usuario</p>
+
+                <!-- Aviso (se puede activar dinámicamente con JS) -->
+                <!-- <div class="card aviso"><strong>Aviso:</strong> Texto de ejemplo</div> -->
+            </section>
+
+            <section class="card grid2">
+                <div>
+                    <h3>Vista previa</h3>
+                    <div class="dash">
+                        <!-- Por defecto mostramos estado vacío; reemplaza con <img> si tienes una URL -->
+                        <div class="ghost">Sin firma cargada</div>
+                        <!-- Ejemplo de imagen (descomentar y ajustar ruta si quieres mostrarla):
+                        <img src="PNG/firma-ejemplo.png" alt="Firma" class="firma-preview"> -->
+                    </div>
+                    <p class="ghost nota">Recomendado: PNG con fondo transparente, aprox. 900×300 px. Peso máx. 2 MB.</p>
+                </div>
+
+                <div>
+                    <h3>Actualizar firma</h3>
+                    <form method="post" action="/siged/public/index.php?action=doc_firma_guardar" enctype="multipart/form-data">
+                        <label class="file-label">
+                            <input type="file" name="firma" accept="image/png, image/jpeg" required>
+                        </label>
+
+                        <div class="stack">
+                            <button type="submit" class="btn">Guardar firma</button>
+                            <a class="btn-sec" href="/siged/public/index.php?action=home_docente">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+
+    <script src="js/firma.js"></script>
+</body>
+</html>
