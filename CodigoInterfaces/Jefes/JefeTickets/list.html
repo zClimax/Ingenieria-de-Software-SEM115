@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets | SIGED</title>
+    
+    <link rel="stylesheet" href="css/TicketsJefe.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ENCABEZADO -->
+    <header class="header">
+        <div class="header-left">
+            <div class="menu-container" id="menuToggle">
+                <div class="menu-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-center">
+            <a href="home-jefe.html">
+                <img src="img/logo-siged.png" alt="SIGED" class="site-logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <a href="notificaciones.html" title="Notificaciones">
+                <i class='bx bx-bell'></i>
+            </a>
+            <button class="btn-salir" onclick="window.location.href='logout.html'">Salir</button>
+        </div>
+    </header>
+
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="home-jefe.html" class="nav-link">
+                        <img src="img/icono-usuario.png" alt="Dashboard" class="nav-img">
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="jefe-bandeja.html" class="nav-link">
+                        <img src="img/icono-actas.png" alt="Bandeja" class="nav-img">
+                        <span class="nav-text">Bandeja</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tickets-jefe.html" class="nav-link active">
+                        <img src="img/icono-tickets.png" alt="Tickets" class="nav-img">
+                        <span class="nav-text">Tickets</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="pdf-demo.html" class="nav-link">
+                        <img src="img/icono-firma.png" alt="PDF Demo" class="nav-img">
+                        <span class="nav-text">PDF Demo</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar-small">
+                    <img src="img/user.png" alt="Usuario" class="user-avatar-img-small">
+                </div>
+                <div class="user-details">
+                    <span class="user-name">Jefe de Departamento</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content" id="mainContent">
+        <div class="tickets-wrapper">
+
+            <!-- Header -->
+            <section class="tickets-header">
+                <h1 class="page-title">
+                    <i class='bx bx-support'></i>
+                    Tickets asignados
+                </h1>
+                <p class="page-subtitle">Gestiona las solicitudes de soporte de los docentes</p>
+            </section>
+
+            <!-- Tabs y Tabla -->
+            <section class="tabs-section">
+                <div class="tabs-container">
+                    <button class="tab active" data-t="abiertos">
+                        <i class='bx bx-folder-open'></i>
+                        Abiertos
+                        <span class="tab-count">3</span>
+                    </button>
+                    <button class="tab" data-t="revision">
+                        <i class='bx bx-time-five'></i>
+                        En revisión
+                        <span class="tab-count">2</span>
+                    </button>
+                    <button class="tab" data-t="cerrados">
+                        <i class='bx bx-check-circle'></i>
+                        Cerrados
+                        <span class="tab-count">8</span>
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="tickets-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Docente</th>
+                                <th>Prioridad</th>
+                                <th>Estatus</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb">
+                            <!-- Tickets Abiertos -->
+                            <tr class="ticket-row" data-status="abiertos">
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>22/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="ticket-id">#TK-1025</span>
+                                </td>
+                                <td>
+                                    <div class="titulo-cell">
+                                        <i class='bx bx-error-circle'></i>
+                                        <span>Error al generar PDF de acta</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Dr. Roberto Martínez Silva</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge prioridad-alta">Alta</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-abierto">Abierto</span>
+                                </td>
+                                <td>
+                                    <a href="ticket-detalle.html?id=1025" class="btn-ver">
+                                        <i class='bx bx-show'></i>
+                                        Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="ticket-row" data-status="abiertos">
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>21/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="ticket-id">#TK-1024</span>
+                                </td>
+                                <td>
+                                    <div class="titulo-cell">
+                                        <i class='bx bx-help-circle'></i>
+                                        <span>Duda sobre formato de constancia</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Ing. Laura Patricia Hernández</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge prioridad-media">Media</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-abierto">Abierto</span>
+                                </td>
+                                <td>
+                                    <a href="ticket-detalle.html?id=1024" class="btn-ver">
+                                        <i class='bx bx-show'></i>
+                                        Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="ticket-row" data-status="abiertos">
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>20/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="ticket-id">#TK-1022</span>
+                                </td>
+                                <td>
+                                    <div class="titulo-cell">
+                                        <i class='bx bx-error'></i>
+                                        <span>No puedo cargar mi firma digital</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Dr. Fernando Sánchez Torres</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge prioridad-baja">Baja</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-abierto">Abierto</span>
+                                </td>
+                                <td>
+                                    <a href="ticket-detalle.html?id=1022" class="btn-ver">
+                                        <i class='bx bx-show'></i>
+                                        Ver
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Tickets En Revisión -->
+                            <tr class="ticket-row" data-status="revision" style="display: none;">
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>19/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="ticket-id">#TK-1021</span>
+                                </td>
+                                <td>
+                                    <div class="titulo-cell">
+                                        <i class='bx bx-time'></i>
+                                        <span>Solicitud de cambio de datos personales</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Mtra. Claudia Moreno Díaz</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge prioridad-media">Media</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-revision">En revisión</span>
+                                </td>
+                                <td>
+                                    <a href="ticket-detalle.html?id=1021" class="btn-ver">
+                                        <i class='bx bx-show'></i>
+                                        Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="ticket-row" data-status="revision" style="display: none;">
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>18/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="ticket-id">#TK-1020</span>
+                                </td>
+                                <td>
+                                    <div class="titulo-cell">
+                                        <i class='bx bx-edit'></i>
+                                        <span>Corrección en acta complementaria</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Dr. José Luis Ramírez Cruz</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge prioridad-alta">Alta</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-revision">En revisión</span>
+                                </td>
+                                <td>
+                                    <a href="ticket-detalle.html?id=1020" class="btn-ver">
+                                        <i class='bx bx-show'></i>
+                                        Ver
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Tickets Cerrados -->
+                            <tr class="ticket-row" data-status="cerrados" style="display: none;">
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>15/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="ticket-id">#TK-1015</span>
+                                </td>
+                                <td>
+                                    <div class="titulo-cell">
+                                        <i class='bx bx-check'></i>
+                                        <span>Problema con inicio de sesión</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Ing. Ana María López</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge prioridad-media">Media</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-cerrado">Cerrado</span>
+                                </td>
+                                <td>
+                                    <a href="ticket-detalle.html?id=1015" class="btn-ver">
+                                        <i class='bx bx-show'></i>
+                                        Ver
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/menu.js"></script>
+    <script>
+        // Sistema de tabs
+        const tabs = document.querySelectorAll('.tab');
+        const ticketRows = document.querySelectorAll('.ticket-row');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const status = this.getAttribute('data-t');
+                
+                // Cambiar tab activo
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filtrar tickets
+                ticketRows.forEach(row => {
+                    if (row.getAttribute('data-status') === status) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Contador de tickets por estado
+        function actualizarContadores() {
+            const abiertos = document.querySelectorAll('[data-status="abiertos"]').length;
+            const revision = document.querySelectorAll('[data-status="revision"]').length;
+            const cerrados = document.querySelectorAll('[data-status="cerrados"]').length;
+            
+            document.querySelector('[data-t="abiertos"] .tab-count').textContent = abiertos;
+            document.querySelector('[data-t="revision"] .tab-count').textContent = revision;
+            document.querySelector('[data-t="cerrados"] .tab-count').textContent = cerrados;
+        }
+
+        // Llamar al cargar
+        actualizarContadores();
+    </script>
+</body>
+</html>

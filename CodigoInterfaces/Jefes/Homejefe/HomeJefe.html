@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SIGED - Jefe de Departamento</title>
+    
+    <link rel="stylesheet" href="css/HomeJefe.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ENCABEZADO -->
+    <header class="header">
+        <div class="header-left">
+            <div class="menu-container" id="menuToggle">
+                <div class="menu-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-center">
+            <a href="index.html">
+                <img src="img/logo-siged.png" alt="SIGED" class="site-logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <a href="notificaciones.html" title="Notificaciones">
+                <i class='bx bx-bell'></i>
+            </a>
+            <button class="btn-salir" onclick="window.location.href='logout.html'">Salir</button>
+        </div>
+    </header>
+
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="index.html" class="nav-link active">
+                        <img src="img/icono-usuario.png" alt="Dashboard" class="nav-img">
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="bandeja.html" class="nav-link">
+                        <img src="img/icono-actas.png" alt="Bandeja" class="nav-img">
+                        <span class="nav-text">Bandeja</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tickets.html" class="nav-link">
+                        <img src="img/icono-tickets.png" alt="Tickets" class="nav-img">
+                        <span class="nav-text">Tickets</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="pdf-demo.html" class="nav-link">
+                        <img src="img/icono-firma.png" alt="PDF Demo" class="nav-img">
+                        <span class="nav-text">PDF Demo</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar-small">
+                    <img src="img/user.png" alt="Usuario" class="user-avatar-img-small" id="avatarImgSmall">
+                </div>
+                <div class="user-details">
+                    <span class="user-name">Jefe de Departamento</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content" id="mainContent">
+        <div class="dashboard-wrapper">
+
+            <!-- Mensaje de bienvenida -->
+            <section class="welcome-card">
+                <div class="welcome-header">
+                    <div class="welcome-left">
+                        <div class="welcome-avatar" id="avatarContainer">
+                            <img src="img/user.png" alt="Foto de perfil" class="welcome-avatar-img" id="avatarImg">
+                            <div class="avatar-overlay">
+                                <i class='bx bx-camera'></i>
+                                <span>Cambiar foto</span>
+                            </div>
+                        </div>
+                        <div class="welcome-text">
+                            <h1 class="welcome-title">Bienvenido(a), Dr. Juan Pérez</h1>
+                            <p class="welcome-subtitle">Panel de Control del Jefe de Departamento</p>
+                        </div>
+                    </div>
+                    <div class="welcome-date">
+                        <i class='bx bx-calendar'></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+
+                <div class="alert-info" style="display: none;" id="alertInfo">
+                    <i class='bx bx-info-circle'></i>
+                    <span id="alertMessage"></span>
+                </div>
+            </section>
+
+            <!-- Formulario oculto para foto -->
+            <form id="fotoForm" method="post" action="#" enctype="multipart/form-data" style="display:none;">
+                <input type="file" name="foto" id="fotoInput" accept="image/jpeg, image/jpg">
+            </form>
+
+            <!-- Firma Digital -->
+            <section class="firma-section">
+                <div class="firma-display">
+                    <h2 class="section-title">
+                        <i class='bx bx-pen'></i>
+                        Tu firma digital
+                    </h2>
+                    <div class="firma-preview">
+                        <div class="firma-empty" id="firmaPreview">
+                            <i class='bx bx-image-add'></i>
+                            <p>Sin firma cargada</p>
+                        </div>
+                    </div>
+                    <p class="firma-hint">
+                        <i class='bx bx-info-circle'></i>
+                        Recomendado: PNG con fondo transparente, aprox. 900×300 px. Peso máx. 2 MB.
+                    </p>
+                </div>
+
+                <div class="firma-upload">
+                    <h2 class="section-title">
+                        <i class='bx bx-upload'></i>
+                        Actualizar firma
+                    </h2>
+                    <form method="post" action="#" enctype="multipart/form-data" class="upload-form" id="firmaForm">
+                        <div class="upload-area">
+                            <input type="file" name="firma" id="firma" accept="image/png, image/jpeg" required class="file-input">
+                            <label for="firma" class="file-label">
+                                <i class='bx bx-cloud-upload'></i>
+                                <span>Seleccionar archivo</span>
+                            </label>
+                            <div class="file-name" id="fileName">Ningún archivo seleccionado</div>
+                        </div>
+                        <button type="submit" class="btn-submit">
+                            <i class='bx bx-save'></i>
+                            Guardar firma
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- KPIs Grid -->
+            <section class="kpis-section">
+                <h2 class="section-title">
+                    <i class='bx bx-chart'></i>
+                    Indicadores clave
+                </h2>
+                <div class="kpis-grid" id="kpis">
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class='bx bx-file'></i></div>
+                        <div class="kpi-label">Total Solicitudes</div>
+                        <div class="kpi-value">127</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class='bx bx-check-circle'></i></div>
+                        <div class="kpi-label">Aprobadas</div>
+                        <div class="kpi-value">89</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class='bx bx-x-circle'></i></div>
+                        <div class="kpi-label">Rechazadas</div>
+                        <div class="kpi-value">15</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class='bx bx-time'></i></div>
+                        <div class="kpi-label">Pendientes</div>
+                        <div class="kpi-value">23</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gráfica + Tickets -->
+            <section class="charts-section">
+                <div class="chart-card">
+                    <h2 class="section-title">
+                        <i class='bx bx-line-chart'></i>
+                        Tendencia de decisiones (30 días)
+                    </h2>
+                    <div id="trend" class="chart-container">
+                        <canvas id="chartCanvas"></canvas>
+                    </div>
+                </div>
+
+                <div class="tickets-summary-card">
+                    <h2 class="section-title">
+                        <i class='bx bx-support'></i>
+                        Tickets
+                    </h2>
+                    <ul id="tickets" class="tickets-summary">
+                        <li class="ticket-item">
+                            <span class="ticket-status abierto">Abierto</span>
+                            <span class="ticket-title">Error en generación de PDF</span>
+                            <span class="ticket-date">Hace 2 horas</span>
+                        </li>
+                        <li class="ticket-item">
+                            <span class="ticket-status en-proceso">En proceso</span>
+                            <span class="ticket-title">Problema con firma digital</span>
+                            <span class="ticket-date">Hace 5 horas</span>
+                        </li>
+                        <li class="ticket-item">
+                            <span class="ticket-status abierto">Abierto</span>
+                            <span class="ticket-title">Actualización de datos</span>
+                            <span class="ticket-date">Hace 1 día</span>
+                        </li>
+                    </ul>
+                    <a href="tickets.html" class="link-ver-todos">
+                        Ver todos los tickets <i class='bx bx-right-arrow-alt'></i>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Backlog -->
+            <section class="backlog-section">
+                <h2 class="section-title">
+                    <i class='bx bx-task'></i>
+                    Backlog prioritario (pendientes)
+                </h2>
+                <div class="table-container">
+                    <table id="backlog" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Solicitud</th>
+                                <th>Tipo documento</th>
+                                <th>Estado</th>
+                                <th>Días pendientes</th>
+                                <th>Enviado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SOL-2024-001</td>
+                                <td>Acta de Tutoría</td>
+                                <td><span class="badge badge-pendiente">Pendiente</span></td>
+                                <td>3 días</td>
+                                <td>20/11/2024</td>
+                            </tr>
+                            <tr>
+                                <td>SOL-2024-002</td>
+                                <td>Constancia</td>
+                                <td><span class="badge badge-pendiente">Pendiente</span></td>
+                                <td>5 días</td>
+                                <td>18/11/2024</td>
+                            </tr>
+                            <tr>
+                                <td>SOL-2024-003</td>
+                                <td>Acta Complementaria</td>
+                                <td><span class="badge badge-revision">En revisión</span></td>
+                                <td>1 día</td>
+                                <td>22/11/2024</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="backlog-actions">
+                    <a href="bandeja.html" class="btn-secondary">
+                        <i class='bx bx-folder-open'></i>
+                        Ir a Bandeja completa
+                    </a>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/menu.js"></script>
+    <script src="js/home_jefe.js"></script>
+    <script>
+        // Mostrar fecha actual
+        const dateElement = document.getElementById('currentDate');
+        const today = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateElement.textContent = today.toLocaleDateString('es-MX', options);
+
+        // Manejo de cambio de foto
+        document.getElementById('avatarContainer').addEventListener('click', function() {
+            document.getElementById('fotoInput').click();
+        });
+
+        document.getElementById('fotoInput').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('avatarImg').src = event.target.result;
+                    document.getElementById('avatarImgSmall').src = event.target.result;
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Manejo de firma
+        document.getElementById('firma').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'Ningún archivo seleccionado';
+            document.getElementById('fileName').textContent = fileName;
+        });
+
+        document.getElementById('firmaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const file = document.getElementById('firma').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const firmaPreview = document.getElementById('firmaPreview');
+                    firmaPreview.innerHTML = `<img src="${event.target.result}" alt="Firma digital" class="firma-img">`;
+                };
+                reader.readAsDataURL(file);
+                alert('Firma guardada correctamente');
+            }
+        });
+    </script>
+</body>
+</html>
