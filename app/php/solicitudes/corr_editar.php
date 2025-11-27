@@ -94,6 +94,22 @@ $sol = [
               <p><em>No hay formulario estructurado para este tipo de documento.</em></p>
             </div>';
     }
+    if ($tipo === 'RED'){
+      require __DIR__ . '/dep_form.php';
+    }else{
+            echo '<div class="card" style="padding:1rem;margin:.75rem 0">
+              <h3 style="margin:0 0 .5rem">Campos específicos</h3>
+              <p><em>No hay formulario estructurado para este tipo de documento.</em></p>
+            </div>';
+    }
+    if($tipo ==='TUT'){
+      require __DIR__ . '/tut_mount.php';
+    }else{
+        echo '<div class="card" style="padding:1rem;margin:.75rem 0">
+              <h3 style="margin:0 0 .5rem">Campos específicos</h3>
+              <p><em>No hay formulario estructurado para este tipo de documento.</em></p>
+            </div>';
+    }
     ?>
 
     <form method="post" action="/siged/public/index.php?action=corr_aplicar" style="margin-top:1rem">

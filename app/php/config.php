@@ -5,8 +5,8 @@ final class Config {
   // === Ajusta estos valores a tu entorno local ===
   public const DB_SERVER   = 'localhost';          // o 'localhost\\SQLEXPRESS'
   public const DB_NAME     = 'SIGED';
-  public const DB_USER     = 'usuario_demo';       
-  public const DB_PASSWORD = 'pass_demo';         
+  public const DB_USER     = 'sa';       
+  public const DB_PASSWORD = 'jaem4366';         
   public const APP_ENV     = 'local';             
   public const APP_NAME    = 'SIGED';
 
@@ -34,6 +34,10 @@ final class Config {
       'CORREO'    => 'CORREO',           // login para DOCENTE
       'TEL'       => 'TELEFONO_DOCENTE',
       'ACTIVO'    => 'ACTIVO',
+      'CLAVE_EMPLEADO' => 'CLAVE_EMPLEADO',
+      'FECHA_INGRESO'=> 'FECHA_INGRESO',
+      'NSS'=> 'NSS',
+      'GRADO_ESTUDIOS' => 'GRADO_ESTUDIOS',
     ],
     'SOLICITUD' => [
       'TABLE'   => 'dbo.SOLICITUD_DOCUMENTO',

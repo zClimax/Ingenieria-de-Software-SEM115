@@ -16,20 +16,20 @@ catch (Throwable $e) { http_response_code(500); echo "Sin conexión a BD"; exit;
 
 // ====== Validar archivo ======
 if (!isset($_FILES['firma']) || $_FILES['firma']['error'] !== UPLOAD_ERR_OK) {
-  header('Location: /siged/public/index.php?action=home_docente&msg=firma_error'); exit;
+  header('Location: /SIGED/public/index.php?action=doc_firma&msg=firma_error'); exit;
 }
 
 $tmp  = $_FILES['firma']['tmp_name'];
 $size = (int)$_FILES['firma']['size'];
 if ($size <= 0 || $size > 2*1024*1024) { // 2MB
-  header('Location: /siged/public/index.php?action=home_docente&msg=firma_pesada'); exit;
+  header('Location: /SIGED/public/index.php?action=doc_firma&msg=firma_pesada'); exit;
 }
 
 $finfo = new finfo(FILEINFO_MIME_TYPE);
 $mime  = $finfo->file($tmp);
 $okMime = in_array($mime, ['image/png','image/jpeg','image/jpg'], true);
 if (!$okMime) {
-  header('Location: /siged/public/index.php?action=home_docente&msg=firma_tipo'); exit;
+  header('Location: /SIGED/public/index.php?action=doc_firma&msg=firma_tipo'); exit;
 }
 
 // ====== Destino: /storage/firmas (normalizamos a PNG) ======
@@ -77,7 +77,7 @@ if ($mime === 'image/png') {
 }
 
 // ====== Ruta web y hash ======
-$relWeb  = '/siged/storage/firmas/' . basename($destPng);
+$relWeb  = 'storage/firmas/' . basename($destPng);  // SIN /SIGED/ al inicio
 $hashBin = @hash_file('sha256', $destPng, true); if ($hashBin === false) { $hashBin = ''; }
 
 // ====== Persistencia en USUARIOS ======
@@ -93,7 +93,7 @@ $sql = "
 ";
 $st = $pdo->prepare($sql);
 $st->bindValue(':ruta', $relWeb, PDO::PARAM_STR);
-$st->bindValue(':mime', 'image/png', PDO::PARAM_STR);
+$st->bindValue(':mime', 'image/png', type: PDO::PARAM_STR);
 $st->bindValue(':id',   $idUser, PDO::PARAM_INT);
 
 try {
@@ -122,5 +122,5 @@ try {
 
 $pdo->commit();
 
-header('Location: /siged/public/index.php?action=home_docente&msg=firma_ok');
+header('Location: /SIGED/public/index.php?action=doc_firma&msg=firma_ok');
 exit;

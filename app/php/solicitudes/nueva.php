@@ -10,7 +10,7 @@ $user = (array)(Session::user() ?? []);
 $uid  = (int)($user['id'] ?? 0);
 if ($uid <= 0) { http_response_code(403); exit('Sesión inválida'); }
 
-// 1) Cargar convocatorias activas (primero ventana vigente, luego todas activas)
+// 1) Cargar convocatorias activas
 $st = $pdo->query("
   SELECT ID_CONVOCATORIA, NOMBRE_CONVOCATORIA, ANIO
   FROM dbo.CONVOCATORIA
@@ -19,7 +19,7 @@ $st = $pdo->query("
 ");
 $convs = $st->fetchAll(PDO::FETCH_ASSOC);
 
-// 2) Cargar tipos de documento disponibles (mapeados a evidencia activa)
+// 2) Cargar tipos de documento disponibles
 $st2 = $pdo->query("
   SELECT DISTINCT M.TIPO_DOCUMENTO, ET.NOMBRE, ET.PUNTAJE
   FROM dbo.EDD_EVIDENCIA_MAP M
@@ -29,9 +29,21 @@ $st2 = $pdo->query("
 ");
 $tipos = $st2->fetchAll(PDO::FETCH_ASSOC);
 
-// Si hay parámetro preseleccionado (?tipo=CNC)
+// Parámetros preseleccionados
 $tipoPre = strtoupper(trim((string)($_GET['tipo'] ?? '')));
 $convPre = (int)($_GET['conv'] ?? 0);
+
+// Datos del usuario
+$nombreCompleto = $user['nombre'] ?? 'Usuario';
+
+// Ruta de foto de perfil
+$rutaFoto = 'storage/fotos/doc_' . $uid . '.jpg';
+$rutaFisica = __DIR__ . '/../../../' . $rutaFoto;
+if (file_exists($rutaFisica)) {
+    $imgSrc = '../' . $rutaFoto . '?v=' . time(); 
+} else {
+    $imgSrc = '';
+}
 ?>
 <!doctype html>
 <html lang="es">
@@ -39,48 +51,91 @@ $convPre = (int)($_GET['conv'] ?? 0);
   <meta charset="utf-8">
   <title>SIGED · Nueva solicitud</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/siged/app/css/styles.css">
-  <style>
-    .wrap{max-width:900px;margin:2rem auto}
-    .card{border:1px solid #eee;border-radius:12px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-    .head{padding:1rem 1.25rem;border-bottom:1px solid #f1f5f9}
-    .title{font-size:24px;margin:0}
-    .body{padding:1rem 1.25rem}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    label{display:block;font-weight:600;margin:.5rem 0 .25rem}
-    select,input[type=text]{width:100%;padding:.6rem .7rem;border:1px solid #e5e7eb;border-radius:10px}
-    .actions{display:flex;gap:10px;margin-top:16px}
-    .btn{padding:.6rem .9rem;border-radius:10px;border:1px solid #e5e7eb;background:#0b5ed7;color:#fff;text-decoration:none}
-    .btn-sec{padding:.6rem .9rem;border-radius:10px;border:1px solid #e5e7eb;background:#f9fafb;text-decoration:none}
-    .muted{color:#6b7280;font-size:12px}
-    .alert{padding:.8rem 1rem;border-radius:10px;background:#fff7ed;border:1px solid #ffedd5;color:#7c2d12;margin-bottom:12px}
-  </style>
+  <link rel="stylesheet" href="/SIGED/public/css/NuevaSolicitud.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="layout">
-  <header class="topbar">
-    <strong>SIGED</strong>
-    <nav>
-      <a href="/siged/public/index.php?action=sol_mis">Mis solicitudes</a>
-      <a href="/siged/public/index.php?action=logout">Salir</a>
-    </nav>
+<body>
+  <!-- ENCABEZADO -->
+  <header class="encabezado">
+    <div class="seccion-izquierda">
+      <div class="icono-menu" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    <div class="seccion-centro">
+      <a href="/SIGED/public/index.php?action=home_docente" title="SIGED - Inicio">
+        <img src="/SIGED/public/img/IconosSIged/Recurso 3SIGED_LOGO.png" alt="SIGED Logo" class="logo-encabezado">
+      </a>
+    </div>
+    <div class="seccion-derecha">
+      <!-- <a href="/SIGED/public/index.php?action=notificaciones" class="enlace-notificacion">
+        <i class='bx bx-bell'></i> -->
+      </a>
+      <button class="boton-salir" onclick="location.href='/SIGED/public/index.php?action=logout'">Salir</button>
+    </div>
   </header>
 
-  <main class="wrap">
-    <section class="card">
-      <div class="head">
-        <h1 class="title">Nueva solicitud</h1>
-      </div>
-      <div class="body">
-        <?php if (!$convs): ?>
-          <div class="alert">No hay convocatorias activas. Solicita a tu área que active una convocatoria para poder crear solicitudes.</div>
-        <?php endif; ?>
+  <!-- BARRA LATERAL -->
+  <aside class="barra-lateral" id="sidebar">
+    <nav class="navegacion-lateral">
+      <ul>
+        <li>
+          <a href="/SIGED/public/index.php?action=home_docente" class="nav-link">
+            <img src="/SIGED/public/img/IconosSIged/Recurso 5Icono_usuario.png" alt="Inicio" class="icono-navegacion">
+            <span class="texto-navegacion">Inicio</span>
+          </a>
+        </li>
+        <li>
+          <a href="/SIGED/public/index.php?action=sol_mis" class="nav-link">
+            <img src="/SIGED/public/img/IconosSIged/Recurso 6Icono_GActas.png" alt="Mis Solicitudes" class="icono-navegacion">
+            <span class="texto-navegacion">Mis Solicitudes</span>
+          </a>
+        </li>
+        <li>
+          <a href="/SIGED/public/index.php?action=doc_firma" class="nav-link">
+            <img src="/SIGED/public/img/IconosSIged/Recurso 6Icono_firma.svg" alt="Mi Firma" class="icono-navegacion">
+            <span class="texto-navegacion">Mi Firma</span>
+          </a>
+        </li>
+        <li>
+          <a href="/SIGED/public/index.php?action=tk_list" class="nav-link">
+            <img src="/SIGED/public/img/IconosSIged/Recurso 7Icono_tickets.png" alt="Tickets" class="icono-navegacion">
+            <span class="texto-navegacion">Tickets</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
 
-        <form method="post" action="/siged/public/index.php?action=sol_guardar">
-          <div class="row">
-            <div>
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="contenido-principal">
+    <div class="contenedor-contenido">
+      
+      <!-- ALERTA SI NO HAY CONVOCATORIAS -->
+      <?php if (!$convs): ?>
+        <div class="alerta-advertencia">
+          <i class='bx bx-error-circle'></i>
+          <div>
+            <strong>No hay convocatorias activas</strong>
+            <p>Solicita a tu área que active una convocatoria para poder crear solicitudes.</p>
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <!-- TARJETA FORMULARIO -->
+      <section class="tarjeta-formulario">
+        <h2 class="titulo-seccion">Nueva solicitud</h2>
+
+        <form method="post" action="/SIGED/public/index.php?action=sol_guardar" class="formulario-solicitud">
+          <div class="cuadricula-campos">
+            <!-- TIPO DE DOCUMENTO -->
+            <div class="grupo-campo">
               <label for="tipo">Tipo de documento</label>
-              <select id="tipo" name="tipo" required>
-                <option value="" disabled <?= $tipoPre ? '' : 'selected' ?>>Selecciona…</option>
+              <select id="tipo" name="tipo" class="campo-seleccion" required>
+                <option value="" disabled <?= $tipoPre ? '' : 'selected' ?>>Selecciona un tipo...</option>
                 <?php foreach ($tipos as $t):
                   $val = strtoupper((string)$t['TIPO_DOCUMENTO']);
                   $nom = (string)$t['NOMBRE'];
@@ -91,19 +146,20 @@ $convPre = (int)($_GET['conv'] ?? 0);
                   </option>
                 <?php endforeach; ?>
               </select>
-              <div class="muted">Los tipos listados están vinculados a evidencias activas.</div>
+              <small class="texto-ayuda">Los tipos listados están vinculados a evidencias activas</small>
             </div>
 
-            <div>
+            <!-- CONVOCATORIA -->
+            <div class="grupo-campo">
               <label for="conv">Convocatoria</label>
               <?php if (count($convs) <= 1):
                 $convId = $convs ? (int)$convs[0]['ID_CONVOCATORIA'] : 0; ?>
                 <input type="hidden" id="conv" name="convocatoria_id" value="<?= $convPre ?: $convId ?>">
-                <div style="padding:.55rem 0">
+                <div class="campo-readonly">
                   <?= $convs ? htmlspecialchars($convs[0]['NOMBRE_CONVOCATORIA'].' ('.$convs[0]['ANIO'].')') : '—' ?>
                 </div>
               <?php else: ?>
-                <select id="conv" name="convocatoria_id" required>
+                <select id="conv" name="convocatoria_id" class="campo-seleccion" required>
                   <?php foreach ($convs as $c): ?>
                     <option value="<?= (int)$c['ID_CONVOCATORIA'] ?>" <?= $convPre===(int)$c['ID_CONVOCATORIA'] ? 'selected':'' ?>>
                       <?= htmlspecialchars($c['NOMBRE_CONVOCATORIA'].' ('.$c['ANIO'].')') ?>
@@ -111,17 +167,33 @@ $convPre = (int)($_GET['conv'] ?? 0);
                   <?php endforeach; ?>
                 </select>
               <?php endif; ?>
-              <div class="muted">Se usará para folios, validación y puntaje.</div>
+              <small class="texto-ayuda">Se usará para folios, validación y puntaje</small>
             </div>
           </div>
 
-          <div class="actions">
-            <button type="submit" class="btn" <?= $convs ? '' : 'disabled' ?>>Guardar</button>
-            <a class="btn-sec" href="/siged/public/index.php?action=sol_mis">Cancelar</a>
+          <!-- BOTONES -->
+          <div class="grupo-botones">
+            <button type="submit" class="boton-primario" <?= $convs ? '' : 'disabled' ?>>
+              <i class='bx bx-save'></i>
+              Guardar solicitud
+            </button>
+            <a class="boton-secundario" href="/SIGED/public/index.php?action=sol_mis">
+              <i class='bx bx-x'></i>
+              Cancelar
+            </a>
           </div>
         </form>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
+
+  <script>
+    // Toggle sidebar
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('minimized');
+    });
+  </script>
 </body>
 </html>

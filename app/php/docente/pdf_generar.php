@@ -175,6 +175,14 @@ if ($tipo === 'DCE') {
     $html = file_get_contents($tplFile);
     if ($html === false) { http_response_code(500); exit('No se pudo leer la plantilla DCE'); }
 
+    $sigPath = siged_firma_abs_path($pdo, $uid);
+    if ($sigPath && file_exists($sigPath)) {
+      // TCPDF acepta rutas locales absolutas
+      $vars['firma_docente'] = '<img src="'.htmlspecialchars($sigPath).'" style="height:70px">';
+    }
+
+
+
     // ---- Variables que soporta la plantilla (reemplazo flexible)
     $vars = [
       'ciudad'             => $ciudad,
@@ -190,7 +198,9 @@ if ($tipo === 'DCE') {
       // si quieres imprimir responsable RH:
       'nombre_jefe_rh'     => (defined('Config::JEFE_RH') ? (string)Config::JEFE_RH : ''),
       // Firma del docente inline (si la plantilla tiene {{firma_docente}})
-      'firma_docente'      => '', // se llena si existe firma
+      'firma_docente'      => '', 
+      'clave_presupuestal' => '123456',
+      'campus'=> 'Culiacán',
     ];
 
     // Firma inline dentro del HTML (opcional)
@@ -1131,6 +1141,7 @@ if ($tipo === 'TUT') {
   ")->fetchColumn();
   $firmaAbs = $idJefe ? siged_firma_abs_path($pdo,$idJefe) : '';
 
+  
   // PDF cosmetics
   $pdf->SetTextColor(0,0,0);
   $pdf->SetDrawColor(0,0,0);
@@ -1147,7 +1158,7 @@ if ($tipo === 'TUT') {
 
   $fechaTxt = $tu['FECHA_EMISION'] ? (new DateTime($tu['FECHA_EMISION']))->format('d/m/Y') : date('d/m/Y');
   $firmaTag = ($firmaAbs && is_readable($firmaAbs))
-    ? '<img src="'.htmlspecialchars($firmaAbs,ENT_QUOTES,'UTF-8').'" style="width:190px;height:auto;display:inline-block;" />'
+    ? '<img src="'.htmlspecialchars($firmaAbs,ENT_QUOTES,'UTF-8').'" style="width:150px;height:auto;display:inline-block;" />'
     : '';
 
   $folio  = $cab['FOLIO'] ?: ('TUT-'.date('Y').'-'.$idSol);
@@ -1161,7 +1172,7 @@ if ($tipo === 'TUT') {
     '{tutorados_ene_jun_2024}'    => (string)(int)$tu['TUT_EJ_2024'],
     '{tutorados_ago_dic_2024}'    => (string)(int)$tu['TUT_AD_2024'],
     '{nombre_jefa_servicios}'     => ($jefeNombre ?: 'Jefa(e) de Servicios Escolares'),
-    // (Si tu HTML usa lugar/fecha, puedes añadirlos en la plantilla y reemplazarlos aquí)
+    '{path_firma_jefe_img}'       => $firmaTag,
   ];
   $html = strtr($html, $repl);
 
@@ -1181,10 +1192,6 @@ if ($tipo === 'TUT') {
   readfile($absOut);
   exit;
 }
-
-
-
-
 
 else {
   // ---- Fallback genérico para otros tipos

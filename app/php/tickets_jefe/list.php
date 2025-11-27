@@ -1,71 +1,160 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/../utils/session.php'; Session::start();
-require_once __DIR__ . '/../utils/roles.php'; requireRole(['JEFE_DEPARTAMENTO']);
+require_once __DIR__ . '/../utils/session.php';
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../utils/roles.php';
+
+Session::start();
+requireRole(['JEFE_DEPARTAMENTO']);
+
+$user = Session::user();
+$idUsuario = (int)$user['id'];
+
+// Foto de perfil
+$rutaFoto = 'storage/fotos/jefe_' . $idUsuario . '.jpg';
+$rutaFisica = __DIR__ . '/../../../' . $rutaFoto;
+if (file_exists($rutaFisica)) {
+    $imgSrc = '../' . $rutaFoto . '?v=' . time();
+} else {
+    $imgSrc = '/SIGED/public/img/User.png';
+}
+
+$displayName = trim((string)($user['nombre'] ?? 'Jefe de Departamento'));
 ?>
-<!doctype html><html lang="es"><head><meta charset="utf-8">
-<title>Tickets (Jefe) | SIGED</title><meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:#f8fafc}
-.wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-.card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:16px}
-h1{margin:6px 0 12px}
-.tabs{display:flex;gap:8px;margin:8px 0 12px}
-.tab{padding:8px 12px;border:1px solid #e5e7eb;border-radius:999px;background:#fff;cursor:pointer}
-.tab.active{background:#0b1a52;color:#fff;border-color:#0b1a52}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px;border-bottom:1px solid #eef2f7;text-align:left}
-th{font-size:12px;color:#6b7280;letter-spacing:.3px;text-transform:uppercase}
-.badge{padding:2px 8px;border-radius:999px;border:1px solid #e5e7eb;background:#f3f4f6;font-size:12px}
-.prio{font-weight:700}
-.link{color:#0b1a52}
-</style></head><body>
-<div class="wrap">
-  <div class="card">
-    <h1>Tickets asignados a mí</h1>
-    <div class="tabs">
-      <button class="tab active" data-t="abiertos">Abiertos</button>
-      <button class="tab" data-t="revision">En revisión</button>
-      <button class="tab" data-t="cerrados">Cerrados</button>
-    </div>
-    <table>
-      <thead><tr>
-        <th>Fecha</th><th>ID</th><th>Título</th><th>Docente</th><th>Prioridad</th><th>Estatus</th><th></th>
-      </tr></thead>
-      <tbody id="tb"></tbody>
-    </table>
-  </div>
-</div>
-<script>
-(function(){
-  const tb=document.getElementById('tb');
-  const tabs=document.querySelectorAll('.tab');
-  let modo='abiertos';
-  function load(){
-    fetch('/SIGED/public/index.php?action=tkj_data&modo='+modo,{credentials:'same-origin'})
-      .then(r=>r.json()).then(j=>{
-        if(!j.ok){console.error(j);return;}
-        tb.innerHTML='';
-        (j.items||[]).forEach(row=>{
-          const tr=document.createElement('tr');
-          tr.innerHTML=`
-            <td>${(row.FECHA_CREACION||'').slice(0,10)}</td>
-            <td>${row.ID_TICKET}</td>
-            <td>${row.TITULO||''}</td>
-            <td>${row.DOCENTE||''}</td>
-            <td class="prio">${row.PRIORIDAD||''}</td>
-            <td><span class="badge">${row.ESTATUS}</span></td>
-            <td><a class="link" href="/SIGED/public/index.php?action=tkj_ver&id=${row.ID_TICKET}">atender</a></td>
-          `;
-          tb.appendChild(tr);
-        });
-      });
-  }
-  tabs.forEach(btn=>btn.addEventListener('click',()=>{
-    tabs.forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-    modo=btn.dataset.t; load();
-  }));
-  load();
-})();
-</script>
-</body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets | SIGED</title>
+    
+    <link rel="stylesheet" href="/SIGED/public/css/TicketsJefe.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ENCABEZADO -->
+    <header class="header">
+        <div class="header-left">
+            <div class="menu-container" id="menuToggle">
+                <div class="menu-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-center">
+            <a href="/SIGED/public/index.php?action=home_jefe">
+                <img src="/SIGED/public/img/IconosSIged/Recurso%203SIGED_LOGO.png" alt="SIGED" class="site-logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <!-- <a href="/SIGED/public/index.php?action=notificaciones" title="Notificaciones">
+                <i class='bx bx-bell'></i>
+            </a> -->
+            <button class="btn-salir" onclick="window.location.href='/SIGED/public/index.php?action=logout'">Salir</button>
+        </div>
+    </header>
+
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="/SIGED/public/index.php?action=home_jefe" class="nav-link">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 5Icono_usuario.png" alt="Inicio" class="nav-img">
+                        <span class="nav-text">Inicio</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/SIGED/public/index.php?action=jefe_bandeja" class="nav-link">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 6Icono_GActas.png" alt="Bandeja" class="nav-img">
+                        <span class="nav-text">Bandeja</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/SIGED/public/index.php?action=tkj_list" class="nav-link active">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 7Icono_tickets.png" alt="Tickets" class="nav-img">
+                        <span class="nav-text">Tickets</span>
+                    </a>
+                </li>
+                
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar-small">
+                    <img src="<?= htmlspecialchars($imgSrc) ?>" alt="Usuario" class="user-avatar-img-small">
+                </div>
+                <div class="user-details">
+                    <span class="user-name"><?= htmlspecialchars($displayName) ?></span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content" id="mainContent">
+        <div class="tickets-wrapper">
+
+            <!-- Header -->
+            <section class="tickets-header">
+                <h1 class="page-title">
+                    <i class='bx bx-support'></i>
+                    Tickets asignados
+                </h1>
+                <p class="page-subtitle">Gestiona las solicitudes de soporte de los docentes</p>
+            </section>
+
+            <!-- Tabs y Tabla -->
+            <section class="tabs-section">
+                <div class="tabs-container">
+                    <button class="tab active" data-t="abiertos">
+                        <i class='bx bx-folder-open'></i>
+                        Abiertos
+                    </button>
+                    <button class="tab" data-t="revision">
+                        <i class='bx bx-time-five'></i>
+                        En revisión
+                    </button>
+                    <button class="tab" data-t="cerrados">
+                        <i class='bx bx-check-circle'></i>
+                        Cerrados
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="tickets-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Docente</th>
+                                <th>Prioridad</th>
+                                <th>Estatus</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb">
+                            <tr>
+                                <td colspan="7" class="loading">
+                                    <i class='bx bx-loader-alt'></i>
+                                    <p>Cargando tickets...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/SIGED/public/js/menu.js"></script>
+    <script src="/SIGED/public/js/tickets_jefe.js"></script>
+</body>
+</html>

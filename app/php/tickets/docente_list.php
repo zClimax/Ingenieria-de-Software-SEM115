@@ -1,112 +1,163 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/../utils/session.php'; Session::start();
-require_once __DIR__ . '/../utils/roles.php'; requireRole(['DOCENTE']);
+require_once __DIR__ . '/../utils/session.php';
+require_once __DIR__ . '/../utils/roles.php';
+
+Session::start();
+requireRole(['DOCENTE']);
+
+$user = Session::user();
+$nombreCompleto = $user['nombre'] ?? 'Usuario';
+$uid = (int)($user['id'] ?? 0);
+
+// Foto de perfil
+$rutaFoto = 'storage/fotos/doc_' . $uid . '.jpg';
+$rutaFisica = __DIR__ . '/../../../' . $rutaFoto;
+if (file_exists($rutaFisica)) {
+    $imgSrc = '../' . $rutaFoto . '?v=' . time();
+} else {
+    $imgSrc = '/SIGED/public/img/User.png';
+}
+
+// Pasar datos a JavaScript
+$jsData = json_encode([
+    'userId' => $uid,
+    'nombreCompleto' => $nombreCompleto
+]);
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Tickets | SIGED</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    :root{ --azul:#0b1a52; --grisBorde:#e5e7eb; --grisLinea:#eef2f7; }
-    *{ box-sizing:border-box }
-    body{ margin:0; font-family:system-ui,Segoe UI,Roboto,Arial; background:#f8fafc; color:#111827 }
-    .wrap{ max-width:1100px; margin:24px auto; padding:0 16px }
-    .card{ background:#fff; border:1px solid var(--grisBorde); border-radius:14px;
-           box-shadow:0 8px 24px rgba(0,0,0,.06); padding:16px }
-    h1{ margin:6px 0 12px; font-size:28px }
-    .tabs{ display:flex; gap:8px; margin:8px 0 16px; align-items:center }
-    .tab{ padding:8px 12px; border:1px solid var(--grisBorde); border-radius:999px; background:#fff; cursor:pointer }
-    .tab.active{ background:var(--azul); color:#fff; border-color:var(--azul) }
-    .volver{ margin-left:8px; }
-    table{ width:100%; border-collapse:collapse }
-    th,td{ padding:10px; border-bottom:1px solid var(--grisLinea); text-align:left; vertical-align:top }
-    th{ font-size:12px; color:#6b7280; letter-spacing:.3px; text-transform:uppercase }
-    td:nth-child(3){ min-width:220px } /* Descripción */
-    td:nth-child(4){ min-width:160px } /* Responsable */
-    td:nth-child(5){ min-width:200px } /* Depto */
-    .badge{ padding:2px 8px; border-radius:999px; border:1px solid var(--grisBorde); background:#f3f4f6; font-size:12px }
-    .btn{ background:var(--azul); color:#fff; border:none; border-radius:10px; padding:10px 14px; cursor:pointer; text-decoration:none; display:inline-block }
-    .actions{ display:flex; justify-content:flex-end; margin-top:12px }
-    a.link{ color:var(--azul); text-decoration:underline }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets | SIGED</title>
+    
+    <link rel="stylesheet" href="/SIGED/public/css/Tickets.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Tickets</h1>
 
-      <div class="tabs">
-        <button class="tab active" data-t="abiertos">Abiertos</button>
-        <button class="tab" data-t="cerrados">Cerrados</button>
-        <a class="volver link" href="/SIGED/public/index.php?action=home_docente">← Volver</a>
-      </div>
+    <!-- ENCABEZADO -->
+    <header class="header">
+        <div class="header-left">
+            <div class="menu-container" id="menuToggle">
+                <div class="menu-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-center">
+            <a href="/SIGED/public/index.php?action=home_docente" title="SIGED - Inicio">
+                <img src="/SIGED/public/img/IconosSIged/Recurso%203SIGED_LOGO.png" alt="SIGED" class="site-logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <a href="/SIGED/public/index.php?action=notificaciones" title="Notificaciones">
+                <i class='bx bx-bell'></i>
+            </a>
+            <button class="btn-salir" onclick="window.location.href='/SIGED/public/index.php?action=logout'">Salir</button>
+        </div>
+    </header>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Clave</th>
-            <th>Descripción</th>
-            <th>Responsable</th>
-            <th>Depto</th>
-            <th>Estatus</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="tb"></tbody>
-      </table>
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="/SIGED/public/index.php?action=home_docente" class="nav-link">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 5Icono_usuario.png" alt="Inicio" class="nav-img">
+                        <span class="nav-text">Inicio</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/SIGED/public/index.php?action=sol_mis" class="nav-link">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 6Icono_GActas.png" alt="Mis Solicitudes" class="nav-img">
+                        <span class="nav-text">Mis Solicitudes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/SIGED/public/index.php?action=doc_firma" class="nav-link">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 6Icono_firma.svg" alt="Mi Firma" class="nav-img">
+                        <span class="nav-text">Mi Firma</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/SIGED/public/index.php?action=tk_list" class="nav-link active">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 7Icono_tickets.png" alt="Tickets" class="nav-img">
+                        <span class="nav-text">Tickets</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar-small">
+                    <img src="<?php echo htmlspecialchars($imgSrc); ?>" alt="Usuario" class="user-avatar-img-small">
+                </div>
+                <div class="user-details">
+                    <span class="user-name"><?php echo htmlspecialchars($nombreCompleto); ?></span>
+                </div>
+            </div>
+        </div>
+    </aside>
 
-      <div class="actions">
-        <a class="btn" href="/SIGED/public/index.php?action=tk_crear">Crear Ticket</a>
-      </div>
-    </div>
-  </div>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content" id="mainContent">
+        <div class="content-wrapper tickets-wrapper">
+            
+            <!-- Título -->
+            <h1 class="tickets-title">Tickets</h1>
 
-  <script>
-  (function(){
-    const tb   = document.getElementById('tb');
-    const tabs = document.querySelectorAll('.tab');
-    let modo   = 'abiertos';
+            <!-- Tabs de navegación -->
+            <div class="tabs-container">
+                <button class="tab active" data-t="abiertos">Abiertos</button>
+                <button class="tab" data-t="cerrados">Cerrados</button>
+            </div>
 
-    function render(items){
-      tb.innerHTML = '';
-      (items || []).forEach(row=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${(row.FECHA_CREACION||'').slice(0,10)}</td>
-          <td>${row.ID_TICKET}</td>
-          <td>${row.TITULO || row.DESCRIPCION || ''}</td>
-          <td>${row.JEFE_NOMBRE || 'Sin asignar'}</td>
-          <td>${row.JEFE_DEPTO || '—'}</td>
-          <td><span class="badge">${row.ESTATUS}</span></td>
-          <td><a class="link" href="/SIGED/public/index.php?action=tk_ver&id=${row.ID_TICKET}">ver</a></td>
-        `;
-        tb.appendChild(tr);
-      });
-    }
+            <!-- Tabla de tickets -->
+            <div class="table-container">
+                <table class="tickets-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Clave</th>
+                            <th>Descripción</th>
+                            <th>Responsable</th>
+                            <th>Departamento</th>
+                            <th>Estatus</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb">
+                        <tr>
+                            <td colspan="7" style="text-align:center; padding:40px; color:#6b7280;">
+                                <i class='bx bx-loader-alt bx-spin' style="font-size:2rem;"></i>
+                                <p>Cargando tickets...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    function load(){
-      fetch('/SIGED/public/index.php?action=tk_data&modo=' + modo, {credentials:'same-origin'})
-        .then(r => r.json())
-        .then(j => {
-          if(!j.ok){ console.error(j); tb.innerHTML = '<tr><td colspan="7">Error al cargar</td></tr>'; return; }
-          render(j.items);
-        })
-        .catch(_ => tb.innerHTML = '<tr><td colspan="7">Sin conexión</td></tr>');
-    }
+            <!-- Acciones -->
+            <div class="actions">
+                <a href="/SIGED/public/index.php?action=tk_crear" class="btn-crear-ticket">
+                    <i class='bx bx-plus-circle'></i>
+                    Crear Ticket
+                </a>
+            </div>
 
-    tabs.forEach(btn => btn.addEventListener('click', ()=>{
-      tabs.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      modo = btn.dataset.t;
-      load();
-    }));
+        </div>
+    </main>
 
-    load();
-  })();
-  </script>
+    <!-- Scripts -->
+    <script>
+        window.APP_DATA = <?php echo $jsData; ?>;
+    </script>
+    <script src="/SIGED/public/js/menu.js"></script>
+    <script src="/SIGED/public/js/tickets.js"></script>
 </body>
 </html>

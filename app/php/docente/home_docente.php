@@ -2,282 +2,275 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../utils/session.php';
 require_once __DIR__ . '/../utils/roles.php';
-requireRole(['DOCENTE']); // protección
+require_once __DIR__ . '/../config.php';
+
 Session::start();
+requireRole(['DOCENTE']);
+
+$user = Session::user();
+$pdo  = DB::conn();
+$D    = Config::MAP['DOCENTE'];
+
+// Obtener datos del docente
+$sql = "SELECT * FROM {$D['TABLE']} WHERE {$D['ID_USR']} = :id_usr";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([':id_usr' => $user['id']]);
+$docenteData = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+$nombreCompleto = $user['nombre']; 
+$correo         = $user['correo']; 
+$departamento   = $docenteData['DEPARTAMENTO'] ?? 'Sistemas y Computación';
+
+// Mapeo de campos
+$rfc            = $docenteData[$D['RFC']]       ?? '—';
+$curp           = $docenteData[$D['CURP']]      ?? '—';
+$telefono       = $docenteData[$D['TEL']]       ?? '—';
+$claveEmpleado  = $docenteData[$D['CLAVE_EMPLEADO'] ?? 'CLAVE_EMPLEADO'] ?? '—';
+$matricula      = $docenteData[$D['MATRICULA'] ?? 'MATRICULA'] ?? '—';
+$nss            = $docenteData[$D['NSS'] ?? 'NSS']       ?? '—';
+$gradodeEstudios= $docenteData[$D['GRADO_ESTUDIOS'] ?? 'GRADO_ESTUDIOS'] ?? '—';
+$fechaIngreso   = $docenteData[$D['FECHA_INGRESO'] ?? 'FECHA_INGRESO']  ?? '—'; 
+
+if ($fechaIngreso !== '—') {
+    try { $fechaIngreso = (new DateTime($fechaIngreso))->format('d/m/Y'); } catch(Exception $e){}
+}
+
+$rutaFotoRelativa = 'storage/fotos/doc_' . $user['id'] . '.jpg';
+$rutaFisica       = __DIR__ . '/../../../' . $rutaFotoRelativa; 
+$imgSrc = file_exists($rutaFisica) ? '../' . $rutaFotoRelativa . '?v=' . time() : '/SIGED/public/img/User.png';
+
+// Pasar datos a JavaScript
+$jsData = json_encode([
+    'userId' => $user['id'],
+    'nombreCompleto' => $nombreCompleto
+]);
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Interfaz de Datos Personales del Docente</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    :root{
-      --azul:#0b1a52; --azul-2:#102a7a; --gris:#f3f4f6; --borde:#e5e7eb; --texto:#111827;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:#f8fafc;color:var(--texto)}
-    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
-    .sidebar{background:linear-gradient(180deg,#08123c,#0b1a52);color:#dbeafe;padding:16px}
-    .brand{display:flex;align-items:center;gap:8px;margin:10px 0 24px 8px}
-    .brand span{font-weight:800;letter-spacing:.5px}
-    .menu a{display:flex;align-items:center;gap:10px;color:#dbeafe;text-decoration:none;padding:10px 12px;border-radius:10px;margin:4px 8px}
-    .menu a.active,.menu a:hover{background:rgba(255,255,255,.12)}
-    .avatar-mini{position:absolute;bottom:16px;left:16px;display:flex;align-items:center;gap:10px}
-    .avatar-mini .pic{width:38px;height:38px;border-radius:999px;border:2px solid #fff;background:#0b1a52 url('') center/cover no-repeat}
-    .content{padding:28px}
-    .topbar{display:flex;justify-content:center;align-items:center;gap:8px;background:#fff;border:1px solid var(--borde);border-radius:12px;padding:10px 14px;width:fit-content;margin:0 auto 22px}
-    .card{background:#fff;border:1px solid var(--borde);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.05)}
-    .card .section{padding:18px 24px;border-bottom:1px solid var(--borde)}
-    .section:last-child{border-bottom:0}
-    .title-sec{background:#eef2ff;color:#0b1a52;text-align:center;padding:8px;border-radius:30px;margin:12px auto;width:60%}
-    .id-row{display:flex;gap:20px;align-items:center}
-    .avatar{width:110px;height:110px;border:2px dashed #cbd5e1;border-radius:16px;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-size:54px;color:#94a3b8}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    .pill{background:#f3f4f6;border:1px solid var(--borde);border-radius:12px;padding:10px 14px}
-    .bar-wrap{background:#eef2ff;border-radius:20px;height:22px;display:flex;align-items:center;padding:2px}
-    .bar{height:18px;border-radius:18px;background:linear-gradient(90deg,#0b1a52,#102a7a);width:0%}
-    .bar-meta{display:flex;justify-content:center;gap:10px;margin-top:8px;font-weight:600}
-    .btn{display:inline-block;background:#fff;border:1px solid var(--borde);padding:10px 14px;border-radius:10px;cursor:pointer}
-    .btn.primary{background:#0b1a52;color:#fff;border-color:#0b1a52}
-    @media (max-width:980px){.layout{grid-template-columns:1fr}.sidebar{display:none}.title-sec{width:90%}.grid{grid-template-columns:1fr}}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <link rel="stylesheet" href="/SIGED/public/css/InterfazMenuPrincipal.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <title>SIGED - Inicio Docente</title>
 </head>
 <body>
 
-<!-- Modal Convocatoria -->
-<div id="convModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:#fff;max-width:720px;width:92%;border-radius:14px;padding:16px;border:1px solid #e5e7eb;box-shadow:0 8px 24px rgba(0,0,0,.12)">
-    <h2 style="margin:6px 0 8px">Convocatoria activa</h2>
-    <div id="convMeta" style="color:#374151;font-size:14px;margin-bottom:8px"></div>
-    <div>
-      <strong>Requisitos</strong>
-      <ul id="reqList" style="margin-top:6px;padding-left:18px"></ul>
+    <!-- Modal Convocatoria Activa -->
+    <div id="convModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeConv">&times;</span>
+            <div class="modal-header">
+                <h2 class="modal-title">Convocatoria Activa</h2>
+            </div>
+            <div class="modal-body">
+                <div id="convMeta" class="modal-subtitle"></div>
+                <strong>Requisitos:</strong>
+                <ul id="reqList" style="margin: 10px 0; padding-left: 20px;"></ul>
+                <div id="convMsg" class="modal-message" style="margin-top: 15px; color: #666;"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnConvOk" class="btn-modal">Entendido</button>
+            </div>
+        </div>
     </div>
-    <div id="convMsg" style="margin-top:8px;color:#111827"></div>
-    <div style="margin-top:12px;text-align:right">
-      <button id="btnConvOk" style="background:#0b1a52;color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer">Entendido</button>
+
+    <!-- Modal Histórico de Convocatorias -->
+    <div id="modalHistorico" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close-modal" id="closeHist">&times;</span>
+            <div class="modal-header">
+                <h2 class="modal-title">Histórico de Convocatorias</h2>
+            </div>
+            <div class="modal-body">
+                
+                <!-- Vista Resumen -->
+                <div id="histViewResumen">
+                    <div class="table-responsive">
+                        <table class="tabla-historico">
+                            <thead>
+                                <tr>
+                                    <th>Año</th>
+                                    <th>Convocatoria</th>
+                                    <th>Vigencia</th>
+                                    <th>Puntos</th>
+                                    <th>%</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbHistResumen"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Vista Detalle -->
+                <div id="histViewDetalle" style="display:none;">
+                    <div style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                        <button class="btn-outline-small" id="btnVolverHist">← Volver</button>
+                        <h3 id="detTitulo" style="margin:10px 0 5px; color:var(--accent);"></h3>
+                        <span id="detVigencia" style="font-size:0.9rem; color:#666;"></span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="tabla-historico">
+                            <thead>
+                                <tr>
+                                    <th>Evidencia</th>
+                                    <th>Puntos</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbHistDetalle"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div id="histLoading" style="text-align:center; display:none; padding:20px;">
+                    <i class='bx bx-loader-alt bx-spin' style="font-size:2rem; color:var(--accent);"></i>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<!-- BASE URL GLOBAL (una sola vez) -->
-<script>
-  window.SIGED_BASE = (location.pathname.includes('/public/index.php'))
-    ? location.pathname.replace(/\/public\/index\.php.*/,'') + '/public/index.php'
-    : location.pathname.replace(/index\.php.*/,'index.php');
-</script>
+    <!-- ENCABEZADO -->
+    <header class="header">
+        <div class="header-left">
+            <div class="menu-container" id="menuToggle">
+                <div class="menu-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-center">
+            <a href="/SIGED/public/index.php?action=home_docente" title="SIGED - Inicio">
+                <img src="/SIGED/public/img/IconosSIged/Recurso%203SIGED_LOGO.png" alt="SIGED" class="site-logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <!-- <a href="/SIGED/public/index.php?action=notificaciones" title="Notificaciones">
+                <i class='bx bx-bell'></i>
+            </a> -->
+            <button class="btn-salir" onclick="window.location.href='/SIGED/public/index.php?action=logout'">Salir</button>
+        </div>
+    </header>
 
-<script>
-(function(){
-  const modal   = document.getElementById('convModal');
-  const meta    = document.getElementById('convMeta');
-  const ul      = document.getElementById('reqList');
-  const msg     = document.getElementById('convMsg');
-  const btn     = document.getElementById('btnConvOk');
-  let convId    = 0;
-
-  function openModal(){ modal.style.display='flex'; }
-  function closeModal(){ modal.style.display='none'; }
-
-  async function loadConv(){
-    try{
-      const r = await fetch(SIGED_BASE + '?action=conv_get', {credentials:'same-origin'});
-      const j = await r.json();
-      if(!j.ok){ console.warn(j); return; }
-      if(!j.mostrar_modal){ return; }
-
-      convId = Number(j.convocatoria?.id || 0);
-      const clave = j.convocatoria?.clave || '';
-      const nombre= j.convocatoria?.nombre || '';
-      const ini   = (j.convocatoria?.fecha_ini || '').toString().slice(0,10);
-      const fin   = (j.convocatoria?.fecha_fin || '').toString().slice(0,10);
-
-      meta.textContent = `${clave ? clave + ' — ' : ''}${nombre} (${ini} a ${fin})`;
-      ul.innerHTML = '';
-      (j.requisitos || []).forEach(rq=>{
-        const li = document.createElement('li');
-        li.textContent = `${rq.nombre} ${rq.cumple ? '✓' : '✕'}`;
-        ul.appendChild(li);
-      });
-      msg.textContent = j.mensaje || '';
-      openModal();
-    }catch(e){ console.error(e); }
-  }
-
-  btn?.addEventListener('click', async ()=>{
-    try{
-      if(!convId){ closeModal(); return; }
-      const fd = new FormData(); fd.append('id_convocatoria', String(convId));
-      const r = await fetch(SIGED_BASE + '?action=conv_ack', { method:'POST', body:fd, credentials:'same-origin' });
-      const j = await r.json();
-      if(j && j.ok){ closeModal(); }
-    }catch(e){ console.error(e); closeModal(); }
-  });
-
-  document.addEventListener('DOMContentLoaded', loadConv);
-})();
-</script>
-
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="brand"><span style="background:#fff;color:#0b1a52;border-radius:8px;padding:2px 6px;font-weight:900">S</span><span>SIGED</span></div>
-      <nav class="menu">
-        <a href="/SIGED/public/index.php?action=sol_mis">Generador de actas</a>
-        <a href="/SIGED/public/index.php?action=home_docente" class="active">Usuario</a>
-        <a href="/SIGED/public/index.php?action=tk_list">Tickets</a>
-        <a href="/siged/public/index.php?action=doc_firma">Mi firma</a>
-      </nav>
-      <div class="avatar-mini">
-        <div class="pic"></div>
-        <div style="font-size:12px" id="miniName">Docente</div>
-      </div>
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="/SIGED/public/index.php?action=home_docente" class="nav-link active">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 5Icono_usuario.png" alt="Inicio" class="nav-img">
+                        <span class="nav-text">Inicio</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/SIGED/public/index.php?action=sol_mis" class="nav-link">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 6Icono_GActas.png" alt="Mis Solicitudes" class="nav-img">
+                        <span class="nav-text">Mis Solicitudes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/SIGED/public/index.php?action=doc_firma" class="nav-link">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 6Icono_firma.svg" alt="Mi Firma" class="nav-img">
+                        <span class="nav-text">Mi Firma</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/SIGED/public/index.php?action=tk_list" class="nav-link">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 7Icono_tickets.png" alt="Tickets" class="nav-img">
+                        <span class="nav-text">Tickets</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar-small">
+                    <img src="<?php echo htmlspecialchars($imgSrc); ?>" alt="Usuario" class="user-avatar-img-small">
+                </div>
+                <div class="user-details">
+                    <span class="user-name"><?php echo htmlspecialchars($nombreCompleto); ?></span>
+                </div>
+            </div>
+        </div>
     </aside>
 
-    <main class="content">
-      <div class="topbar"><strong>SIGED</strong><span style="opacity:.6">| Interfaz de Datos Personales del Docente</span>
-        <div style="margin-left:18px"><a href="/SIGED/public/index.php?action=logout" class="btn">Salir</a></div>
-      </div>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content" id="mainContent">
+        <div class="content-wrapper">
+            
+            <!-- Identificación -->
+            <section class="identificacion">
+                <h2>Identificación</h2>
+                <div class="info-card">
+                    <div class="avatar-container" id="avatarContainer" title="Cambiar foto">
+                        <img src="<?php echo htmlspecialchars($imgSrc); ?>" alt="Usuario" class="avatar-img-fit">
+                        <div class="avatar-overlay">
+                            <i class='bx bx-camera'></i>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" name="foto" accept="image/*" style="display:none;">
+                    <div class="info-details">
+                        <h3><?php echo htmlspecialchars($nombreCompleto); ?></h3>
+                        <p><strong>Correo:</strong> <?php echo htmlspecialchars($correo); ?></p>
+                        <p><strong>Departamento:</strong> <?php echo htmlspecialchars($departamento); ?></p>
+                    </div>
+                </div>
+            </section>
 
-      <div class="id-row">
-        <div class="avatar" id="docAvatar" style="background:#f8fafc center/cover no-repeat; position:relative;">
-          <span id="avatarFallback" style="font-size:54px;color:#94a3b8">👤</span>
-        </div>
-        <div>
-          <div id="docNombre" style="font-weight:700;font-size:18px">—</div>
-          <div id="docRFC"    style="opacity:.8;margin-top:6px">—</div>
-          <div id="docCorreo" style="opacity:.8;margin-top:6px">—</div>
-          <div id="docDepto"  style="opacity:.8;margin-top:6px">—</div>
+            <!-- Datos Personales -->
+            <section class="datos-personales">
+                <h2>Datos personales</h2>
+                <div class="datos-grid">
+                    <p><strong>RFC:</strong> <?php echo htmlspecialchars($rfc); ?></p>
+                    <p><strong>CURP:</strong> <?php echo htmlspecialchars($curp); ?></p>
+                    <p><strong>TELÉFONO:</strong> <?php echo htmlspecialchars($telefono); ?></p>
+                    <p><strong>MATRÍCULA:</strong> <?php echo htmlspecialchars($matricula); ?></p>
+                    <p><strong>CLAVE:</strong> <?php echo htmlspecialchars($claveEmpleado); ?></p>
+                    <p><strong>NSS:</strong> <?php echo htmlspecialchars($nss); ?></p>
+                    <p><strong>GRADO:</strong> <?php echo htmlspecialchars($gradodeEstudios); ?></p>
+                    <p><strong>INGRESO:</strong> <?php echo htmlspecialchars($fechaIngreso); ?></p>
+                </div>
+            </section>
 
-          <div style="margin-top:10px">
-            <button id="btnFoto" class="btn">Actualizar foto</button>
-            <input id="fileFoto" type="file" accept="image/*" style="display:none">
-          </div>
-        </div>
-      </div>
+            <!-- Progreso de Convocatoria -->
+            <section class="progress-card">
+                <div class="progress-header-title">
+                    <h2>Progreso de Convocatoria</h2>
+                </div>
+                <div class="progress-stats">
+                    <span>Avance</span>
+                    <div>
+                        <span id="ptsLabel">0 pts.</span> / <span id="pctLabel">0%</span>
+                    </div>
+                </div>
+                <div class="bar-wrap">
+                    <div class="bar" id="bar"></div>
+                </div>
+            </section>
 
-      <div class="section">
-        <div class="title-sec">Datos personales</div>
-        <div class="grid">
-          <div class="pill"><strong>CLAVE DE EMPLEADO:</strong> <span id="docClave">—</span></div>
-          <div class="pill"><strong>NSS:</strong> <span id="docNss">—</span></div>
-          <div class="pill"><strong>FECHA DE INGRESO:</strong> <span id="docIngreso">—</span></div>
-          <div class="pill"><strong>RFC:</strong> <span id="docRfc">—</span></div>
-          <div class="pill"><strong>MATRÍCULA:</strong> <span id="docMatricula">—</span></div>
-          <div class="pill"><strong>GRADO DE ESTUDIOS:</strong> <span id="docGrado">—</span></div>
+            <!-- Botón Histórico -->
+            <div class="historico-btn">
+                <button class="btn-outline" id="btnAbrirHistorico">
+                    Histórico de convocatorias
+                </button>
+            </div>
         </div>
-      </div>
-
-      <div class="section">
-        <div class="title-sec">Barra de progreso</div>
-        <div class="bar-wrap"><div class="bar" id="bar"></div></div>
-        <div class="bar-meta"><span id="ptsLabel">0 pts.</span> <span id="pctLabel">0%</span></div>
-        <div style="margin-top:10px">
-          <button class="btn" id="btnHist">Histórico de convocatorias</button>
-          <script>
-            document.getElementById('btnHist').addEventListener('click', ()=>{
-              location.href = '/SIGED/public/index.php?action=doc_hist';
-            });
-          </script>
-        </div>
-      </div>
     </main>
-  </div>
 
-<script>
-(function(){
-  const btnFoto  = document.getElementById('btnFoto');
-  const fileFoto = document.getElementById('fileFoto');
-  const avatar   = document.getElementById('docAvatar');
-  const fallback = document.getElementById('avatarFallback');
-
-  // Carga inicial de datos + pinta foto si existe
-  fetch(SIGED_BASE + '?action=doc_home_data', { credentials:'same-origin' })
-    .then(r=>r.json())
-    .then(data=>{
-      if(!data || !data.ok) { console.error(data); return; }
-
-      const d  = data.docente || {};
-      const pr = data.progreso || {puntos:0,max:300,porcentaje:0};
-
-      document.getElementById('miniName').textContent = d.nombre || 'Docente';
-
-      // Identificación
-      document.getElementById('docNombre').textContent = d.nombre || '—';
-      document.getElementById('docRFC').textContent    = d.rfc ? ('RFC: '+d.rfc) : '—';
-      document.getElementById('docCorreo').textContent = d.correo || '—';
-      document.getElementById('docDepto').textContent  = d.departamento || '—';
-
-      // Datos personales
-      document.getElementById('docClave').textContent     = d.clave_empleado || '—';
-      document.getElementById('docNss').textContent       = d.nss || '—';
-      document.getElementById('docIngreso').textContent   = d.fecha_ingreso || '—';
-      document.getElementById('docRfc').textContent       = d.rfc || '—';
-      document.getElementById('docMatricula').textContent = d.matricula || '—';
-      document.getElementById('docGrado').textContent     = d.grado_texto || '—';
-
-      // Foto (si viene URL)
-      if (d.foto_url) {
-        const bust = d.foto_url + (d.foto_url.includes('?') ? '&' : '?') + 'v=' + Date.now();
-        avatar.style.backgroundImage = `url('${bust}')`;
-        if (fallback) fallback.style.display = 'none';
-      }
-
-      // Barra
-      const pct = Math.max(0, Math.min(100, pr.porcentaje|0));
-      document.getElementById('bar').style.width = pct + '%';
-      document.getElementById('ptsLabel').textContent = (pr.puntos||0) + ' pts.';
-      document.getElementById('pctLabel').textContent = pct + '%';
-    })
-    .catch(err=>console.error(err));
-
-  // Botón -> input
-  btnFoto?.addEventListener('click', () => fileFoto?.click());
-
-  // Upload de foto
-  fileFoto?.addEventListener('change', async (ev) => {
-    const f = ev.target.files && ev.target.files[0];
-    if (!f) return;
-
-    if (f.size > 2 * 1024 * 1024) { // 2MB
-      alert('El archivo supera 2 MB.');
-      fileFoto.value = '';
-      return;
-    }
-
-    const fd = new FormData();
-    fd.append('foto', f);
-
-    btnFoto.disabled = true;
-    const oldTxt = btnFoto.textContent;
-    btnFoto.textContent = 'Subiendo…';
-
-    try {
-      const r = await fetch(SIGED_BASE + '?action=foto_upload', {
-        method: 'POST',
-        body: fd,
-        credentials: 'same-origin'
-      });
-      const j = await r.json();
-      if (!j || !j.ok) {
-        alert(j?.msg || 'No se pudo subir la foto.');
-        return;
-      }
-
-      const url = (j.url || '') + (j.url.includes('?') ? '&' : '?') + 'v=' + Date.now();
-      avatar.style.backgroundImage = `url('${url}')`;
-      if (fallback) fallback.style.display = 'none';
-    } catch (e) {
-      console.error(e);
-      alert('Error de red al subir la foto.');
-    } finally {
-      btnFoto.disabled = false;
-      btnFoto.textContent = oldTxt;
-      fileFoto.value = '';
-    }
-  });
-})();
-</script>
-
+    <!-- Scripts -->
+    <script>
+        // Pasar datos PHP a JavaScript
+        window.APP_DATA = <?php echo $jsData; ?>;
+    </script>
+    <script src="/SIGED/public/js/menu.js"></script>
+    <script src="/SIGED/public/js/home_docente.js"></script>
 </body>
 </html>

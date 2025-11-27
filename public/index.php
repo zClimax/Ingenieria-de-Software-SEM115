@@ -2,7 +2,6 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../app/php/utils/Session.php';
 Session::start();
-
 require_once __DIR__ . '/../app/php/routes.php';
 
 // Si no hay acción, decidimos: login o home por rol
@@ -13,7 +12,8 @@ if ($action) {
 }
 
 if (!Session::user()) {
-  header('Location: ?action=login');
+  //header('Location: ?action=login');
+  header('Location: ?action=elegir_rol');
   exit;
 }
 

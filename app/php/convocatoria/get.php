@@ -46,6 +46,11 @@ $Qack->execute([':d'=>$idDoc, ':c'=>$conv['id']]);
 $yaVio = (bool)$Qack->fetch();
 
 
+// AGREGAR ESTO TEMPORALMENTE:
+if(!$conv) {
+    echo json_encode(['ok'=>false, 'msg'=>'No se encontró convocatoria activa en fecha valida']);
+    exit;
+}
 /* Requisitos con estado y detalle */
 $sqlReq = "
 SELECT R.{$R['NOM']} AS nombre,
