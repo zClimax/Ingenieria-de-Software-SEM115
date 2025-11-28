@@ -55,9 +55,6 @@ $jsData = json_encode([
             </a>
         </div>
         <div class="header-right">
-            <a href="/SIGED/public/index.php?action=notificaciones" title="Notificaciones">
-                <i class='bx bx-bell'></i>
-            </a>
             <button class="btn-salir" onclick="window.location.href='/SIGED/public/index.php?action=logout'">Salir</button>
         </div>
     </header>

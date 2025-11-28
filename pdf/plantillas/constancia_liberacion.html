@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Constancia de liberación de actividades docentes</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: DejaVu Sans, Arial, Helvetica, sans-serif;
+      font-size: 10px;
+      color: #111827;
+      line-height: 1.3;
+      margin-top: -10px; /* reduce espacio superior para TCPDF */
+    }
+
+    /* Encabezado */
+    .enc-table { width:100%; border-collapse:collapse; margin-bottom:4px; }
+    .enc-table td { border:none; vertical-align:middle; }
+    .enc-left img { width:50px; }
+    .enc-right img { width:28px; }
+
+    .inst-nombre { text-align:center; font-weight:700; font-size:11px; }
+
+    .lugar-fecha {
+      text-align:right;
+      margin-top:2px;
+      margin-bottom:6px;
+    }
+
+    /* Texto */
+    .titulo { text-align:center; font-weight:700; margin:8px 0 10px; font-size:9px; }
+    .bloque { margin-bottom:6px; }
+
+    .asunto {
+      margin-top:4px;
+      margin-bottom:8px;
+      font-weight:700;
+    }
+
+    /* TABLA PRINCIPAL */
+    table { 
+      width:100%;
+      border-collapse:collapse;
+      margin-top:4px;
+      table-layout:fixed; /* obliga a respetar anchuras */
+    }
+
+    th, td {
+      border:1px solid #d1d5db;
+      padding:2px 3px; /* reducido para evitar que la tabla crezca */
+    }
+
+    th {
+      background:#f3f4f6;
+      font-weight:600;
+      text-align:center;
+      font-size:9px;
+    }
+
+    td { font-size:9px; }
+    td.center { text-align:center; }
+
+    /* Notas */
+    .nota {
+      font-size:8.5px;
+      color:#4b5563;
+      margin-top:4px;
+    }
+
+    /* Firmas */
+    .firmas {
+      margin-top:16px;
+      width:100%;
+      display:table;
+    }
+
+    .firma-col {
+      display:table-cell;
+      width:50%;
+      text-align:center;
+      padding:0 8px;
+    }
+
+    .firma-img {
+      height:55px; /* menor para ahorrar espacio */
+      margin-bottom:2px;
+    }
+
+    .firma-nombre { font-weight:700; margin-top:2px; }
+    .firma-puesto { font-size:8.5px; }
+
+    /* Pie */
+    .pie {
+      margin-top:6px;
+      font-size:8.5px;
+      color:#374151;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Encabezado -->
+  <table class="enc-table">
+    <tr>
+      <td class="enc-left" style="width:33%; text-align:left;">
+        <img src="{logo_sep}" alt="SEP">
+      </td>
+
+      <td style="width:34%; text-align:center;">
+        <div class="inst-nombre">Instituto Tecnológico de Culiacán</div>
+      </td>
+
+      <td class="enc-right" style="width:33%; text-align:right;">
+        <img src="{logo_tecnm}" alt="TecNM">
+      </td>
+    </tr>
+  </table>
+
+  <div class="lugar-fecha">{lugar_fecha}</div>
+
+  <div class="bloque">
+    <strong>DEPARTAMENTO DE: {nombre_departamento}</strong>
+  </div>
+
+  <div class="asunto">
+    ASUNTO: CONSTANCIA DE LIBERACIÓN DE ACTIVIDADES ACADEMICAS
+  </div>
+
+  <div class="bloque">
+    C. <strong>{nombre_docente}</strong><br>
+    Docente adscrito al Departamento de <strong>{depto_docente}</strong><br>
+    PRESENTE
+  </div>
+
+  <div class="bloque">
+    Por medio de la presente, se hace de su conocimiento que durante el semestre
+    <strong>{semestre_texto}</strong>, se evaluó el cumplimiento de las siguientes actividades docentes:
+  </div>
+
+  <!-- TABLA -->
+  <table>
+    <thead>
+      <tr>
+        <th style="width:5%;">No.</th>
+        <th style="width:75%;">Actividad</th>
+        <th style="width:7%;">Sí</th>
+        <th style="width:7%;">No</th>
+        <th style="width:6%;">N/A</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td style="width:5%;" class="center">1</td>
+        <td style="width:75%;" >La elaboración y entrega de la dosificación de la planeación del curso y avance programático de las materias impartidas.</td>
+        <td style="width:7%;"  class="center">{act1_si}</td>
+        <td style="width:7%;" class="center">{act1_no}</td>
+        <td style="width:6%;" class="center">{act1_na}</td>
+      </tr>
+
+      <tr>
+        <td class="center">2</td>
+        <td>La elaboración y entrega de la instrumentación didáctica.</td>
+        <td class="center">{act2_si}</td>
+        <td class="center">{act2_no}</td>
+        <td class="center">{act2_na}</td>
+      </tr>
+
+      <tr>
+        <td class="center">3</td>
+        <td>El 100% del contenido de los programas de estudio.</td>
+        <td class="center">{act3_si}</td>
+        <td class="center">{act3_no}</td>
+        <td class="center">{act3_na}</td>
+      </tr>
+
+      <tr>
+        <td class="center">4</td>
+        <td>La entrega en tiempo y forma de calificaciones parciales y finales.</td>
+        <td class="center">{act4_si}</td>
+        <td class="center">{act4_no}</td>
+        <td class="center">{act4_na}</td>
+      </tr>
+
+      <tr>
+        <td class="center">5</td>
+        <td>La entrega en tiempo y forma del reporte final.</td>
+        <td class="center">{act5_si}</td>
+        <td class="center">{act5_no}</td>
+        <td class="center">{act5_na}</td>
+      </tr>
+
+      <tr>
+        <td class="center">6</td>
+        <td>La entrega del informe de proyectos individuales / horas de apoyo a la docencia.</td>
+        <td class="center">{act6_si}</td>
+        <td class="center">{act6_no}</td>
+        <td class="center">{act6_na}</td>
+      </tr>
+
+      <tr>
+        <td class="center">7</td>
+        <td>Entrega de índices de reprobación y deserción mensuales y finales.</td>
+        <td class="center">{act7_si}</td>
+        <td class="center">{act7_no}</td>
+        <td class="center">{act7_na}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="bloque" style="margin-top:8px;">
+    {texto_liberacion}
+  </div>
+
+  <div class="bloque">
+    En consecuencia, el (la) docente citado(a) está
+    <strong>{estado_liberacion}</strong> de sus actividades frente a grupo en este semestre.
+  </div>
+  <br>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:6pt; border-collapse:collapse; border:none;">
+    <tr>
+      <td style="width:50%; text-align:center; vertical-align:top; border:none;">
+        <img src="{firma_jefe_depto}" class="firma-img">
+        <div class="firma-nombre">{nombre_jefe_depto}</div>
+        <div class="firma-puesto">JEFE DEL DEPARTAMENTO ACADÉMICO</div>
+      </td>
+  
+      <td style="width:50%; text-align:center; vertical-align:top; border:none;">
+        <div style="position:relative; height:40px;">
+          {firma_sub}
+        </div>
+        <div class="firma-nombre">Bertha Lucía Patrón Arellano</div>
+        <div class="firma-puesto">SUBDIRECCIÓN ACADÉMICA</div>
+      </td>
+    </tr>
+  </table>
+  
+
+
+</body>
+</html>

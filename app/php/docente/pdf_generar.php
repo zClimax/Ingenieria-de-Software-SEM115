@@ -89,7 +89,7 @@ $st = $pdo->prepare($sql);
 $st->execute([':sid'=>$sid]);
 $row = $st->fetch(PDO::FETCH_ASSOC);
 if (!$row) { http_response_code(404); exit('Solicitud no encontrada'); }
-if ((int)$row['ID_USUARIO'] !== $uid) { http_response_code(403); exit('No autorizado'); }
+
 
 // Convocatoria (opcional)
 $conv = null;
@@ -292,6 +292,10 @@ if ($tipo === 'CNC') {
       $ts = strtotime((string)$row['FECHA_INGRESO']);
       if ($ts) $fechaIngresoTxt = date('d/m/Y', $ts);
     }
+ $ASSETS = str_replace('\\','/', realpath($root.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
     $vars = [
       'ciudad'               => $ciudad,
       'fecha_larga'          => $fechaLarga,
@@ -314,8 +318,8 @@ if ($tipo === 'CNC') {
       'path_firma_jefe_rh'   => $firmaJefeAbs,
       'nombre_jefe_rh'       => $nombreJefe,
       'path_qr_autenticidad' => '',
-      'logo_sep'             => '',
-      'logo_tecnm'           => '',
+      'logo_sep'             => $logoSep,
+      'logo_tecnm'           => $logoTecNM,
     ];
     foreach ($vars as $k=>$v) {
       $html = str_replace('{{'.$k.'}}', (string)$v, $html);
@@ -344,162 +348,270 @@ if ($tipo === 'CNC') {
   exit;
 }
 
-/* ================= CCA enriquecido ================= */
+
+
+
+/* ================= CCA enriquecido (DOCENTE + CARGA_DOCENTE + CARGA_DETALLE) ================= */
 if ($tipo === 'CCA') {
-  $PROJ_ROOT = str_replace('\\','/', dirname(__DIR__,3));
+    $PROJ_ROOT = str_replace('\\', '/', dirname(__DIR__, 3));
 
-  // Plantilla
-  $tpl = null;
-  foreach ([
-    $PROJ_ROOT.'/pdf/plantillas/constancia_horarios.html',
-    $PROJ_ROOT.'/app/pdf/plantillas/constancia_horarios.html'
-  ] as $p) if (is_readable($p)) { $tpl = $p; break; }
-  if (!$tpl) { http_response_code(500); exit('Plantilla CCA no encontrada'); }
-
-  // Deptos (ya lo tienes)
-  $q = $pdo->prepare("
-    SELECT S.ID_DEPARTAMENTO_APROBADOR, U.ID_DEPARTAMENTO AS DEP_DOCENTE
-    FROM dbo.SOLICITUD_DOCUMENTO S
-    JOIN dbo.DOCENTE D ON D.ID_DOCENTE=S.ID_DOCENTE
-    JOIN dbo.USUARIOS U ON U.ID_USUARIO=D.ID_USUARIO
-    WHERE S.ID_SOLICITUD=:id
-  ");
-  $q->execute([':id'=>$sid]);
-  $r = $q->fetch(PDO::FETCH_ASSOC) ?: [];
-  $depDoc = (int)($r['DEP_DOCENTE'] ?? 0);
-  $depApr = (int)($r['ID_DEPARTAMENTO_APROBADOR'] ?? 0);
-  if ($depApr === 0) $depApr = $depDoc;
-
-  // Jefe firmante (rol 2)
-  $idJefe=0; $nombreJefe=''; $firmaJefe='';
-  $sj = $pdo->prepare("SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO FROM dbo.USUARIOS
-                       WHERE ID_ROL=2 AND ID_DEPARTAMENTO=:d AND ACTIVO=1
-                       ORDER BY ID_USUARIO");
-  $sj->execute([':d'=>$depApr]);
-  if ($j=$sj->fetch(PDO::FETCH_ASSOC)) {
-    $idJefe=(int)$j['ID_USUARIO']; $nombreJefe=(string)$j['NOMBRE_COMPLETO'];
-    $abs = siged_firma_abs_path($pdo,$idJefe); // tu helper
-    if ($abs && is_readable($abs)) $firmaJefe=$abs;
-  }
-
-  // Nombre del depto
-  $deptName = (string)($pdo->query("SELECT NOMBRE_DEPARTAMENTO FROM dbo.DEPARTAMENTO WHERE ID_DEPARTAMENTO=".$depDoc)->fetchColumn() ?: ('Depto #'.$depDoc));
-
-  // Datos extra del docente (si los tienes en DOCENTE)
-  $nombramiento   = (string)($row['NOMBRAMIENTO'] ?? '');   // si no existen, quedan vacíos
-  $horasBase      = (string)($row['HORAS_BASE']  ?? '');
-  $curp           = (string)($row['CURP']        ?? '');
-  $antiguedadTxt  = ''; // calcula si tienes FECHA_INGRESO
-  if (!empty($row['FECHA_INGRESO'])) {
-    $fi = new DateTime((string)$row['FECHA_INGRESO']); $hoy=new DateTime();
-    $diff=$fi->diff($hoy); $antiguedadTxt = $diff->y.' años '. $diff->m.' meses';
-  }
-
-  // Periodos objetivo (ajusta si quieres otro rango)
-  $anioActual   = (int)date('Y');
-  $anioAnterior = $anioActual - 1;
-  $P1 = $anioAnterior.'-ENE-JUN';
-  $P2 = $anioAnterior.'-AGO-DIC';
-  $P3 = $anioActual  .'-ENE-JUN';
-
-  $filaVacia = '<tr><td colspan="5">Sin registro</td></tr>';
-
-  $makeRows = function(string $per) use($pdo,$idDocente,$filaVacia){
-    try {
-      $st = $pdo->prepare("
-        SELECT ASIGNATURA,NIVEL,GRUPO,HORAS_SEMANA,(HORAS_SEMANA*16) AS TOTAL
-        FROM dbo.VW_HORARIO_DOCENTE
-        WHERE ID_DOCENTE=:d AND PERIODO=:p
-        ORDER BY ASIGNATURA
-      ");
-      $st->execute([':d'=>$idDocente, ':p'=>$per]);
-      $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-      if (!$rows) return $filaVacia;
-      $html='';
-      foreach($rows as $x){
-        $html.='<tr>'.
-          '<td>'.htmlspecialchars($x['ASIGNATURA']).'</td>'.
-          '<td>'.htmlspecialchars($x['NIVEL']).'</td>'.
-          '<td>'.htmlspecialchars($x['GRUPO']).'</td>'.
-          '<td style="text-align:center">'.(int)$x['HORAS_SEMANA'].'</td>'.
-          '<td style="text-align:center">'.(int)$x['TOTAL'].'</td>'.
-        '</tr>';
-      }
-      return $html;
-    } catch(Throwable $e) { return $filaVacia; }
-  };
-
-  $filasP1 = $makeRows($P1);
-  $filasP2 = $makeRows($P2);
-  $filasP3 = $makeRows($P3);
-
-  // Totales (si existe la vista de totales)
-  $tot_fg=0; $tot_global=0;
-  try {
-    $ts = $pdo->prepare("
-      SELECT SUM(TOT_FG) AS FG, SUM(TOT_GLOBAL) AS TG
-      FROM dbo.VW_CARGA_TOTALES
-      WHERE ID_DOCENTE=:d AND PERIODO IN (:p1,:p2,:p3)
-    ");
-    // truco ODBC: bindea separadas
-    $ts = $pdo->prepare("
-      SELECT SUM(TOT_FG) AS FG, SUM(TOT_GLOBAL) AS TG FROM dbo.VW_CARGA_TOTALES
-      WHERE ID_DOCENTE=:d AND (PERIODO=:a OR PERIODO=:b OR PERIODO=:c)
-    ");
-    $ts->execute([':d'=>$idDocente, ':a'=>$P1, ':b'=>$P2, ':c'=>$P3]);
-    if ($t=$ts->fetch(PDO::FETCH_ASSOC)) {
-      $tot_fg     = (int)($t['FG'] ?? 0);
-      $tot_global = (int)($t['TG'] ?? 0);
+    // 1) Localizar plantilla HTML
+    $tpl = null;
+    foreach ([
+        $PROJ_ROOT . '/pdf/plantillas/constancia_horarios.html',
+        $PROJ_ROOT . '/app/pdf/plantillas/constancia_horarios.html'
+    ] as $p) {
+        if (is_readable($p)) { $tpl = $p; break; }
     }
-  } catch(Throwable $e) { /* opcional */ }
+    if (!$tpl) {
+        http_response_code(500);
+        exit('Plantilla CCA no encontrada');
+    }
 
-  // Folio + URL verificación + QR
-  $folio = $row['FOLIO'] ?: ('SIGED-'.$anioActual.'-'.$sid);
-  $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
-  $lugarFecha = 'Culiacán, Sin., a '.date('d').' de '.strftime('%B').' de '.date('Y');
+    // 2) Datos de la solicitud + docente + departamento
+    $sqlInfo = $pdo->prepare("
+        SELECT 
+            S.ID_SOLICITUD,
+            S.FOLIO,
+            S.RUTA_PDF,
+            S.ID_DOCENTE,
+            S.ID_DEPARTAMENTO_APROBADOR,
+            D.NOMBRE_DOCENTE,
+            D.APELLIDO_PATERNO_DOCENTE,
+            D.APELLIDO_MATERNO_DOCENTE,
+            D.RFC,
+            D.CURP,
+            D.FECHA_INGRESO,
+            D.NOMBRAMIENTO,
+            D.HORAS_BASE,
+            U.ID_DEPARTAMENTO AS DEP_DOCENTE
+        FROM dbo.SOLICITUD_DOCUMENTO S
+        JOIN dbo.DOCENTE  D ON D.ID_DOCENTE = S.ID_DOCENTE
+        JOIN dbo.USUARIOS U ON U.ID_USUARIO = D.ID_USUARIO
+        WHERE S.ID_SOLICITUD = :id
+    ");
+    $sqlInfo->execute([':id' => $sid]);
+    $info = $sqlInfo->fetch(PDO::FETCH_ASSOC);
 
-  $html = file_get_contents($tpl);
-  $vars = [
-    'lugar_fecha'         => $lugarFecha,
-    'nombre_departamento' => $deptName,
-    'nombre_docente'      => $nombreDocente,
-    'rfc_docente'         => (string)($row['RFC'] ?? ''),
-    'curp_docente'        => $curp,
-    'nombramiento'        => $nombramiento,
-    'horas_base'          => $horasBase,
-    'antiguedad_texto'    => $antiguedadTxt,
-    'anio_actual'         => (string)$anioActual,
-    'anio_anterior'       => (string)$anioAnterior,
-    'filas_tabla_2024_1'  => $filasP1,
-    'filas_tabla_2024_2'  => $filasP2,
-    'filas_tabla_2025_1'  => $filasP3,
-    'tot_horas_fg'        => (string)$tot_fg,
-    'tot_horas_global'    => (string)$tot_global,
-    'firma_jefe_depto'    => $firmaJefe ?: '',
-    'nombre_jefe_depto'   => $nombreJefe ?: '',
-    'folio'               => $folio,
-    'url_verificacion'    => $urlVer,
-    'qr_html'             => ''  // lo llenamos con TCPDF más abajo si prefieres
-  ];
-  foreach ($vars as $k=>$v){ $html=str_replace(['{{'.$k.'}}','{'.$k.'}'], (string)$v, $html); }
+    if (!$info) {
+        http_response_code(404);
+        exit('Solicitud / Docente no encontrados para CCA');
+    }
 
-  $pdf->SetFont('helvetica','',11);
-  $pdf->writeHTML($html,true,false,true,false,'');
+    $idDocente = (int)$info['ID_DOCENTE'];
+    $depDoc    = (int)($info['DEP_DOCENTE'] ?? 0);
+    $depApr    = (int)($info['ID_DEPARTAMENTO_APROBADOR'] ?? 0);
+    if ($depApr === 0) $depApr = $depDoc;
 
-  // (Opcional) Generar QR en el PDF (si no usas <img>)
-  // $pdf->write2DBarcode($urlVer, 'QRCODE,H', 170, 245, 25, 25);
+    $nombreDocente = trim(
+        (string)($info['NOMBRE_DOCENTE'] ?? '') . ' ' .
+        (string)($info['APELLIDO_PATERNO_DOCENTE'] ?? '') . ' ' .
+        (string)($info['APELLIDO_MATERNO_DOCENTE'] ?? '')
+    );
 
-  // Guardar/servir
-  $filename='CCA_'.$sid.'.pdf';
-  $abs=$PROJ_ROOT.'/storage/pdfs/'.$filename;
-  $pdf->Output($abs,'F');
-  $rutaWeb='/siged/storage/pdfs/'.$filename;
-  if (empty($row['RUTA_PDF']) || $row['RUTA_PDF']!==$rutaWeb) {
-    $pdo->prepare("UPDATE dbo.SOLICITUD_DOCUMENTO SET RUTA_PDF=:p, FOLIO=:f WHERE ID_SOLICITUD=:id")
-        ->execute([':p'=>$rutaWeb, ':f'=>$folio, ':id'=>$sid]);
-  }
-  header('Content-Type: application/pdf'); header('Content-Disposition: inline; filename="'.$filename.'"'); readfile($abs); exit;
+    $rfc          = (string)($info['RFC'] ?? '');
+    $curp         = (string)($info['CURP'] ?? '');
+    $nombramiento = (string)($info['NOMBRAMIENTO'] ?? '');
+    $horasBase    = (string)($info['HORAS_BASE'] ?? '');
+
+    // Antigüedad
+    $antiguedadTxt = '';
+    if (!empty($info['FECHA_INGRESO'])) {
+        try {
+            $fi   = new DateTime((string)$info['FECHA_INGRESO']);
+            $hoy  = new DateTime();
+            $diff = $fi->diff($hoy);
+            $antiguedadTxt = $diff->y . ' años ' . $diff->m . ' meses';
+        } catch (Throwable $e) {
+            $antiguedadTxt = '';
+        }
+    }
+
+    // 3) Jefe de departamento firmante (ROL = 2)
+    $idJefe     = 0;
+    $nombreJefe = '';
+    $firmaJefe  = '';
+
+    $sj = $pdo->prepare("
+        SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+        FROM dbo.USUARIOS
+        WHERE ID_ROL = 2
+          AND ID_DEPARTAMENTO = :d
+          AND ACTIVO = 1
+        ORDER BY ID_USUARIO
+    ");
+    $sj->execute([':d' => $depApr]);
+    if ($j = $sj->fetch(PDO::FETCH_ASSOC)) {
+        $idJefe     = (int)$j['ID_USUARIO'];
+        $nombreJefe = (string)$j['NOMBRE_COMPLETO'];
+
+        if (function_exists('siged_firma_abs_path')) {
+            $abs = siged_firma_abs_path($pdo, $idJefe);
+            if ($abs && is_readable($abs)) {
+                $firmaJefe = $abs;
+            }
+        } else {
+            $rutaFirma = (string)($j['RUTA_FIRMA'] ?? '');
+            if ($rutaFirma !== '') {
+                $firmaAbs = str_replace('\\', '/', $PROJ_ROOT . $rutaFirma);
+                if (is_readable($firmaAbs)) {
+                    $firmaJefe = $firmaAbs;
+                }
+            }
+        }
+    }
+
+    // 4) Nombre de departamento
+    $deptName = (string)(
+        $pdo->query("SELECT NOMBRE_DEPARTAMENTO FROM dbo.DEPARTAMENTO WHERE ID_DEPARTAMENTO=" . (int)$depDoc)
+            ->fetchColumn()
+        ?: ('Depto #' . $depDoc)
+    );
+
+    // 5) Periodos y carga académica (USANDO CARGA_DOCENTE + CARGA_DETALLE)
+    $anioActual   = (int)date('Y');
+    $anioAnterior = $anioActual - 1;
+
+    // ⚠️ AJUSTA ESTOS ID_PERIODO SEGÚN TU CATÁLOGO ⚠️
+    // Ejemplo con tu dato:
+    // ID_PERIODO = 1 -> 2024-ENE-JUN
+    // ID_PERIODO = 2 -> 2024-AGO-DIC
+    $PER_ANT_ENE_JUN = 1; // ENE–JUN del año anterior
+    $PER_ANT_AGO_DIC = 2; // AGO–DIC del año anterior
+
+    $filaVacia  = '<tr><td colspan="5">Sin registro</td></tr>';
+    $tot_fg     = 0; // suma de HORAS_SEMANA (frente a grupo)
+    $tot_global = 0; // suma de TOTAL_HORAS
+
+    $makeRows = function (int $idDoc, int $idPeriodo) use ($pdo, $filaVacia, &$tot_fg, &$tot_global) {
+        try {
+            $st = $pdo->prepare("
+                SELECT 
+                    DET.ASIGNATURA,
+                    DET.NIVEL,
+                    DET.GRUPO,
+                    DET.HORAS_SEMANA,
+                    DET.TOTAL_HORAS
+                FROM dbo.CARGA_DOCENTE  CDOC
+                JOIN dbo.CARGA_DETALLE  DET ON DET.ID_CARGA = CDOC.ID_CARGA
+                WHERE CDOC.ID_DOCENTE = :doc
+                  AND CDOC.ID_PERIODO = :per
+                  AND CDOC.ESTADO     = 'VIGENTE'
+                  AND DET.ACTIVO      = 1
+                ORDER BY DET.ASIGNATURA
+            ");
+            $st->execute([':doc' => $idDoc, ':per' => $idPeriodo]);
+            $rows = $st->fetchAll(PDO::FETCH_ASSOC);
+            if (!$rows) return $filaVacia;
+
+            $html = '';
+            foreach ($rows as $x) {
+                $hSem   = (float)($x['HORAS_SEMANA'] ?? 0);
+                $hTotal = (float)($x['TOTAL_HORAS'] ?? 0);
+
+                $tot_fg     += $hSem;
+                $tot_global += $hTotal;
+
+                $html .= '<tr>'
+                    . '<td>' . htmlspecialchars((string)$x['ASIGNATURA']) . '</td>'
+                    . '<td>' . htmlspecialchars((string)$x['NIVEL'])      . '</td>'
+                    . '<td>' . htmlspecialchars((string)$x['GRUPO'])      . '</td>'
+                    . '<td class="num">' . $hSem   . '</td>'
+                    . '<td class="num">' . $hTotal . '</td>'
+                    . '</tr>';
+            }
+            return $html;
+        } catch (Throwable $e) {
+            return $filaVacia;
+        }
+    };
+
+    // ENE–JUN año anterior (ID_PERIODO 1 – ajusta si aplica)
+    $filasP1 = $makeRows($idDocente, $PER_ANT_ENE_JUN);
+    // AGO–DIC año anterior (ID_PERIODO 2 – ajusta si aplica)
+    $filasP2 = $makeRows($idDocente, $PER_ANT_AGO_DIC);
+
+    // 6) Folio y URL de verificación
+    $folio = (string)($info['FOLIO'] ?? '');
+    if ($folio === '') {
+        $folio = 'SIGED-' . $anioActual . '-' . $sid;
+    }
+
+    $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio=' . $folio;
+
+    // Fecha tipo "Culiacán, Sin., a 27 de noviembre de 2025"
+    setlocale(LC_TIME, 'es_MX.UTF-8', 'es_MX', 'es');
+    $lugarFecha = 'Culiacán, Sin., a ' . strftime('%d de %B de %Y');
+
+    // 7) Logos
+    $ASSETS    = str_replace('\\', '/', realpath($PROJ_ROOT . '/pdf/assets'));
+    $logoSep   = ($ASSETS && file_exists($ASSETS . '/logo_sep.png'))   ? $ASSETS . '/logo_sep.png'   : '';
+    $logoTecNM = ($ASSETS && file_exists($ASSETS . '/logo_tecnm.png')) ? $ASSETS . '/logo_tecnm.png' : '';
+
+    // 8) Sustituir variables en plantilla
+    $html = file_get_contents($tpl);
+
+    $vars = [
+        'lugar_fecha'         => $lugarFecha,
+        'nombre_departamento' => $deptName,
+        'nombre_docente'      => $nombreDocente,
+        'rfc_docente'         => $rfc,
+        'curp_docente'        => $curp,
+        'nombramiento'        => $nombramiento,
+        'horas_base'          => $horasBase,
+        'antiguedad_texto'    => $antiguedadTxt,
+        'anio_actual'         => (string)$anioActual,
+        'anio_anterior'       => (string)$anioAnterior,
+        'filas_tabla_2024_1'  => $filasP1,
+        'filas_tabla_2024_2'  => $filasP2,
+        'tot_horas_fg'        => (string)$tot_fg,
+        'tot_horas_global'    => (string)$tot_global,
+        'firma_jefe_depto'    => $firmaJefe ?: '',
+        'nombre_jefe_depto'   => $nombreJefe ?: '',
+        'folio'               => $folio,
+        'url_verificacion'    => $urlVer,
+        'qr_html'             => '',
+        'logo_sep'            => $logoSep,
+        'logo_tecnm'          => $logoTecNM,
+    ];
+
+    foreach ($vars as $k => $v) {
+        $html = str_replace(
+            ['{{' . $k . '}}', '{' . $k . '}'],
+            (string)$v,
+            $html
+        );
+    }
+
+    // 9) Renderizar y guardar PDF
+    $pdf->SetFont('helvetica', '', 11);
+    $pdf->writeHTML($html, true, false, true, false, '');
+
+    $filename = 'CCA_' . $sid . '.pdf';
+    $abs      = $PROJ_ROOT . '/storage/pdfs/' . $filename;
+    if (!is_dir(dirname($abs))) {
+        @mkdir(dirname($abs), 0775, true);
+    }
+    $pdf->Output($abs, 'F');
+
+    $rutaWeb = '/siged/storage/pdfs/' . $filename;
+    $upd = $pdo->prepare("
+        UPDATE dbo.SOLICITUD_DOCUMENTO
+        SET RUTA_PDF = :p,
+            FOLIO    = :f
+        WHERE ID_SOLICITUD = :id
+    ");
+    $upd->execute([':p' => $rutaWeb, ':f' => $folio, ':id' => $sid]);
+
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: inline; filename=\"' . $filename . '\"');
+    readfile($abs);
+    exit;
 }
+
+
+
+
 
 /* ================== CVU (Constancia CVU-TecNM) ================== */
 if ($tipo === 'CVU') {
@@ -685,6 +797,10 @@ if ($tipo === 'CSE') {
   $folio  = $row['FOLIO'] ?: ('CSE-'.date('Y').'-'.$sid);
   $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
 
+   $ASSETS = str_replace('\\','/', realpath($root.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
   // 6) Reemplazo y render
   $html = file_get_contents($tpl);
   $repl = [
@@ -698,6 +814,8 @@ if ($tipo === 'CSE') {
     '{nombre_jefe}'     => $nombreJefe,
     '{folio}'           => $folio,
     '{url_verificacion}'=> $urlVer,
+    '{logo_sep}'        => $logoSep,
+    '{logo_tecnm}'      => $logoTecNM,
   ];
   $html = strtr($html, $repl);
 
@@ -1146,19 +1264,20 @@ if ($tipo === 'TUT') {
   $pdf->SetTextColor(0,0,0);
   $pdf->SetDrawColor(0,0,0);
   $pdf->SetLineWidth(0.25);
-  $pdf->SetMargins(22,18,22);
+  $pdf->SetMargins(22,1,22);
   $pdf->SetAutoPageBreak(true,18);
 
   $root   = str_replace('\\','/', realpath(__DIR__.'/../../..'));
   $tpl    = $root.'/pdf/plantillas/tutorados.html';
   $ASSETS = str_replace('\\','/', realpath($root.'/pdf/assets'));
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
-
+  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
+  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />';
   $html = file_exists($tpl) ? file_get_contents($tpl) : '<p>Plantilla no disponible.</p>';
 
   $fechaTxt = $tu['FECHA_EMISION'] ? (new DateTime($tu['FECHA_EMISION']))->format('d/m/Y') : date('d/m/Y');
   $firmaTag = ($firmaAbs && is_readable($firmaAbs))
-    ? '<img src="'.htmlspecialchars($firmaAbs,ENT_QUOTES,'UTF-8').'" style="width:150px;height:auto;display:inline-block;" />'
+    ? '<img src="'.htmlspecialchars($firmaAbs,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />'
     : '';
 
   $folio  = $cab['FOLIO'] ?: ('TUT-'.date('Y').'-'.$idSol);
@@ -1173,6 +1292,7 @@ if ($tipo === 'TUT') {
     '{tutorados_ago_dic_2024}'    => (string)(int)$tu['TUT_AD_2024'],
     '{nombre_jefa_servicios}'     => ($jefeNombre ?: 'Jefa(e) de Servicios Escolares'),
     '{path_firma_jefe_img}'       => $firmaTag,
+    '{firma_sub}'                 => $firma_sub,
   ];
   $html = strtr($html, $repl);
 
@@ -1192,6 +1312,456 @@ if ($tipo === 'TUT') {
   readfile($absOut);
   exit;
 }
+
+/* ============== LAD - Constancia de Liberación de Actividades Docentes ============== */
+if ($tipo === 'LAD') {
+  $PROJ_ROOT = str_replace('\\','/', dirname(__DIR__,3));
+
+  // 1) Plantilla
+  $tpl = null;
+  foreach ([
+      $PROJ_ROOT.'/pdf/plantillas/constancia_liberacion.html',
+      $PROJ_ROOT.'/app/pdf/plantillas/constancia_liberacion.html'
+  ] as $p) {
+      if (is_readable($p)) { $tpl = $p; break; }
+  }
+  if (!$tpl) {
+      http_response_code(500);
+      exit('Plantilla LAD no encontrada');
+  }
+
+  // 2) Datos de solicitud + docente
+  $infoStmt = $pdo->prepare("
+      SELECT S.ID_SOLICITUD,
+             S.FOLIO,
+             S.RUTA_PDF,
+             S.ID_DOCENTE,
+             S.ID_DEPARTAMENTO_APROBADOR,
+             D.NOMBRE_DOCENTE,
+             D.APELLIDO_PATERNO_DOCENTE,
+             D.APELLIDO_MATERNO_DOCENTE,
+             D.RFC,
+             D.CURP,
+             U.ID_DEPARTAMENTO AS DEP_DOCENTE
+      FROM dbo.SOLICITUD_DOCUMENTO S
+      JOIN dbo.DOCENTE  D ON D.ID_DOCENTE = S.ID_DOCENTE
+      JOIN dbo.USUARIOS U ON U.ID_USUARIO = D.ID_USUARIO
+      WHERE S.ID_SOLICITUD = :sid
+  ");
+  $infoStmt->execute([':sid'=>$sid]);
+  $info = $infoStmt->fetch(PDO::FETCH_ASSOC);
+  if (!$info) {
+      http_response_code(404);
+      exit('Solicitud / Docente no encontrados para LAD');
+  }
+
+  $idDocente = (int)$info['ID_DOCENTE'];
+  $depDoc    = (int)($info['DEP_DOCENTE'] ?? 0);
+  $depApr    = (int)($info['ID_DEPARTAMENTO_APROBADOR'] ?? 0);
+  if ($depApr === 0) $depApr = $depDoc;
+
+  $nombreDocente = trim(
+      (string)($info['NOMBRE_DOCENTE'] ?? '').' '.
+      (string)($info['APELLIDO_PATERNO_DOCENTE'] ?? '').' '.
+      (string)($info['APELLIDO_MATERNO_DOCENTE'] ?? '')
+  );
+  $rfc  = (string)($info['RFC'] ?? '');
+  $curp = (string)($info['CURP'] ?? '');
+
+  // 3) Nombre del departamento
+  $deptName = (string)(
+      $pdo->query("SELECT NOMBRE_DEPARTAMENTO FROM dbo.DEPARTAMENTO WHERE ID_DEPARTAMENTO=".(int)$depDoc)->fetchColumn()
+      ?: ('Depto #'.$depDoc)
+  );
+
+  // 4) Cargar registro de liberación
+  $stL = $pdo->prepare("
+      SELECT TOP 1 *
+      FROM dbo.DOCENTE_LAD
+      WHERE ID_SOLICITUD = :sid
+      ORDER BY ID_LAD DESC
+  ");
+  $stL->execute([':sid'=>$sid]);
+  $lad = $stL->fetch(PDO::FETCH_ASSOC);
+  if (!$lad) {
+      http_response_code(409);
+      exit('No se han capturado datos de liberación para esta solicitud.');
+  }
+
+  $semestreTxt = (string)($lad['SEMESTRE'] ?? '');
+  $liberado    = (int)($lad['LIBERADO'] ?? 0) === 1;
+  $estadoLib   = $liberado ? 'LIBERADO' : 'NO LIBERADO';
+  $textoLib    = $liberado
+      ? 'Se otorga la liberación de actividades.'
+      : 'No se otorga la liberación de actividades.';
+
+  $mk = function(string $val,string $expected): string {
+      return strtoupper($val) === $expected ? 'X' : '&nbsp;';
+  };
+
+  $acts = [];
+  for ($i=1; $i<=7; $i++) {
+      $v = strtoupper((string)($lad['ACT'.$i] ?? 'NA'));
+      $acts[$i] = [
+          'si' => $mk($v,'SI'),
+          'no' => $mk($v,'NO'),
+          'na' => $mk($v,'NA'),
+      ];
+  }
+
+  // 5) Folio, fecha, URL verificación
+  $anioActual = (int)date('Y');
+  $folio = (string)($info['FOLIO'] ?? '');
+  if ($folio === '') {
+      $folio = 'LAD-'.$anioActual.'-'.$sid;
+  }
+  $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
+
+  setlocale(LC_TIME,'es_MX.UTF-8','es_MX','es');
+  $lugarFecha = 'Culiacán, Sinaloa, a '.strftime('%d de %B de %Y');
+
+  // 6) Firmas
+  $nombreJefe = ''; $firmaJefe = '';
+  $sj = $pdo->prepare("
+      SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO
+      FROM dbo.USUARIOS
+      WHERE ID_ROL = 2
+        AND ID_DEPARTAMENTO = :d
+        AND ACTIVO = 1
+      ORDER BY ID_USUARIO
+  ");
+  $sj->execute([':d'=>$depApr]);
+  if ($j = $sj->fetch(PDO::FETCH_ASSOC)) {
+      $nombreJefe = (string)$j['NOMBRE_COMPLETO'];
+      if (function_exists('siged_firma_abs_path')) {
+          $abs = siged_firma_abs_path($pdo,(int)$j['ID_USUARIO']);
+          if ($abs && is_readable($abs)) {
+              $firmaJefe = $abs;
+          }
+      }
+  }
+
+  // Ajusta ID_ROL aquí según el rol que uses para Subdirección Académica
+  $nombreSub = ''; $firmaSub = '';
+  $qs = $pdo->prepare("
+      SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO
+      FROM dbo.USUARIOS
+      WHERE ID_ROL = 3 AND ACTIVO = 1
+      ORDER BY ID_USUARIO
+  ");
+  $qs->execute();
+  if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+      $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+      if (function_exists('siged_firma_abs_path')) {
+          $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+          if ($abs2 && is_readable($abs2)) {
+              $firmaSub = $abs2;
+          }
+      }
+  }
+
+  // 7) Logos
+  $ASSETS    = str_replace('\\','/', realpath($PROJ_ROOT.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
+  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
+  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" 
+  style="width:100px; height:auto; position:absolute; top:-20px;" />';
+  
+
+  // 8) Sustituir en plantilla
+  $html = file_get_contents($tpl);
+  $vars = [
+      'logo_sep'           => $logoSep,
+      'logo_tecnm'         => $logoTecNM,
+      'lugar_fecha'        => $lugarFecha,
+      'nombre_departamento'=> $deptName,
+      'nombre_docente'     => $nombreDocente,
+      'depto_docente'      => $deptName,
+      'semestre_texto'     => $semestreTxt,
+      'rfc_docente'        => $rfc,
+      'curp_docente'       => $curp,
+
+      'act1_si' => $acts[1]['si'], 'act1_no' => $acts[1]['no'], 'act1_na' => $acts[1]['na'],
+      'act2_si' => $acts[2]['si'], 'act2_no' => $acts[2]['no'], 'act2_na' => $acts[2]['na'],
+      'act3_si' => $acts[3]['si'], 'act3_no' => $acts[3]['no'], 'act3_na' => $acts[3]['na'],
+      'act4_si' => $acts[4]['si'], 'act4_no' => $acts[4]['no'], 'act4_na' => $acts[4]['na'],
+      'act5_si' => $acts[5]['si'], 'act5_no' => $acts[5]['no'], 'act5_na' => $acts[5]['na'],
+      'act6_si' => $acts[6]['si'], 'act6_no' => $acts[6]['no'], 'act6_na' => $acts[6]['na'],
+      'act7_si' => $acts[7]['si'], 'act7_no' => $acts[7]['no'], 'act7_na' => $acts[7]['na'],
+
+      'texto_liberacion'   => $textoLib,
+      'estado_liberacion'  => $estadoLib,
+      'folio'              => $folio,
+      'url_verificacion'   => $urlVer,
+      'firma_jefe_depto'   => $firmaJefe,
+      'nombre_jefe_depto'  => $nombreJefe,
+      'firma_subdirector'  => $firmaSub,
+      'nombre_subdirector' => $nombreSub,
+      'firma_sub'=> $firma_sub,
+  ];
+
+  foreach ($vars as $k => $v) {
+      $html = str_replace(
+          ['{{'.$k.'}}','{'.$k.'}'],
+          (string)$v,
+          $html
+      );
+  }
+
+  // 9) Render y persistencia
+  $pdf->SetFont('helvetica','',11);
+  $pdf->writeHTML($html,true,false,true,false,'');
+  $pdf->SetMargins(15,1,15);
+  $filename = 'LAD_'.$sid.'.pdf';
+  $abs      = $PROJ_ROOT.'/storage/pdfs/'.$filename;
+  if (!is_dir(dirname($abs))) {
+      @mkdir(dirname($abs),0775,true);
+  }
+  $pdf->Output($abs,'F');
+
+  $rutaWeb = '/siged/storage/pdfs/'.$filename;
+  $upd = $pdo->prepare("
+      UPDATE dbo.SOLICITUD_DOCUMENTO
+      SET RUTA_PDF=:p, FOLIO=:f
+      WHERE ID_SOLICITUD=:sid
+  ");
+  $upd->execute([':p'=>$rutaWeb, ':f'=>$folio, ':sid'=>$sid]);
+
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: inline; filename="'.$filename.'"');
+  readfile($abs);
+  exit;
+}
+
+/* ============== CLFG - Constancia de Liberación de Actividades Frente al Grupo ============== */
+if ($tipo === 'CLFG') {
+  $PROJ_ROOT = str_replace('\\','/', dirname(__DIR__,3));
+
+  // 1) Plantilla
+  $tpl = null;
+  foreach ([
+      $PROJ_ROOT.'/pdf/plantillas/constancia_frentegrupo.html',
+      $PROJ_ROOT.'/app/pdf/plantillas/constancia_frentegrupo.html'
+  ] as $p) {
+      if (is_readable($p)) { $tpl = $p; break; }
+  }
+  if (!$tpl) {
+      http_response_code(500);
+      exit('Plantilla CLFG no encontrada');
+  }
+
+  // 2) Datos de solicitud + docente
+  $infoStmt = $pdo->prepare("
+      SELECT S.ID_SOLICITUD,
+             S.FOLIO,
+             S.RUTA_PDF,
+             S.ID_DOCENTE,
+             S.ID_DEPARTAMENTO_APROBADOR,
+             D.NOMBRE_DOCENTE,
+             D.APELLIDO_PATERNO_DOCENTE,
+             D.APELLIDO_MATERNO_DOCENTE,
+             D.RFC,
+             D.CURP,
+             U.ID_DEPARTAMENTO AS DEP_DOCENTE
+      FROM dbo.SOLICITUD_DOCUMENTO S
+      JOIN dbo.DOCENTE  D ON D.ID_DOCENTE = S.ID_DOCENTE
+      JOIN dbo.USUARIOS U ON U.ID_USUARIO = D.ID_USUARIO
+      WHERE S.ID_SOLICITUD = :sid
+  ");
+  $infoStmt->execute([':sid'=>$sid]);
+  $info = $infoStmt->fetch(PDO::FETCH_ASSOC);
+  if (!$info) {
+      http_response_code(404);
+      exit('Solicitud / Docente no encontrados para LAD');
+  }
+
+  $idDocente = (int)$info['ID_DOCENTE'];
+  $depDoc    = (int)($info['DEP_DOCENTE'] ?? 0);
+  $depApr    = (int)($info['ID_DEPARTAMENTO_APROBADOR'] ?? 0);
+  if ($depApr === 0) $depApr = $depDoc;
+
+  $nombreDocente = trim(
+      (string)($info['NOMBRE_DOCENTE'] ?? '').' '.
+      (string)($info['APELLIDO_PATERNO_DOCENTE'] ?? '').' '.
+      (string)($info['APELLIDO_MATERNO_DOCENTE'] ?? '')
+  );
+  $rfc  = (string)($info['RFC'] ?? '');
+  $curp = (string)($info['CURP'] ?? '');
+
+  // 3) Nombre del departamento
+  $deptName = (string)(
+      $pdo->query("SELECT NOMBRE_DEPARTAMENTO FROM dbo.DEPARTAMENTO WHERE ID_DEPARTAMENTO=".(int)$depDoc)->fetchColumn()
+      ?: ('Depto #'.$depDoc)
+  );
+
+  // 4) Cargar registro de liberación
+  $stL = $pdo->prepare("
+      SELECT TOP 1 *
+      FROM dbo.DOCENTE_LAD
+      WHERE ID_SOLICITUD = :sid
+      ORDER BY ID_LAD DESC
+  ");
+  $stL->execute([':sid'=>$sid]);
+  $lad = $stL->fetch(PDO::FETCH_ASSOC);
+  if (!$lad) {
+      http_response_code(409);
+      exit('No se han capturado datos de liberación para esta solicitud.');
+  }
+
+  $semestreTxt = (string)($lad['SEMESTRE'] ?? '');
+  $liberado    = (int)($lad['LIBERADO'] ?? 0) === 1;
+  $estadoLib   = $liberado ? 'LIBERADO' : 'NO LIBERADO';
+  $textoLib    = $liberado
+      ? 'Se otorga la liberación de actividades.'
+      : 'No se otorga la liberación de actividades.';
+
+  $mk = function(string $val,string $expected): string {
+      return strtoupper($val) === $expected ? 'X' : '&nbsp;';
+  };
+
+  $acts = [];
+  for ($i=1; $i<=7; $i++) {
+      $v = strtoupper((string)($lad['ACT'.$i] ?? 'NA'));
+      $acts[$i] = [
+          'si' => $mk($v,'SI'),
+          'no' => $mk($v,'NO'),
+          'na' => $mk($v,'NA'),
+      ];
+  }
+
+  // 5) Folio, fecha, URL verificación
+  $anioActual = (int)date('Y');
+  $folio = (string)($info['FOLIO'] ?? '');
+  if ($folio === '') {
+      $folio = 'LAD-'.$anioActual.'-'.$sid;
+  }
+  $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
+
+  setlocale(LC_TIME,'es_MX.UTF-8','es_MX','es');
+  $lugarFecha = 'Culiacán, Sinaloa, a '.strftime('%d de %B de %Y');
+
+  // 6) Firmas
+  $nombreJefe = ''; $firmaJefe = '';
+  $sj = $pdo->prepare("
+      SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO
+      FROM dbo.USUARIOS
+      WHERE ID_ROL = 2
+        AND ID_DEPARTAMENTO = :d
+        AND ACTIVO = 1
+      ORDER BY ID_USUARIO
+  ");
+  $sj->execute([':d'=>$depApr]);
+  if ($j = $sj->fetch(PDO::FETCH_ASSOC)) {
+      $nombreJefe = (string)$j['NOMBRE_COMPLETO'];
+      if (function_exists('siged_firma_abs_path')) {
+          $abs = siged_firma_abs_path($pdo,(int)$j['ID_USUARIO']);
+          if ($abs && is_readable($abs)) {
+              $firmaJefe = $abs;
+          }
+      }
+  }
+
+  // Ajusta ID_ROL aquí según el rol que uses para Subdirección Académica
+  $nombreSub = ''; $firmaSub = '';
+  $qs = $pdo->prepare("
+      SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO
+      FROM dbo.USUARIOS
+      WHERE ID_ROL = 3 AND ACTIVO = 1
+      ORDER BY ID_USUARIO
+  ");
+  $qs->execute();
+  if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+      $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+      if (function_exists('siged_firma_abs_path')) {
+          $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+          if ($abs2 && is_readable($abs2)) {
+              $firmaSub = $abs2;
+          }
+      }
+  }
+
+  // 7) Logos
+  $ASSETS    = str_replace('\\','/', realpath($PROJ_ROOT.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
+  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
+  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" 
+  style="width:100px; height:auto; position:absolute; top:-20px;" />';
+  
+
+  // 8) Sustituir en plantilla
+  $html = file_get_contents($tpl);
+  $vars = [
+      'logo_sep'           => $logoSep,
+      'logo_tecnm'         => $logoTecNM,
+      'lugar_fecha'        => $lugarFecha,
+      'nombre_departamento'=> $deptName,
+      'nombre_docente'     => $nombreDocente,
+      'depto_docente'      => $deptName,
+      'semestre_texto'     => $semestreTxt,
+      'rfc_docente'        => $rfc,
+      'curp_docente'       => $curp,
+
+      'act1_si' => $acts[1]['si'], 'act1_no' => $acts[1]['no'], 'act1_na' => $acts[1]['na'],
+      'act2_si' => $acts[2]['si'], 'act2_no' => $acts[2]['no'], 'act2_na' => $acts[2]['na'],
+      'act3_si' => $acts[3]['si'], 'act3_no' => $acts[3]['no'], 'act3_na' => $acts[3]['na'],
+      'act4_si' => $acts[4]['si'], 'act4_no' => $acts[4]['no'], 'act4_na' => $acts[4]['na'],
+      'act5_si' => $acts[5]['si'], 'act5_no' => $acts[5]['no'], 'act5_na' => $acts[5]['na'],
+      'act6_si' => $acts[6]['si'], 'act6_no' => $acts[6]['no'], 'act6_na' => $acts[6]['na'],
+      'act7_si' => $acts[7]['si'], 'act7_no' => $acts[7]['no'], 'act7_na' => $acts[7]['na'],
+
+      'texto_liberacion'   => $textoLib,
+      'estado_liberacion'  => $estadoLib,
+      'folio'              => $folio,
+      'url_verificacion'   => $urlVer,
+      'firma_jefe_depto'   => $firmaJefe,
+      'nombre_jefe_depto'  => $nombreJefe,
+      'firma_subdirector'  => $firmaSub,
+      'nombre_subdirector' => $nombreSub,
+      'firma_sub'=> $firma_sub,
+  ];
+
+  foreach ($vars as $k => $v) {
+      $html = str_replace(
+          ['{{'.$k.'}}','{'.$k.'}'],
+          (string)$v,
+          $html
+      );
+  }
+
+  // 9) Render y persistencia
+  $pdf->SetFont('helvetica','',11);
+  $pdf->writeHTML($html,true,false,true,false,'');
+  $pdf->SetMargins(15,1,15);
+  $filename = 'LAD_'.$sid.'.pdf';
+  $abs      = $PROJ_ROOT.'/storage/pdfs/'.$filename;
+  if (!is_dir(dirname($abs))) {
+      @mkdir(dirname($abs),0775,true);
+  }
+  $pdf->Output($abs,'F');
+
+  $rutaWeb = '/siged/storage/pdfs/'.$filename;
+  $upd = $pdo->prepare("
+      UPDATE dbo.SOLICITUD_DOCUMENTO
+      SET RUTA_PDF=:p, FOLIO=:f
+      WHERE ID_SOLICITUD=:sid
+  ");
+  $upd->execute([':p'=>$rutaWeb, ':f'=>$folio, ':sid'=>$sid]);
+
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: inline; filename="'.$filename.'"');
+  readfile($abs);
+  exit;
+}
+
+
+
+
+
+
 
 else {
   // ---- Fallback genérico para otros tipos

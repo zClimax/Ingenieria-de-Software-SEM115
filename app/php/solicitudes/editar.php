@@ -118,9 +118,6 @@ $jsData = json_encode([
             </a>
         </div>
         <div class="seccion-derecha">
-            <a href="/SIGED/public/index.php?action=notificaciones" class="enlace-notificacion">
-                <i class='bx bx-bell'></i>
-            </a>
             <button class="boton-salir" onclick="location.href='/SIGED/public/index.php?action=logout'">Salir</button>
         </div>
     </header>

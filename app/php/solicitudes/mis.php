@@ -78,6 +78,15 @@ if (file_exists($rutaFisica)) {
       cursor:not-allowed !important;
       pointer-events:none !important;
     }
+     /* Comentario oculto por defecto */
+  .fila-comentario {
+    display: none;
+  }
+
+  /* Comentario visible cuando se marca */
+  .fila-comentario.visible {
+    display: table-row;
+  }
   </style>
 </head>
 <body>
@@ -313,37 +322,43 @@ if (file_exists($rutaFisica)) {
     const filas = document.querySelectorAll('#tablaSolicitudes tbody tr[data-status]');
 
     function aplicarFiltros() {
-      const estadoSeleccionado = filtroEstado.value.toUpperCase();
-      const textoBusqueda = busqueda.value.toLowerCase();
+  const estadoSeleccionado = filtroEstado.value.toUpperCase();
+  const textoBusqueda = busqueda.value.toLowerCase();
 
-      filas.forEach(fila => {
-        const estado = fila.getAttribute('data-status');
-        const texto = fila.innerText.toLowerCase();
-        const id = fila.getAttribute('data-id');
-        
-        const cumpleEstado = !estadoSeleccionado || estado === estadoSeleccionado;
-        const cumpleBusqueda = !textoBusqueda || texto.includes(textoBusqueda);
-        
-        fila.style.display = (cumpleEstado && cumpleBusqueda) ? '' : 'none';
-        
-        // Ocultar comentario si la fila está oculta
-        const comentario = document.getElementById('comentario-' + id);
-        if (comentario && fila.style.display === 'none') {
-          comentario.style.display = 'none';
-        }
-      });
+  filas.forEach(fila => {
+    const estado = fila.getAttribute('data-status');
+    const texto = fila.innerText.toLowerCase();
+    const id = fila.getAttribute('data-id');
+    
+    const cumpleEstado = !estadoSeleccionado || estado === estadoSeleccionado;
+    const cumpleBusqueda = !textoBusqueda || texto.includes(textoBusqueda);
+    
+    const visible = cumpleEstado && cumpleBusqueda;
+    fila.style.display = visible ? '' : 'none';
+    
+    // Si la fila principal se oculta, también ocultamos el comentario,
+    // pero solo quitando la clase, SIN tocar style.display.
+    const comentario = document.getElementById('comentario-' + id);
+    if (comentario && !visible) {
+      comentario.classList.remove('visible');
     }
+  });
+}
+
 
     filtroEstado.addEventListener('change', aplicarFiltros);
     busqueda.addEventListener('input', aplicarFiltros);
 
-    // Toggle comentario
-    window.toggleComentario = function(id) {
-      const comentario = document.getElementById('comentario-' + id);
-      if (comentario) {
-        comentario.style.display = (comentario.style.display === 'none' || !comentario.style.display) ? '' : 'none';
-      }
-    };
+// Toggle comentario
+window.toggleComentario = function(id) {
+  const row = document.getElementById('comentario-' + id);
+  if (!row) {
+    console.warn('No se encontró la fila de comentario para la solicitud', id);
+    return;
+  }
+  row.classList.toggle('visible');
+};
+
   </script>
 </body>
 </html>

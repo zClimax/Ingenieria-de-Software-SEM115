@@ -38,6 +38,8 @@ final class Config {
       'FECHA_INGRESO'=> 'FECHA_INGRESO',
       'NSS'=> 'NSS',
       'GRADO_ESTUDIOS' => 'GRADO_ESTUDIOS',
+      'NOMBRAMIENTO'=> 'NOMBRAMIENTO',
+      'HORAS_BASE'=> 'HORAS_BASE',
     ],
     'SOLICITUD' => [
       'TABLE'   => 'dbo.SOLICITUD_DOCUMENTO',
@@ -100,6 +102,16 @@ final class Config {
   'DOC'=>'ID_DOCENTE','CONV'=>'ID_CONVOCATORIA','REQ'=>'ID_REQUISITO',
   'OK'=>'CUMPLE','DET'=>'DETALLE','F'=>'FECHA_EVAL'
 ],
+'TKEVID' => [
+    'TABLE' => 'dbo.TICKET_EVIDENCIA',
+    'ID'    => 'ID_EVIDENCIA',
+    'TKT'   => 'ID_TICKET',
+    'NOM'   => 'NOMBRE_ARCHIVO',
+    'RUTA'  => 'RUTA_SISTEMA',
+    'MIME'  => 'TIPO_MIME',
+    'BYTES' => 'PESO_BYTES',
+],
+
 
   ];
   

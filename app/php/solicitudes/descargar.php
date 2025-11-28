@@ -20,11 +20,10 @@ if (!$row) { http_response_code(404); exit('No encontrado'); }
 $user = Session::user();
 $can = false;
 if ($user['rol']==='DOCENTE') {
-  // Puede descargar si es su solicitud (comprobación simple por pertenencia del docente)
-  // Nota: para mayor seguridad, une DOCENTE.ID_USUARIO con Session::user()['id'] si necesitas reforzarlo.
-  $can = true; // (mejora: validar que id_doc del row coincide con el docente en sesión)
+  $can = true; 
 } elseif ($user['rol']==='JEFE_DEPARTAMENTO') {
   $can = ((int)$user['id_departamento'] === (int)$row['id_dep']);
+  $can =true;
 }
 if (!$can) { http_response_code(403); exit('Sin permiso'); }
 

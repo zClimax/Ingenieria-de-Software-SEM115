@@ -181,6 +181,22 @@ function route(string $action): void {
       require __DIR__ . '/tickets/resp_data.php';
       break;
 
+    case 'tk_evid_subir':
+        require __DIR__.'/tickets/tk_evid_subir.php';
+        requireRole(['DOCENTE']);
+        break;
+    
+    case 'tk_evid_del':
+        require __DIR__.'/tickets/tk_evid_del.php';
+        requireRole(['DOCENTE']);
+        break;
+    
+    case 'tk_evid_descargar':
+        require __DIR__.'/tickets/tk_evid_descargar.php';
+        requireRole(['DOCENTE, JEFE_DEPARTAMENTO']);
+        break;
+    
+
     // ========================================
     // JEFE - HOME Y PERFIL
     // ========================================
@@ -247,6 +263,29 @@ function route(string $action): void {
       require __DIR__ . '/solicitudes/dep_guardar.php';
       break;
 
+
+      case 'cse_guardar': require __DIR__ . '/solicitudes/cse_guardar.php'; break;
+      case 'cse_del':     require __DIR__ . '/solicitudes/cse_del.php';     break;
+    
+
+     
+      case 'cca_guardar':
+      require __DIR__ . '/solicitudes/cca_guardar.php';
+       break;
+
+      case 'cca_det_del':
+      require __DIR__ . '/solicitudes/cca_det_del.php';
+      break;
+
+      case 'lad_guardar':
+        require __DIR__ . '/solicitudes/lad_guardar.php';
+        break;
+
+      case 'clfg_guardar':
+          require __DIR__ . '/solicitudes/clfg_guardar.php';
+          break;
+  
+
     // ========================================
     // JEFE - CORRECCIONES
     // ========================================
@@ -293,7 +332,7 @@ function route(string $action): void {
     
     case 'sol_descargar':
       require __DIR__ . '/utils/roles.php';
-      requireRole(['DOCENTE']); // O ['DOCENTE', 'JEFE_DEPARTAMENTO'] si ambos pueden descargar
+      requireRole(['DOCENTE','JEFE_DEPARTAMENTO']); // O ['DOCENTE', 'JEFE_DEPARTAMENTO'] si ambos pueden descargar
       require __DIR__ . '/solicitudes/descargar.php';
       break;
     
@@ -326,6 +365,7 @@ function route(string $action): void {
     case 'doc_pdf':
       require __DIR__ . '/docente/pdf_generar.php';
       break;
+
 
     case 'pdf_demo':
       require __DIR__ . '/utils/roles.php';

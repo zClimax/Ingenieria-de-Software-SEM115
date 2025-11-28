@@ -213,6 +213,49 @@ $jsData = json_encode([
                 </div>
 
             </form>
+                                    <!-- Lista de evidencias -->
+                <?php if (empty($evidencias)): ?>
+                    <div class="no-comments">
+                        <i class='bx bx-folder-open'></i>
+                        <p>No hay evidencias cargadas aún.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="lista-evidencias">
+                        <?php foreach ($evidencias as $ev): ?>
+                            <div class="item-evidencia">
+                                <div class="info-evidencia">
+                                    <i class='bx bxs-file-pdf'></i>
+                                    <span class="nombre-evidencia">
+                                        <?= htmlspecialchars($ev['nombre']) ?>
+                                    </span>
+                                </div>
+                                <div class="acciones-evidencia">
+                                    <a 
+                                        href="/SIGED/public/index.php?action=tk_evid_descargar&id=<?= (int)$ev['id'] ?>"
+                                        class="boton-icono boton-descargar"
+                                        title="Descargar"
+                                    >
+                                        <i class='bx bx-download'></i>
+                                    </a>
+
+                                    <?php if ($tk['ESTATUS'] !== 'CERRADO'): ?>
+                                        <button 
+                                            type="button"
+                                            class="boton-icono boton-eliminar"
+                                            data-id="<?= (int)$ev['id'] ?>"
+                                            title="Eliminar"
+                                        >
+                                            <i class='bx bx-trash'></i>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+
 
         </div>
     </main>

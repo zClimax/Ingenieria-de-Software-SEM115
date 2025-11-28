@@ -110,6 +110,8 @@ $sol = [
               <p><em>No hay formulario estructurado para este tipo de documento.</em></p>
             </div>';
     }
+
+
     ?>
 
     <form method="post" action="/siged/public/index.php?action=corr_aplicar" style="margin-top:1rem">

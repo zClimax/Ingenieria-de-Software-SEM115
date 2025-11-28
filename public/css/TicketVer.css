@@ -416,8 +416,8 @@ body {
 }
 
 .status-badge.abierto {
-    background: #fef3c7;
-    color: #92400e;
+    background: #c7fed0;
+    color: #000000;
 }
 
 .status-badge.revision {
@@ -426,8 +426,8 @@ body {
 }
 
 .status-badge.cerrado {
-    background: #d1fae5;
-    color: #065f46;
+    background: rgb(250, 209, 209);
+    color: #000000;
 }
 
 .priority-badge {
@@ -675,7 +675,7 @@ body {
 
 .btn-success {
     padding: 12px 24px;
-    background: #10b981;
+    background: #b91010;
     color: white;
     border: none;
     border-radius: 10px;

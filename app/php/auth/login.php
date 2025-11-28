@@ -168,11 +168,6 @@ if ($rolEsperado === 'JEFE_DEPARTAMENTO') { $tituloCaja = "Acceso Jefatura"; }
                 <article class="button-azul">
                     <button class="button-azul-completo" type="submit">Iniciar sesión</button>
                 </article>
-
-                <article class="button-azul">
-                    <button class="button-azul-completo" type="button">Autentica con correo</button>
-                </article>
-
                 <!-- <article>
                     <button type="button">soporte SIGED</button>
                 </article> -->

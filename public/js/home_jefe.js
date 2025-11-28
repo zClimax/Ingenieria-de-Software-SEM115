@@ -42,8 +42,8 @@ if (dateEl) {
         const file = this.files[0];
         
         // Validar tipo de archivo
-        if (!['image/jpeg', 'image/jpg'].includes(file.type)) {
-          alert('Por favor selecciona una imagen JPG');
+        if (!['image/jpeg', 'image/jpg','image/png'].includes(file.type)) {
+          alert('Por favor selecciona una imagen JPG, JPEG o PNG');
           this.value = '';
           return;
         }

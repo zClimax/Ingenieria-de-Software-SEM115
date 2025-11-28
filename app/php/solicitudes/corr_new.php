@@ -125,14 +125,14 @@ $jsData = json_encode([
                     </a>
                 </li>
                 <li>
-                    <a href="/SIGED/public/index.php?action=mis_solicitudes" class="nav-link active">
+                    <a href="/SIGED/public/index.php?action=sol_mis" class="nav-link active">
                         <img src="/SIGED/public/img/IconosSIged/Recurso 6Icono_GActas.png" alt="Mis Solicitudes" class="icono-navegacion">
                         <span class="texto-navegacion">Mis Solicitudes</span>
                     </a>
                 </li>
                 <li>
                     <a href="/SIGED/public/index.php?action=doc_firma" class="nav-link">
-                        <img src="/SIGED/public/img/IconosSIged/Recurso 8Icono_firma.png" alt="Mi Firma" class="icono-navegacion">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 8Icono_firma.svg" alt="Mi Firma" class="icono-navegacion">
                         <span class="texto-navegacion">Mi Firma</span>
                     </a>
                 </li>

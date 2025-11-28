@@ -46,17 +46,3 @@ window.addEventListener('resize', () => {
         sidebar.classList.remove('active');
     }
 });
-// En tu archivo menu.js
-// En tu archivo menu.js
-/* unction cargarFotoUsuario(rutaFoto) {
-    const avatarSidebar = document.querySelector('.user-avatar');
-    const avatarGrande = document.querySelector('.avatar-large');
-    
-    if (rutaFoto) {
-        avatarSidebar.innerHTML = `<img src="${rutaFoto}" alt="Usuario" class="avatar-img">`;
-        avatarGrande.innerHTML = `<img src="${rutaFoto}" alt="Usuario" class="avatar-img">`;
-    }
-}
-
-// Llamar cuando cargue el usuario
-cargarFotoUsuario('img/foto-usuario.jpg');*/

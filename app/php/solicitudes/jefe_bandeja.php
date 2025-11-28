@@ -195,10 +195,10 @@ $displayName = trim((string)($user['nombre'] ?? 'Jefe de Departamento'));
                                 Filtrar por mi departamento
                             </a>
                         <?php else: ?>
-                            <a href="/SIGED/public/index.php?action=jefe_bandeja&all=1" class="btn-secondary">
-                                <i class='bx bx-show'></i>
-                                Ver todas (diagnóstico)
-                            </a>
+                          <!--    <a href="/SIGED/public/index.php?action=jefe_bandeja&all=1" class="btn-secondary">
+                                <i class='bx bx-filter-alt'></i>
+                                Ver todas las solicitudes
+                            </a>  -->
                         <?php endif; ?>
                     </div>
                 </div>

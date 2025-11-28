@@ -263,6 +263,27 @@ if (file_exists($rutaFisica)) {
                     require __DIR__ . '/tut_mount.php';
                     echo '</section>';
                 }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CSE') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cse_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CCA') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cca_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'LAD') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/lad_form.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CLFG') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/clfg_form.php';
+                    echo '</div>';
+                }
+
                 ?>
 
                 <!-- Decisión (corregida para mandar siempre "decision") -->
@@ -301,19 +322,19 @@ if (file_exists($rutaFisica)) {
 
             <!-- PDF cuando ya está aprobada -->
             <?php if ($sol['estado'] === 'APROBADA'): ?>
-                <section class="content-section">
-                    <h3 class="section-title">
-                        <i class='bx bx-file-pdf'></i>
-                        Documento final
-                    </h3>
-                    <a target="_blank"
-                       href="/siged/public/index.php?action=sol_pdf&id=<?= (int)$sol['id'] ?>"
-                       class="pdf-link">
-                        <i class='bx bx-download'></i>
-                        Generar / Ver PDF
-                    </a>
-                </section>
-            <?php endif; ?>
+    <section class="content-section">
+        <h3 class="section-title">
+            <i class='bx bx-file-pdf'></i>
+            Documento final
+        </h3>
+        <a target="_blank"
+           href="/SIGED/public/index.php?action=doc_pdf&id=<?= (int)$sol['id'] ?>"
+           class="pdf-link">
+            <i class='bx bx-download'></i>
+            Generar / Ver PDF
+        </a>
+    </section>
+<?php endif; ?>
 
             <!-- Navegación -->
             <div class="back-section">

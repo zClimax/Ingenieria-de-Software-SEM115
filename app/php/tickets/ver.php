@@ -56,6 +56,24 @@ if (!empty($tk['JEFE_NOMBRE'])) {
     $asignadoA = 'Usuario #'.$tk['ID_USUARIO_RESPONSABLE'];
 }
 
+$TE = Config::MAP['TKEVID'] ?? null;
+$evidencias = [];
+
+if ($TE) {
+    $sqlEv = "
+      SELECT {$TE['ID']} AS id,
+             {$TE['NOM']} AS nombre
+      FROM {$TE['TABLE']}
+      WHERE {$TE['TKT']} = :id
+      ORDER BY {$TE['ID']} DESC
+    ";
+    $stEv = $pdo->prepare($sqlEv);
+    $stEv->execute([':id' => $id]);
+    $evidencias = $stEv->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+
 // Pasar datos a JavaScript
 $jsData = json_encode([
     'userId' => $uid,
@@ -118,7 +136,7 @@ $jsData = json_encode([
                 </li>
                 <li>
                     <a href="/SIGED/public/index.php?action=doc_firma" class="nav-link">
-                        <img src="/SIGED/public/img/IconosSIged/Recurso 8Icono_firma.png" alt="Mi Firma" class="nav-img">
+                        <img src="/SIGED/public/img/IconosSIged/Recurso 8Icono_firma.svg" alt="Mi Firma" class="nav-img">
                         <span class="nav-text">Mi Firma</span>
                     </a>
                 </li>
@@ -198,6 +216,99 @@ $jsData = json_encode([
                     <?= nl2br(htmlspecialchars($tk['DESCRIPCION'])) ?>
                 </div>
             </div>
+
+            <!-- Evidencias -->
+            <div class="ticket-section">
+                <h2 class="section-title">
+                    <i class='bx bx-file'></i>
+                    Evidencias adjuntas
+                </h2>
+
+                <?php if ($tk['ESTATUS'] !== 'CERRADO'): ?>
+                <!-- Formulario para subir evidencia -->
+                <form 
+                    method="post"
+                    action="/SIGED/public/index.php?action=tk_evid_subir"
+                    enctype="multipart/form-data"
+                    class="ticket-evid-form"
+                >
+                    <input type="hidden" name="id" value="<?= (int)$id ?>">
+                    <div class="form-group">
+                        <label class="form-label" for="archivo_evid">
+                            <i class='bx bx-upload'></i>
+                            Subir nueva evidencia
+                        </label>
+                        <div class="contenedor-archivo">
+                            <input 
+                                type="file" 
+                                id="archivo_evid"
+                                name="archivo"
+                                class="input-archivo"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                required
+                            >
+                            <label for="archivo_evid" class="etiqueta-archivo">
+                                <i class='bx bx-cloud-upload'></i>
+                                <span>Seleccionar archivo</span>
+                            </label>
+                        </div>
+                        <small class="texto-ayuda">
+                            Permitidos: PDF, JPG, PNG · Máximo 5 MB
+                        </small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit">
+                            <i class='bx bx-upload'></i>
+                            Subir archivo
+                        </button>
+                    </div>
+                </form>
+                <?php endif; ?>
+
+                <!-- Lista de evidencias -->
+                <?php if (empty($evidencias)): ?>
+                    <div class="no-comments">
+                        <i class='bx bx-folder-open'></i>
+                        <p>No hay evidencias cargadas aún.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="lista-evidencias">
+                        <?php foreach ($evidencias as $ev): ?>
+                            <div class="item-evidencia">
+                                <div class="info-evidencia">
+                                    <i class='bx bxs-file-pdf'></i>
+                                    <span class="nombre-evidencia">
+                                        <?= htmlspecialchars($ev['nombre']) ?>
+                                    </span>
+                                </div>
+                                <div class="acciones-evidencia">
+                                    <a 
+                                        href="/SIGED/public/index.php?action=tk_evid_descargar&id=<?= (int)$ev['id'] ?>"
+                                        class="boton-icono boton-descargar"
+                                        title="Descargar"
+                                    >
+                                        <i class='bx bx-download'></i>
+                                    </a>
+
+                                    <?php if ($tk['ESTATUS'] !== 'CERRADO'): ?>
+                                        <button 
+                                            type="button"
+                                            class="boton-icono boton-eliminar"
+                                            data-id="<?= (int)$ev['id'] ?>"
+                                            title="Eliminar"
+                                        >
+                                            <i class='bx bx-trash'></i>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+
+
 
             <!-- Comentarios -->
             <div class="ticket-section">

@@ -45,6 +45,22 @@ $isCerrado = strtoupper((string)$tk['ESTATUS']) === 'CERRADO';
 $c = $pdo->prepare("SELECT * FROM dbo.TICKET_COMENTARIO WHERE ID_TICKET=:id ORDER BY FECHA DESC");
 $c->execute([':id' => $id]); 
 $com = $c->fetchAll();
+
+// Evidencias del ticket
+$ev = $pdo->prepare("
+    SELECT ID_EVIDENCIA, NOMBRE_ARCHIVO
+    FROM dbo.TICKET_EVIDENCIA
+    WHERE ID_TICKET = :id
+    ORDER BY ID_EVIDENCIA DESC
+");
+$ev->execute([':id' => $id]);
+$evidencias = $ev->fetchAll(PDO::FETCH_ASSOC);
+
+// Flag de cerrado para lógicas de read-only
+$esCerrado = (strtoupper((string)$tk['ESTATUS']) === 'CERRADO');
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -203,6 +219,43 @@ $com = $c->fetchAll();
                 </div>
             </section>
 
+                           <!-- Evidencias adjuntas -->
+            <section class="evidencias-section">
+                <h3 class="section-title">
+                    <i class='bx bx-paperclip'></i>
+                    Evidencias adjuntas
+                </h3>
+
+                <?php if (empty($evidencias)): ?>
+                    <div class="empty-comments">
+                        <i class='bx bx-folder-open'></i>
+                        <p>No hay evidencias adjuntas en este ticket.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="evidencias-list">
+                        <?php foreach ($evidencias as $ev): ?>
+                            <div class="evidencia-item">
+                                <div class="evidencia-info">
+                                    <i class='bx bx-file'></i>
+                                    <span class="evidencia-nombre">
+                                        <?= htmlspecialchars($ev['NOMBRE_ARCHIVO']) ?>
+                                    </span>
+                                </div>
+                                <div class="evidencia-actions">
+                                    <a href="/SIGED/public/index.php?action=tk_evid_descargar&id=<?= (int)$ev['ID_EVIDENCIA'] ?>"
+                                       class="btn-icon btn-descargar"
+                                       title="Descargar evidencia">
+                                        <i class='bx bx-download'></i>
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </section>
+                 
+
+
             <!-- Grid de contenido -->
             <div class="content-grid">
                 <!-- Columna izquierda: Comentarios -->
@@ -336,7 +389,11 @@ $com = $c->fetchAll();
     </main>
 
     <!-- Scripts -->
+    <script>
+        window.APP_DATA = <?php echo $jsData; ?>;
+    </script>
     <script src="/SIGED/public/js/menu.js"></script>
     <script src="/SIGED/public/js/ticket_ver.js"></script>
+    <script src="/SIGED/public/js/ticket_evidencias.js"></script>
 </body>
 </html>

@@ -21,51 +21,111 @@ document.addEventListener('DOMContentLoaded', () => {
                     const rutaVisual = '../storage/fotos/' + nombreArchivo + '?v=' + new Date().getTime();
                     document.querySelectorAll('.avatar-img-fit').forEach(img => img.src = rutaVisual);
                     document.querySelectorAll('.user-avatar-img-small').forEach(img => img.src = rutaVisual);
-                } else { alert('Error: ' + (data.msg || 'No se pudo subir')); }
-            } catch (error) { console.error(error); alert('Hubo un error de conexión.'); }
+                } else { 
+                    alert('Error: ' + (data.msg || 'No se pudo subir')); 
+                }
+            } catch (error) { 
+                console.error(error); 
+                alert('Hubo un error de conexión.'); 
+            }
             fileInput.value = '';
         });
     }
 
     // ==========================================
-    // 2. CONVOCATORIA ACTIVA
+    // 2. CONVOCATORIA ACTIVA CON BLOQUEO SI NO CUMPLE REQUISITOS
     // ==========================================
-    const modalConv = document.getElementById('convModal');
-    const btnConvOk = document.getElementById('btnConvOk');
-    let convId = 0;
+    const modalConv  = document.getElementById('convModal');
+    const btnConvOk  = document.getElementById('btnConvOk');
+    const msgConv    = document.getElementById('convMsg');
+    const metaConv   = document.getElementById('convMeta');
+    const reqListUl  = document.getElementById('reqList');
+
+    let convId        = 0;
+    let puedeIngresar = false; // true = cumple TODOS los requisitos
 
     async function cargarConvocatoria() {
         try {
-            const r = await fetch(base + 'conv_get');
+            const r = await fetch(base + 'conv_get', { credentials: 'same-origin' });
             const d = await r.json();
             if (d.ok && d.mostrar_modal) {
                 convId = d.convocatoria?.id || 0;
-                document.getElementById('convMeta').textContent = d.convocatoria?.nombre || '';
-                const ul = document.getElementById('reqList');
-                if(ul) {
-                    ul.innerHTML = '';
-                    (d.requisitos||[]).forEach(req => {
-                        const li = document.createElement('li');
-                        li.textContent = `${req.nombre} ${req.cumple?'✓':'✕'}`;
-                        li.style.color = req.cumple?'green':'red';
-                        ul.appendChild(li);
-                    });
+
+                if (metaConv) {
+                    const nombre = d.convocatoria?.nombre || '';
+                    const ini    = (d.convocatoria?.fecha_ini || '').toString().substring(0,10);
+                    const fin    = (d.convocatoria?.fecha_fin || '').toString().substring(0,10);
+                    metaConv.textContent = nombre ? `${nombre} (${ini} al ${fin})` : '';
                 }
-                document.getElementById('convMsg').textContent = d.mensaje || '';
-                if(modalConv) modalConv.style.display = 'flex';
+
+                let reqs = d.requisitos || [];
+
+                if (reqListUl) {
+                    reqListUl.innerHTML = '';
+                    reqs.forEach(req => {
+                        const li = document.createElement('li');
+                        li.textContent = `${req.nombre} ${req.cumple ? '✓' : '✕'}`;
+                        li.style.color = req.cumple ? 'green' : 'red';
+                        reqListUl.appendChild(li);
+                    });
+
+                    // 1) Cálculo por datos JSON
+                    puedeIngresar = reqs.length > 0 && reqs.every(rq => !!rq.cumple);
+
+                    // 2) Blindaje extra: si en la UI hay algún "✕", NO entra
+                    const hayPendiente = Array.from(reqListUl.querySelectorAll('li'))
+                                             .some(li => li.textContent.includes('✕'));
+                    if (hayPendiente) {
+                        puedeIngresar = false;
+                    }
+
+                    console.log('Requisitos conv_get:', reqs, 'puedeIngresar=', puedeIngresar, 'hayPendiente=', hayPendiente);
+                } else {
+                    puedeIngresar = false;
+                }
+
+                // Mensaje + texto de botón
+                if (puedeIngresar) {
+                    if (msgConv) {
+                        msgConv.textContent = d.mensaje || 'Cumples todos los requisitos, puedes continuar.';
+                    }
+                    if (btnConvOk) btnConvOk.textContent = 'Entendido';
+                } else {
+                    if (msgConv) {
+                        msgConv.textContent = d.mensaje_bloqueo || 'Revise los requisitos pendientes antes de continuar.';
+                    }
+                    if (btnConvOk) btnConvOk.textContent = 'Cerrar sesión';
+                }
+
+                if (modalConv) modalConv.style.display = 'flex';
             }
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error(e);
+        }
     }
 
-    if(btnConvOk) {
+    if (btnConvOk) {
         btnConvOk.addEventListener('click', async () => {
-            if(convId) {
-                const fd = new FormData(); fd.append('id_convocatoria', String(convId));
-                await fetch(base + 'conv_ack', { method: 'POST', body: fd });
+            // ❌ NO cumple requisitos: solo cerrar sesión, NO mandar conv_ack
+            if (!puedeIngresar) {
+                window.location.href = '/SIGED/public/index.php?action=logout';
+                return;
             }
-            if(modalConv) modalConv.style.display = 'none';
+    
+            // ✅ Sí cumple: registrar acuse y permitir continuar
+            if (convId) {
+                const fd = new FormData();
+                fd.append('id_convocatoria', String(convId));
+                await fetch(base + 'conv_ack', { 
+                    method: 'POST', 
+                    body: fd, 
+                    credentials: 'same-origin' 
+                });
+            }
+            if (modalConv) modalConv.style.display = 'none';
         });
     }
+    
 
     // ==========================================
     // 3. BARRA DE PROGRESO
@@ -80,14 +140,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (d && d.progreso && bar) {
                 const pct = Math.max(0, Math.min(100, d.progreso.porcentaje | 0));
                 bar.style.width = pct + '%';
-                ptsLabel.textContent = (d.progreso.puntos||0) + ' pts.';
-                pctLabel.textContent = pct + '%';
+                if (ptsLabel) ptsLabel.textContent = (d.progreso.puntos||0) + ' pts.';
+                if (pctLabel) pctLabel.textContent = pct + '%';
             }
         } catch (e) { console.error(e); }
     }
 
     // ==========================================
-    // 4. HISTÓRICO DE CONVOCATORIAS (Lógica Completa)
+    // 4. HISTÓRICO DE CONVOCATORIAS
     // ==========================================
     const btnAbrirHist = document.getElementById('btnAbrirHistorico');
     const modalHist = document.getElementById('modalHistorico');
@@ -100,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('histLoading');
     const btnVolver = document.getElementById('btnVolverHist');
 
-    // Función para cargar lista principal
     async function loadResumen() {
         viewDet.style.display = 'none';
         viewRes.style.display = 'block';
@@ -143,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 tbRes.appendChild(tr);
             });
 
-            // Agregar eventos a botones "Ver detalle"
             document.querySelectorAll('.btn-ver-det').forEach(btn => {
                 btn.addEventListener('click', (e) => loadDetalle(e.target.dataset.id));
             });
@@ -154,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Función para cargar detalle
     async function loadDetalle(idConv) {
         viewRes.style.display = 'none';
         viewDet.style.display = 'block';
@@ -189,11 +246,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Eventos del Modal Histórico
     if (btnAbrirHist && modalHist) {
         btnAbrirHist.addEventListener('click', () => {
             modalHist.style.display = 'flex';
-            loadResumen(); // Cargar datos al abrir
+            loadResumen();
         });
 
         closeHist.addEventListener('click', () => modalHist.style.display = 'none');
