@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constancia Realización Curso DG TecNM</title>
+    <style>
+        /* --- ESTILOS BASE (Certificado/Diploma) --- */
+        body {
+            font-family: 'Times New Roman', Georgia, serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            margin: 0;
+            padding: 20px;
+            background-color: #525659;
+            display: flex;
+            justify-content: center;
+        }
+
+        .document-container {
+            width: 21.59cm; 
+            min-height: 27.94cm;
+            margin: 0 auto;
+            padding: 2.5cm;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            box-sizing: border-box;
+            outline: 4px double #003366;
+            outline-offset: -15px;
+        }
+
+        /* --- ENCABEZADO --- */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logos-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 0 20px;
+        }
+        
+        .logo-sep { height: 65px; width: auto; }
+        .logo-tecnm { height: 65px; width: auto; }
+
+        .tecnm-title {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #003366;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .sub-title {
+            font-size: 11pt;
+            color: #666; 
+            font-weight: normal;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        /* --- TÍTULO Y CUERPO --- */
+        .body-content {
+            font-size: 13pt; 
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        h1 {
+            font-size: 36pt;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            margin: 20px 0;
+            font-weight: 500;
+            letter-spacing: 8px;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .statement-title {
+            font-size: 14pt;
+            margin-bottom: 10px;
+            font-style: italic;
+            color: #444;
+        }
+
+        .recipient-name {
+            font-size: 22pt;
+            font-weight: bold;
+            color: #003366;
+            text-transform: uppercase;
+            display: block;
+            margin: 30px auto;
+            padding-bottom: 5px;
+            width: 80%;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .course-info {
+            font-size: 14pt;
+            line-height: 1.8;
+            margin-top: 20px;
+            padding: 0 20px;
+        }
+        
+        .course-info u {
+            font-weight: bold;
+            color: #000;
+            text-decoration: none;
+            border-bottom: 1px solid #000;
+        }
+
+        .closing {
+            margin-top: 40px;
+            margin-bottom: 60px;
+            font-size: 11pt;
+            color: #444;
+        }
+
+        /* --- SECCIÓN DE FIRMAS (Alineada) --- */
+        .signature-section {
+            margin-top: 60px;
+            width: 100%;
+        }
+
+        .attention {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 50px;
+            font-size: 12pt;
+            letter-spacing: 2px;
+        }
+        
+        .signatures-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start; /* Alineación superior para respetar el flujo */
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .signature-block {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Contenedor de altura fija para la firma/espacio */
+        .signature-placeholder {
+            height: 80px; /* Altura fija reservada para la firma */
+            width: 100%;
+            display: flex;
+            align-items: flex-end; /* Pega la imagen al fondo del contenedor */
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+
+        .signature-img {
+            max-height: 80px; /* Se ajusta a la altura del contenedor */
+            width: auto;
+            display: block;
+            margin-bottom: -10px; /* Efecto visual para acercar a la línea */
+            position: relative;
+            z-index: 1;
+        }
+        
+        .signature-line {
+            width: 80%;
+            height: 1px;
+            background-color: #000;
+            margin-bottom: 10px;
+        }
+
+        .signer-name {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 10pt;
+            margin-bottom: 3px;
+        }
+        
+        .signer-title {
+            color: #444;
+            font-size: 9pt;
+            line-height: 1.2;
+            max-width: 90%;
+        }
+
+        /* --- PIE DE PÁGINA --- */
+        .footer {
+            position: absolute;
+            bottom: 2.5cm;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 8pt;
+            color: #777;
+        }
+        
+        @media print {
+            body { 
+                background-color: #fff; 
+                padding: 0;
+                display: block;
+            }
+            .document-container {
+                width: 100%;
+                height: 100%;
+                box-shadow: none; 
+                border: none;
+                margin: 0;
+                page-break-after: always;
+                outline: 4px double #003366;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="document-container">
+
+        <div class="header">
+            <div class="logos-row">
+                <img class="logo-sep" src="img/logosep.png" alt="Logo SEP">
+                <img class="logo-tecnm" src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Logo-TecNM-2017.png" alt="Logo TecNM">
+            </div>
+            <div class="tecnm-title">Tecnológico Nacional de México</div>
+            <div class="sub-title">Dirección de Docencia e Innovación Educativa</div>
+        </div>
+
+        <div class="body-content">
+            
+            <div class="statement-title">
+                Otorga la presente
+            </div>
+            
+            <h1>CONSTANCIA</h1>
+            
+            <div class="statement-title">
+                a:
+            </div>
+            
+            <span class="recipient-name">[NOMBRE COMPLETO DEL INSTRUCTOR]</span>
+            
+            <p class="course-info">
+                Por haber impartido satisfactoriamente el curso de formación docente:<br>
+                "<u>[NOMBRE_CURSO]</u>"
+            </p>
+            
+            <p>
+                Con una duración de <strong>[NUMERO_HORAS] horas</strong>, beneficiando a <strong>[NUMERO]</strong> profesores.
+            </p>
+
+            <p class="closing">
+                Ciudad de México, a los <u>[DÍA]</u> días del mes de <u>[MES]</u> de <u>[AÑO]</u>.
+            </p>
+
+        </div>
+
+        <div class="signature-section">
+            <div class="attention">
+                A T E N T A M E N T E
+            </div>
+            
+            <div class="signatures-row">
+                
+                <!-- FIRMA 1: Director (Fija) -->
+                <div class="signature-block">
+                    <!-- Contenedor de altura fija para mantener alineación -->
+                    <div class="signature-placeholder">
+                        <!-- Imagen simulada para la firma del Director -->
+                        <img class="signature-img" src="img/descarga (6).png" alt="Firma Director">
+                    </div>
+                    <div class="signature-line"></div>
+                    <div class="signer-name">[Nombre Director(a)]</div>
+                    <div class="signer-title">DIRECTOR(A) DE DOCENCIA E INNOVACIÓN EDUCATIVA</div>
+                </div>
+
+                <!-- FIRMA 2: Docente (Variable Iterativa) -->
+                <div class="signature-block">
+                    <!-- Contenedor de altura fija para mantener alineación -->
+                    <div class="signature-placeholder">
+                        <!-- Imagen simulada para la firma del Docente -->
+                        <img class="signature-img" src="img/descarga (6).png" alt="Firma Docente">
+                    </div>
+                    <div class="signature-line"></div>
+                    <div class="signer-name">[NOMBRE DEL DOCENTE]</div>
+                    <div class="signer-title">DOCENTE INSTRUCTOR</div>
+                </div>
+
+            </div>
+        </div>
+        
+        

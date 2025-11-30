@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constancia Diplomado Recursos Educativos</title>
+    <!-- Fuentes: Playfair Display (Títulos elegantes) y Lato (Cuerpo limpio) -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CONFIGURACIÓN DE PÁGINA --- */
+        @page {
+            size: letter;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .document-container {
+            width: 21.59cm; 
+            height: 27.94cm;
+            margin: 20px auto;
+            background-color: #fff;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+            padding: 2.5cm;
+            display: flex;
+            flex-direction: column;
+            text-align: center; /* CENTRADO GLOBAL */
+        }
+
+        /* Borde decorativo simple */
+        .simple-border {
+            position: absolute;
+            top: 1.5cm;
+            left: 1.5cm;
+            right: 1.5cm;
+            bottom: 1.5cm;
+            border: 1px solid #dcdcdc;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* --- ENCABEZADO --- */
+        .header {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logos-row {
+            display: flex;
+            /* Usamos flex para distribuir espacio simétricamente */
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #B38E5D;
+            padding-bottom: 20px;
+        }
+
+        /* Contenedores para los logos para asegurar simetría perfecta */
+        .logo-box {
+            flex: 1;
+            display: flex;
+        }
+        .logo-box.left { justify-content: flex-start; }
+        .logo-box.right { justify-content: flex-end; }
+
+        .logo {
+            height: 55px;
+            object-fit: contain;
+        }
+
+        .header-titles {
+            flex: 3; /* El título ocupa el espacio central mayoritario */
+            padding: 0 15px;
+            text-align: center;
+        }
+
+        .header-titles h2 {
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #7f8c8d;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .header-titles h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 12pt;
+            color: #1B396A;
+            margin: 5px 0 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* --- CUERPO --- */
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .text-block {
+            font-size: 11pt;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            max-width: 95%;
+            color: #34495e;
+        }
+
+        .main-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 26pt;
+            color: #1B396A;
+            margin: 0 0 25px 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .highlight-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 22pt;
+            color: #000;
+            margin: 10px 0 20px 0;
+            font-weight: 700;
+            border-bottom: 1px solid #B38E5D;
+            display: inline-block;
+            padding-bottom: 5px;
+            min-width: 60%;
+        }
+
+        /* Caja del curso */
+        .course-box {
+            background-color: #f9f9f9;
+            padding: 20px 30px;
+            border-radius: 4px;
+            margin: 20px auto; /* Margen auto para centrado horizontal */
+            border: 1px solid #eee;
+            width: 85%;
+            text-align: center;
+        }
+
+        .course-role {
+            display: block;
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .course-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 16pt;
+            color: #1B396A;
+            font-style: italic;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .course-details {
+            font-size: 10pt;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .meta-info {
+            font-size: 10pt;
+            color: #7f8c8d;
+            margin-top: 30px;
+            font-style: italic;
+        }
+
+        /* --- FIRMA --- */
+        .signature-section {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .attentively {
+            margin-bottom: 40px;
+            font-size: 9pt;
+            letter-spacing: 3px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #333;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature-line {
+            width: 280px;
+            height: 1px;
+            background-color: #333;
+            margin: 0 auto 10px auto;
+        }
+
+        .signer-name {
+            font-weight: 700;
+            font-size: 11pt;
+            text-transform: uppercase;
+            color: #2c3e50;
+        }
+
+        .signer-title {
+            font-size: 9pt;
+            color: #7f8c8d;
+            margin-top: 3px;
+            text-transform: uppercase;
+        }
+
+        /* --- PIE DE PÁGINA --- */
+        .footer {
+            font-size: 7pt;
+            color: #aaa;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            margin-top: auto;
+            z-index: 2;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* --- IMPRESIÓN --- */
+        @media print {
+            body { background-color: #fff; }
+            .document-container {
+                width: 21.59cm; 
+                height: 27.94cm; 
+                margin: 0;
+                box-shadow: none; 
+                page-break-after: always;
+            }
+            .course-box {
+                background-color: #f9f9f9 !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="document-container">
+        
+        <!-- Borde Simple -->
+        <div class="simple-border"></div>
+
+        <!-- Encabezado -->
+        <div class="header">
+            <div class="logos-row">
+                <!-- Logo Izquierdo -->
+                <div class="logo-box left">
+                    <img src="https://framework-gb.cdn.gob.mx/landing/img/logoheader.svg" class="logo" alt="SEP">
+                </div>
+                
+                <!-- Títulos Centrales -->
+                <div class="header-titles">
+                    <h2>Tecnológico Nacional de México</h2>
+                    <h1>Dirección de Docencia e Innovación Educativa</h1>
+                </div>
+                
+                <!-- Logo Derecho -->
+                <div class="logo-box right">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Logo-TecNM-2017.png" class="logo" alt="TecNM">
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido -->
+        <div class="content">
+            <div class="text-block" style="font-style: italic; margin-bottom: 5px;">
+                La Dirección de Docencia e Innovación Educativa otorga la presente
+            </div>
+
+            <h1 class="main-title">Constancia</h1>
+
+            <div class="text-block">
+                A:
+            </div>
+
+            <div class="highlight-name">[NOMBRE DEL INSTRUCTOR]</div>
+
+            <div class="text-block">
+                Por su destacada participación y compromiso profesional como:
+            </div>
+
+            <div class="course-box">
+                <span class="course-role">Instructor(a)</span>
+                <div class="text-block" style="margin: 5px 0; font-size: 10pt;">del</div>
+                <div class="course-name">"Diplomado Recursos Educativos en Ambientes Virtuales"</div>
+                <div class="course-details">
+                    Módulo impartido: <strong>"[NOMBRE_MODULO]"</strong>
+                </div>
+            </div>
+
+            <div class="text-block" style="font-size: 10pt; margin-top: 10px;">
+                Se extiende la presente para los fines curriculares que al interesado convengan.
+            </div>
+
+            <div class="meta-info">
+                Ciudad de México, a [DÍA] de [MES] de [AÑO]
+            </div>
+        </div>
+
+        <!-- Firma -->
+        <div class="signature-section">
+            <div class="attentively">A T E N T A M E N T E</div>
+            
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signer-name">[Nombre del Director(a)]</div>
+                <div class="signer-title">Director(a) de Docencia e Innovación Educativa</div>
+            </div>
+        </div>
+
+        <!-- Pie de página -->
+        <div class="footer">
+            Folio: <strong>DDI-2024-001</strong> | "Excelencia en Educación Tecnológica®"
+        </div>
+    </div>
+
+</body>
+</html>

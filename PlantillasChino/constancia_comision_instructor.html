@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comisión Instructor Cursos Docentes Compacta</title>
+    <style>
+        /* --- ESTILOS BASE (Formal/Certificado) --- */
+        body {
+            font-family: 'Times New Roman', Georgia, serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            margin: 0;
+            padding: 20px;
+            background-color: #525659; /* Fondo oscuro para resaltar la hoja */
+            display: flex;
+            justify-content: center;
+        }
+
+        .document-container {
+            width: 21.59cm; 
+            min-height: 27.94cm;
+            margin: 0 auto;
+            padding: 2.5cm;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            box-sizing: border-box;
+            /* Marco decorativo interno */
+            outline: 4px double #003366;
+            outline-offset: -15px;
+        }
+
+        /* --- ENCABEZADO --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        .logos-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-sep { height: 55px; width: auto; }
+        .logo-tecnm { height: 55px; width: auto; }
+
+        .tecnm-info {
+            line-height: 1.2;
+            text-align: right;
+            color: #003366;
+            font-size: 9pt;
+        }
+        
+        .tecnm-info strong {
+            display: block;
+            font-size: 10pt;
+            text-transform: uppercase;
+        }
+        
+        /* --- DATOS DE REFERENCIA --- */
+        .meta-data {
+            text-align: right;
+            font-size: 10pt;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* --- TÍTULO Y CUERPO --- */
+        .body-content {
+            font-size: 12pt;
+            text-align: justify;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 18pt;
+            color: #000;
+            text-transform: uppercase;
+            margin: 20px 0 40px 0;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .statement {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            text-indent: 40px;
+        }
+        
+        /* Contenedor de datos clave */
+        .key-data {
+            margin: 30px 0;
+            padding: 15px 30px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .key-data strong {
+            font-size: 12pt;
+            color: #003366;
+        }
+
+        .closing {
+            margin-top: 40px;
+            margin-bottom: 50px;
+        }
+
+        /* --- SECCIÓN DE FIRMAS (Alineada con Imágenes) --- */
+        .signature-section {
+            margin-top: 60px;
+            width: 100%;
+        }
+
+        .attention {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 40px;
+            font-size: 12pt;
+            letter-spacing: 2px;
+        }
+
+        .signatures-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .signature-block {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Contenedor de altura fija para la firma/espacio */
+        .signature-placeholder {
+            height: 80px; /* Altura fija reservada para la firma */
+            width: 100%;
+            display: flex;
+            align-items: flex-end; /* Pega la imagen al fondo del contenedor */
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+
+        .signature-img {
+            max-height: 80px; /* Se ajusta a la altura del contenedor */
+            width: auto;
+            display: block;
+            margin-bottom: -10px; /* Efecto visual para acercar a la línea */
+            position: relative;
+            z-index: 1;
+        }
+        
+        .signature-line {
+            width: 80%;
+            height: 1px;
+            background-color: #000;
+            margin-bottom: 10px;
+        }
+
+        .signer-name {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 10pt;
+            margin-bottom: 3px;
+        }
+        
+        .signer-title {
+            color: #444;
+            font-size: 9pt;
+            line-height: 1.2;
+            max-width: 90%;
+        }
+
+        /* --- PIE DE PÁGINA --- */
+        .footer {
+            position: absolute;
+            bottom: 2.5cm;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 8pt;
+            color: #777;
+        }
+        
+        /* --- ESTILOS DE IMPRESIÓN --- */
+        @media print {
+            body { 
+                background-color: #fff; 
+                padding: 0;
+                display: block;
+            }
+            .document-container {
+                width: 100%;
+                height: 100%;
+                box-shadow: none; 
+                border: none;
+                margin: 0;
+                page-break-after: always;
+                outline: 4px double #003366;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="document-container">
+
+        <div class="header">
+            <div class="logos-container">
+                <img class="logo-sep" src="img/logosep.png" alt="Logo SEP">
+                <img class="logo-tecnm" src="img/logotecnm.png" alt="Logo TecNM">
+            </div>
+            
+            <div class="tecnm-info">
+                SECRETARÍA DE EDUCACIÓN PÚBLICA<br>
+                <strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong>
+                <span>[Nombre del Instituto/Centro de Adscripción]</span>
+            </div>
+        </div>
+
+        <div class="meta-data">
+            [Ciudad y Estado], a <u>[DÍA]</u> de <u>[MES]</u> de <u>[AÑO]</u><br>
+            OFICIO No.: [Número de Oficio]
+        </div>
+
+        <h1>CONSTANCIA DE COMISIÓN DE INSTRUCTOR DOCENTE</h1>
+        
+        <div class="body-content">
+            
+            <p class="statement">
+                La que suscribe, <strong>[Cargo del Emisor de la Constancia, ej. Jefatura de Desarrollo Académico]</strong>, hace constar que el(la) C. <strong>[Nombre Completo del Docente Comisionado]</strong>, con filiación <strong>[RFC/CURP]</strong> y adscripción a este Tecnológico, ha sido comisionado(a) para impartir el siguiente curso:
+            </p>
+            
+            <div class="key-data">
+                <strong>CURSO:</strong> "[NOMBRE_CURSO]"<br>
+                <strong>TIPO:</strong> [formación docente/actualización profesional]<br>
+                <strong>DURACIÓN:</strong> [NUMERO_HORAS] horas<br>
+                <strong>DIRIGIDO A:</strong> Profesores del TecNM
+            </div>
+            
+            <p class="closing" style="text-indent: 40px;">
+                Se extiende la presente para los fines que al(la) interesado(a) convengan.
+            </p>
+
+        </div>
+
+        <div class="signature-section">
+            <div class="attention">
+                A T E N T A M E N T E
+            </div>
+            
+            <div class="signatures-row">
+                
+                <!-- FIRMA 1: Emisor (Variable) -->
+                <div class="signature-block">
+                    <!-- Contenedor de altura fija para mantener alineación -->
+                    <div class="signature-placeholder">
+                        <!-- Imagen simulada para la firma del Emisor -->
+                        <img class="signature-img" src="[URL_FIRMA_EMISOR]" alt="Firma Emisor">
+                    </div>
+                    <div class="signature-line"></div>
+                    <div class="signer-name">[Nombre Completo del Emisor]</div>
+                    <div class="signer-title">[Cargo del Emisor, ej. JEFA(E) DE DESARROLLO ACADÉMICO]</div>
+                </div>
+
+                <!-- FIRMA 2: Director (Fija/Variable) -->
+                <div class="signature-block">
+                    <!-- Contenedor de altura fija para mantener alineación -->
+                    <div class="signature-placeholder">
+                        <!-- Imagen simulada para la firma del Director -->
+                        <img class="signature-img" src="[URL_FIRMA_DIRECTOR]" alt="Firma Director">
+                    </div>
+                    <div class="signature-line"></div>
+                    <div class="signer-name">[Nombre del Director(a) del Plantel]</div>
+                    <div class="signer-title">DIRECTOR(A) DEL CENTRO DE ADSCRIPCIÓN</div>
+                </div>
+
+            </div>
+
+        </div>
+        
+        
+
+    </div>
+
+</body>
+</html>

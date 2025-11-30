@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bandeja de Validación | SIGED</title>
+    
+    <link rel="stylesheet" href="css/JefeBandeja.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ENCABEZADO -->
+    <header class="header">
+        <div class="header-left">
+            <div class="menu-container" id="menuToggle">
+                <div class="menu-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-center">
+            <a href="home-jefe.html">
+                <img src="img/logo-siged.png" alt="SIGED" class="site-logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <a href="notificaciones.html" title="Notificaciones">
+                <i class='bx bx-bell'></i>
+            </a>
+            <button class="btn-salir" onclick="window.location.href='logout.html'">Salir</button>
+        </div>
+    </header>
+
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="home-jefe.html" class="nav-link">
+                        <img src="img/icono-usuario.png" alt="Dashboard" class="nav-img">
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="jefe-bandeja.html" class="nav-link active">
+                        <img src="img/icono-actas.png" alt="Bandeja" class="nav-img">
+                        <span class="nav-text">Bandeja</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tickets.html" class="nav-link">
+                        <img src="img/icono-tickets.png" alt="Tickets" class="nav-img">
+                        <span class="nav-text">Tickets</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="pdf-demo.html" class="nav-link">
+                        <img src="img/icono-firma.png" alt="PDF Demo" class="nav-img">
+                        <span class="nav-text">PDF Demo</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar-small">
+                    <img src="img/user.png" alt="Usuario" class="user-avatar-img-small">
+                </div>
+                <div class="user-details">
+                    <span class="user-name">Jefe de Departamento</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content" id="mainContent">
+        <div class="bandeja-wrapper">
+
+            <!-- Header de la bandeja -->
+            <section class="bandeja-header">
+                <div class="header-top">
+                    <div class="title-section">
+                        <h1 class="page-title">
+                            <i class='bx bx-folder-open'></i>
+                            Bandeja de validación
+                        </h1>
+                        <p class="page-subtitle">Gestiona las solicitudes pendientes de tu departamento</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="info-badge">
+                            <i class='bx bx-building'></i>
+                            <span>Departamento: <strong>Sistemas y Computación</strong></span>
+                        </div>
+                        <button class="btn-secondary" id="btnFiltrar">
+                            <i class='bx bx-filter'></i>
+                            Filtrar solicitudes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estadísticas rápidas -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color:#f59e0b;">
+                            <i class='bx bx-time-five'></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Solicitudes pendientes</span>
+                            <span class="stat-value" id="countPendientes">5</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color:#ef4444;">
+                            <i class='bx bx-error'></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Correcciones pendientes</span>
+                            <span class="stat-value" id="countCorrecciones">2</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Correcciones pendientes -->
+            <section class="correcciones-section" id="seccionCorrecciones">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class='bx bx-error-circle'></i>
+                        Correcciones pendientes
+                        <span class="badge-count">2</span>
+                    </h2>
+                </div>
+                <div class="correcciones-grid">
+                    <div class="correccion-card">
+                        <div class="correccion-header">
+                            <span class="solicitud-id">#1023</span>
+                            <span class="badge-tipo">Acta de Tutoría</span>
+                        </div>
+                        <div class="correccion-body">
+                            <div class="docente-info">
+                                <i class='bx bx-user'></i>
+                                <span>Dr. Juan Carlos Pérez López</span>
+                            </div>
+                            <div class="motivo">
+                                <i class='bx bx-message-square-detail'></i>
+                                <p>"Faltan datos de contacto del alumno en la sección de participantes"</p>
+                            </div>
+                            <div class="fecha-info">
+                                <i class='bx bx-calendar'></i>
+                                <span>20/11/2024 14:30</span>
+                            </div>
+                        </div>
+                        <div class="correccion-footer">
+                            <a href="correccion-editar.html?id=1023" class="btn-atender">
+                                <i class='bx bx-edit'></i>
+                                Atender corrección
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="correccion-card">
+                        <div class="correccion-header">
+                            <span class="solicitud-id">#1018</span>
+                            <span class="badge-tipo">Constancia</span>
+                        </div>
+                        <div class="correccion-body">
+                            <div class="docente-info">
+                                <i class='bx bx-user'></i>
+                                <span>Mtra. María Elena González Ramírez</span>
+                            </div>
+                            <div class="motivo">
+                                <i class='bx bx-message-square-detail'></i>
+                                <p>"Revisar formato de fecha y agregar sello oficial"</p>
+                            </div>
+                            <div class="fecha-info">
+                                <i class='bx bx-calendar'></i>
+                                <span>19/11/2024 10:15</span>
+                            </div>
+                        </div>
+                        <div class="correccion-footer">
+                            <a href="correccion-editar.html?id=1018" class="btn-atender">
+                                <i class='bx bx-edit'></i>
+                                Atender corrección
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Solicitudes pendientes -->
+            <section class="solicitudes-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class='bx bx-file'></i>
+                        Solicitudes enviadas
+                        <span class="badge-count">5</span>
+                    </h2>
+                </div>
+
+                <div class="table-container">
+                    <table class="solicitudes-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo de documento</th>
+                                <th>Docente</th>
+                                <th>Fecha de envío</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaSolicitudes">
+                            <tr>
+                                <td class="solicitud-id-cell">
+                                    <span class="id-badge">#1025</span>
+                                </td>
+                                <td>
+                                    <span class="tipo-documento">Acta de Tutoría</span>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Dr. Roberto Martínez Silva</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>22/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="jefe-ver.html?id=1025" class="btn-revisar">
+                                        <i class='bx bx-search-alt'></i>
+                                        Revisar
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="solicitud-id-cell">
+                                    <span class="id-badge">#1024</span>
+                                </td>
+                                <td>
+                                    <span class="tipo-documento">Acta Complementaria</span>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Ing. Laura Patricia Hernández</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>21/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="jefe-ver.html?id=1024" class="btn-revisar">
+                                        <i class='bx bx-search-alt'></i>
+                                        Revisar
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="solicitud-id-cell">
+                                    <span class="id-badge">#1022</span>
+                                </td>
+                                <td>
+                                    <span class="tipo-documento">Constancia</span>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Dr. Fernando Sánchez Torres</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>20/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="jefe-ver.html?id=1022" class="btn-revisar">
+                                        <i class='bx bx-search-alt'></i>
+                                        Revisar
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="solicitud-id-cell">
+                                    <span class="id-badge">#1021</span>
+                                </td>
+                                <td>
+                                    <span class="tipo-documento">Acta de Tutoría</span>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Mtra. Claudia Moreno Díaz</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>19/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="jefe-ver.html?id=1021" class="btn-revisar">
+                                        <i class='bx bx-search-alt'></i>
+                                        Revisar
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="solicitud-id-cell">
+                                    <span class="id-badge">#1020</span>
+                                </td>
+                                <td>
+                                    <span class="tipo-documento">Acta Complementaria</span>
+                                </td>
+                                <td>
+                                    <div class="docente-cell">
+                                        <i class='bx bx-user-circle'></i>
+                                        <span>Dr. José Luis Ramírez Cruz</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fecha-cell">
+                                        <i class='bx bx-calendar'></i>
+                                        <span>18/11/2024</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="jefe-ver.html?id=1020" class="btn-revisar">
+                                        <i class='bx bx-search-alt'></i>
+                                        Revisar
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/menu.js"></script>
+    <script src="js/jefe_bandeja.js"></script>
+    <script>
+        // Funcionalidad básica de filtrado
+        document.getElementById('btnFiltrar')?.addEventListener('click', function() {
+            const filtro = prompt('Filtrar por tipo de documento:', '');
+            if (filtro) {
+                const filas = document.querySelectorAll('#tablaSolicitudes tr');
+                filas.forEach(fila => {
+                    const tipo = fila.querySelector('.tipo-documento')?.textContent.toLowerCase();
+                    if (tipo && tipo.includes(filtro.toLowerCase())) {
+                        fila.style.display = '';
+                    } else {
+                        fila.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // Actualizar contadores dinámicamente
+        function actualizarContadores() {
+            const pendientes = document.querySelectorAll('#tablaSolicitudes tr').length;
+            document.getElementById('countPendientes').textContent = pendientes;
+        }
+
+        // Llamar al cargar la página
+        actualizarContadores();
+    </script>
+</body>
+</html>

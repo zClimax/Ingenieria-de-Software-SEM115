@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constancia Diplomado Pensamiento Crítico</title>
+    <!-- Fuentes: Playfair Display (Títulos elegantes) y Lato (Cuerpo limpio) -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CONFIGURACIÓN DE PÁGINA --- */
+        @page {
+            size: letter;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            color: #2c3e50;
+            margin: 0;
+            padding: 20px;
+            background-color: #525659; /* Fondo oscuro estandarizado */
+            display: flex;
+            justify-content: center;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .document-container {
+            width: 21.59cm; 
+            min-height: 27.94cm;
+            margin: 0 auto;
+            background-color: #fff;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            padding: 2.5cm;
+            display: flex;
+            flex-direction: column;
+            text-align: center; /* CENTRADO GLOBAL */
+        }
+
+        /* Borde decorativo simple */
+        .simple-border {
+            position: absolute;
+            top: 1.5cm;
+            left: 1.5cm;
+            right: 1.5cm;
+            bottom: 1.5cm;
+            border: 1px solid #dcdcdc;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* --- ENCABEZADO --- */
+        .header {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logos-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #B38E5D; /* Línea dorada sutil */
+            padding-bottom: 20px;
+        }
+
+        .logo {
+            height: 55px;
+            object-fit: contain;
+        }
+
+        .header-titles {
+            flex-grow: 1;
+            padding: 0 15px;
+        }
+
+        .header-titles h2 {
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #7f8c8d;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .header-titles h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 12pt;
+            color: #1B396A;
+            margin: 5px 0 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* --- CUERPO --- */
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .text-block {
+            font-size: 11pt;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            max-width: 95%;
+            color: #34495e;
+        }
+
+        .highlight-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 22pt;
+            color: #000;
+            margin: 10px 0 20px 0;
+            font-weight: 700;
+            border-bottom: 1px solid #B38E5D;
+            display: inline-block;
+            padding-bottom: 5px;
+            min-width: 60%;
+        }
+
+        /* Caja del curso */
+        .course-box {
+            background-color: #f9f9f9;
+            padding: 20px 30px;
+            border-radius: 4px;
+            margin: 20px 0;
+            border: 1px solid #eee;
+            width: 85%;
+        }
+
+        .course-role {
+            display: block;
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .course-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 16pt;
+            color: #1B396A;
+            font-style: italic;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .course-details {
+            font-size: 10pt;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .meta-info {
+            font-size: 10pt;
+            color: #7f8c8d;
+            margin-top: 30px;
+            font-style: italic;
+        }
+
+        /* --- FIRMAS (Actualizado) --- */
+        .signature-section {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .attentively {
+            margin-bottom: 30px;
+            font-size: 9pt;
+            letter-spacing: 3px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #333;
+        }
+
+        .signatures-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .signature-block {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Contenedor de altura fija para la firma/espacio */
+        .signature-placeholder {
+            height: 80px; /* Altura fija reservada para la firma */
+            width: 100%;
+            display: flex;
+            align-items: flex-end; /* Pega la imagen al fondo del contenedor */
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+
+        .signature-img {
+            max-height: 80px; /* Se ajusta a la altura del contenedor */
+            width: auto;
+            display: block;
+            margin-bottom: -10px; /* Efecto visual para acercar a la línea */
+            position: relative;
+            z-index: 1;
+        }
+
+        .signature-line {
+            width: 80%;
+            max-width: 280px;
+            height: 1px;
+            background-color: #333;
+            margin: 0 auto 10px auto;
+        }
+
+        .signer-name {
+            font-weight: 700;
+            font-size: 11pt;
+            text-transform: uppercase;
+            color: #2c3e50;
+        }
+
+        .signer-title {
+            font-size: 9pt;
+            color: #7f8c8d;
+            margin-top: 3px;
+            text-transform: uppercase;
+        }
+
+        /* --- PIE DE PÁGINA --- */
+        .footer {
+            font-size: 7pt;
+            color: #aaa;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            margin-top: auto;
+            z-index: 2;
+        }
+
+        /* --- IMPRESIÓN --- */
+        @media print {
+            body { 
+                background-color: #fff; 
+                padding: 0;
+                display: block;
+            }
+            .document-container {
+                width: 100%; 
+                height: 100%; 
+                margin: 0;
+                box-shadow: none; 
+                border: none;
+                page-break-after: always;
+            }
+            .course-box {
+                background-color: #f9f9f9 !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="document-container">
+        
+        <!-- Borde Simple -->
+        <div class="simple-border"></div>
+
+        <!-- Encabezado -->
+        <div class="header">
+            <div class="logos-row">
+                <img src="https://framework-gb.cdn.gob.mx/landing/img/logoheader.svg" class="logo" alt="SEP">
+                <div class="header-titles">
+                    <h2>Tecnológico Nacional de México</h2>
+                    <h1>Dirección de Docencia e Innovación Educativa</h1>
+                </div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Logo-TecNM-2017.png" class="logo" alt="TecNM">
+            </div>
+        </div>
+
+        <!-- Contenido -->
+        <div class="content">
+            <div class="text-block" style="font-style: italic; margin-bottom: 5px;">
+                La Dirección de Docencia e Innovación Educativa hace constar que el(la) C.
+            </div>
+
+            <div class="highlight-name">[NOMBRE COMPLETO DEL INSTRUCTOR/FACILITADOR]</div>
+
+            <div class="text-block">
+                Participó como:
+            </div>
+
+            <div class="course-box">
+                <span class="course-role">Instructor(a) / Facilitador(a)</span>
+                <div class="text-block" style="margin: 5px 0; font-size: 10pt;">del</div>
+                <div class="course-name">"Diplomado en Pensamiento Crítico para la Educación Tecnológica"</div>
+                <div class="course-details">
+                    Impartiendo el módulo: <strong>"[NOMBRE_MODULO]"</strong>
+                </div>
+            </div>
+
+            <div class="text-block" style="font-size: 10pt; margin-top: 10px;">
+                Se extiende la presente para los fines que al(la) interesado(a) convengan.
+            </div>
+
+            <div class="meta-info">
+                [Ciudad y Estado], a [DÍA] de [MES] de [AÑO]
+            </div>
+        </div>
+
+        <!-- Firma -->
+        <div class="signature-section">
+            <div class="attentively">A T E N T A M E N T E</div>
+            
+            <div class="signatures-row">
+                
+                <!-- FIRMA 1: Director (Fija) -->
+                <div class="signature-block">
+                    <div class="signature-placeholder">
+                        <img class="signature-img" src="[URL_FIRMA_DIRECTOR]" alt="Firma Director">
+                    </div>
+                    <div class="signature-line"></div>
+                    <div class="signer-name">[Nombre Completo del Director(a)]</div>
+                    <div class="signer-title">Director(a) de Docencia e Innovación Educativa del TecNM</div>
+                </div>
+
+                <!-- FIRMA 2: Docente (Variable Iterativa) -->
+                <div class="signature-block">
+                    <div class="signature-placeholder">
+                        <img class="signature-img" src="[URL_FIRMA_DOCENTE]" alt="Firma Docente">
+                    </div>
+                    <div class="signature-line"></div>
+                    <div class="signer-name">[NOMBRE DEL DOCENTE]</div>
+                    <div class="signer-title">Docente Instructor</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Pie de página -->
+        <div class="footer">
+            Folio DG: [DDI-XXXX-XX] | Registro Institucional: [REG-XXX]
+            <br>
+            "Excelencia en Educación Tecnológica®"
+        </div>
+
+    </div>
+
+</body>
+</html>
