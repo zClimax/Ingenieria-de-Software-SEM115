@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Constancia de Séptima Asignatura</title>
+  <style>
+    body { font-family: DejaVu Sans, Arial, Helvetica, sans-serif; font-size: 10px; color:#111; }
+    .encabezado { text-align:right; margin-bottom:8px; }
+    .titulo     { text-align:center; font-weight:700; margin:10px 0 4px; font-size:12px; }
+    .subtitulo  { text-align:center; font-weight:600; margin-bottom:10px; font-size:11px; }
+    .bloque     { margin:10px 0 12px; line-height:1.5; }
+    .label      { color:#444; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th,td { border:1px solid #ddd; padding:5px 6px; }
+    th { background:#f5f5f5; font-weight:600; }
+    td.center { text-align:center; }
+    .firmas { margin-top:30px; text-align:center; }
+    .firma-img { height:70px; }
+    .pie { margin-top:12px; font-size:9px; color:#444; }
+  </style>
+</head>
+<body>
+
+  <!-- Logos -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:6pt; border-collapse:collapse; border:none;">
+    <tr>
+      <td width="33%" align="left" style="border:none;">
+        <img src="{logo_sep}" style="width:120px; height:auto;" />
+      </td>
+      <td width="34%" align="center" style="font-weight:600; border:none;">
+        Instituto Tecnológico de Culiacán<br>
+        Departamento de Servicios Escolares
+      </td>
+      <td width="33%" align="right" style="border:none;">
+        <img src="{logo_tecnm}" style="width:95px; height:auto;" />
+      </td>
+    </tr>
+  </table>
+
+  <div class="encabezado">{lugar_fecha}</div>
+
+  <div class="titulo">CONSTANCIA DE SÉPTIMA ASIGNATURA</div>
+  <div class="subtitulo">Rubro 1.1.2 · Estímulo al desempeño docente</div>
+
+  <div class="bloque">
+    A quien corresponda:
+  </div>
+
+  <div class="bloque">
+    El Departamento de Servicios Escolares hace constar que el(la) C. 
+    <strong>{nombre_docente}</strong>, expediente <strong>{expediente}</strong>, 
+    impartió asignaturas adicionales <strong>(a partir de la séptima diferente)</strong> 
+    durante el año <strong>2024</strong>, de acuerdo con el siguiente detalle:
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Periodo</th>
+        <th>Nivel</th>
+        <th>Clave</th>
+        <th>Asignatura</th>
+        <th>Estudiantes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {filas_tabla}
+    </tbody>
+  </table>
+
+  <div class="bloque">
+    Total de estudiantes atendidos en asignaturas adicionales: 
+    <strong>{total_alumnos}</strong>.
+  </div>
+
+  <div class="bloque">
+    La presente constancia se expide para los fines administrativos y académicos 
+    que al interesado convengan, en el marco del rubro 1.1.2 de la Convocatoria al 
+    estímulo al desempeño docente.
+  </div>
+
+  <div class="firmas">
+    <div>
+      <img src="{firma_jefe}" class="firma-img" alt="Firma Jefe de Departamento">
+    </div>
+    <div>
+      <strong>{nombre_jefe}</strong><br>
+      Jefe(a) del Departamento de Servicios Escolares
+    </div>
+  </div>
+
+  <div class="pie">
+    Folio: <strong>{folio}</strong> · Verificación: {url_verificacion}
+  </div>
+
+</body>
+</html>

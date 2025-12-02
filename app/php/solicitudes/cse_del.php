@@ -29,19 +29,21 @@ if ($sid <= 0 || $idCarga <= 0) {
     exit('Parámetros inválidos');
 }
 
-// Validar solicitud CSE + depto aprobador
+// Validar solicitud CSE / CSE2 + depto aprobador
 $st = $pdo->prepare("
   SELECT TIPO_DOCUMENTO, ID_DEPARTAMENTO_APROBADOR
   FROM dbo.SOLICITUD_DOCUMENTO
   WHERE ID_SOLICITUD=:sid
 ");
-$st->execute([':sid'=>$sid]);
+$st->execute([':sid' => $sid]);
 $S = $st->fetch(PDO::FETCH_ASSOC);
 
-if (!$S || ($S['TIPO_DOCUMENTO'] ?? '') !== 'CSE') {
+$tipoDoc = $S['TIPO_DOCUMENTO'] ?? '';
+if (!$S || !in_array($tipoDoc, ['CSE','CSE2'], true)) {
     http_response_code(403);
-    exit('Solicitud inválida o no CSE');
+    exit('Solicitud inválida o no CSE/CSE2');
 }
+
 $depApr = (int)($S['ID_DEPARTAMENTO_APROBADOR'] ?? 0);
 if ($depApr === 0 || $depApr !== $miDep) {
     http_response_code(403);
@@ -53,7 +55,7 @@ $chk = $pdo->prepare("
   SELECT 1 FROM dbo.DOCENTE_CARGA
   WHERE ID_CARGA=:idc AND ID_SOLICITUD=:sid
 ");
-$chk->execute([':idc'=>$idCarga, ':sid'=>$sid]);
+$chk->execute([':idc' => $idCarga, ':sid' => $sid]);
 if (!$chk->fetchColumn()) {
     http_response_code(404);
     exit('Registro de carga no encontrado');
@@ -61,7 +63,7 @@ if (!$chk->fetchColumn()) {
 
 // Borrar
 $del = $pdo->prepare("DELETE FROM dbo.DOCENTE_CARGA WHERE ID_CARGA=:idc");
-$del->execute([':idc'=>$idCarga]);
+$del->execute([':idc' => $idCarga]);
 
 header('Location: /siged/public/index.php?action=jefe_ver&id='.$sid.'&cse_saved=1');
 exit;

@@ -28,8 +28,13 @@ $qSol->execute([':id'=>$id]);
 $S = $qSol->fetch(PDO::FETCH_ASSOC);
 if (!$S || $S['TIPO_DOCUMENTO']!=='TUT') die('Solicitud inválida.');
 if ((int)$S['ID_DEPARTAMENTO_APROBADOR'] !== $depJefe) die('No autorizado.');
-if ($S['ESTADO']!=='ENVIADA') {
-  header('Location: /siged/public/index.php?action=jefe_ver&id='.$id.'&msg=No%20editable%20en%20'.$S['ESTADO']); exit;
+$estado = (string)$S['ESTADO'];
+$estadosEditables = ['ENVIADA', 'APROBADA'];
+
+if (!in_array($estado, $estadosEditables, true)) {
+  header('Location: /siged/public/index.php?action=jefe_ver&id='.$id.
+         '&msg=No%20editable%20en%20'.$estado);
+  exit;
 }
 
 try { $fch = (new DateTime($fch))->format('Y-m-d'); } catch (\Throwable $e) { $fch = date('Y-m-d'); }

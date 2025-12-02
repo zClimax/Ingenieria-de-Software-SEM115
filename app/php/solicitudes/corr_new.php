@@ -166,7 +166,7 @@ $jsData = json_encode([
 
             <!-- Breadcrumb -->
             <div class="breadcrumb">
-                <a href="/SIGED/public/index.php?action=mis_solicitudes">
+                <a href="/SIGED/public/index.php?action=sol_mis">
                     <i class='bx bx-arrow-back'></i> Mis Solicitudes
                 </a>
                 <span>/</span>
@@ -240,7 +240,7 @@ $jsData = json_encode([
                             <i class='bx bx-send'></i>
                             Enviar Solicitud
                         </button>
-                        <a href="/SIGED/public/index.php?action=mis_solicitudes" class="boton-secundario">
+                        <a href="/SIGED/public/index.php?action=sol_mis" class="boton-secundario">
                             <i class='bx bx-x'></i>
                             Cancelar
                         </a>

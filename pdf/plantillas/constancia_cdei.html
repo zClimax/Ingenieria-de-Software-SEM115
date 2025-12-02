@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.4;
+      margin: 0;
+      padding: 0;
+    }
+    .encabezado {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border-bottom: 1px solid #000;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+    .folio {
+      font-size: 9pt;
+      margin-top: 6px;
+      text-align: right;
+    }
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 14px 0 10px 0;
+      padding: 0;
+      font-size: 14pt;
+      letter-spacing: 1px;
+    }
+    .contenido {
+      margin-top: 8px;
+      padding: 0;
+      text-align: justify;
+    }
+    .contenido p {
+      margin: 4px 0;
+      padding: 0;
+    }
+    .bloque-datos {
+      margin: 12px 0 14px 0;
+      padding: 8px 14px;
+      border: 1px solid #999;
+      text-align: center;
+      line-height: 1.6;
+      font-size: 10.5pt;
+    }
+    .bloque-datos strong {
+      color: #003366;
+    }
+    .firmas {
+      margin-top: 28px;
+    }
+    .tabla-firmas {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .tabla-firmas td {
+      width: 50%;
+      vertical-align: top;
+      text-align: center;
+      padding: 0 10px;
+    }
+    .firma {
+      text-align: center;
+      line-height: 1.1;
+      padding: 0;
+    }
+    .firma img {
+      height: 60px;
+      display: block;
+      margin: 0 auto -8px auto;
+      padding: 0;
+    }
+    .firma-linea {
+      border-top: 1px solid #000;
+      width: 80%;
+      margin: 4px auto 2px auto;
+    }
+    .firma-nombre {
+      font-weight: bold;
+      font-size: 10pt;
+      text-transform: uppercase;
+    }
+    .firma-cargo {
+      font-size: 9pt;
+      color: #444;
+    }
+    .atentamente {
+      text-align: center;
+      margin-top: 18px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      font-size: 11pt;
+    }
+    .verificacion {
+      margin-top: 10px;
+      font-size: 8pt;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ENCABEZADO -->
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:50px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>{nombre_institucion}</strong></div>
+        <div><strong>Dirección de Docencia e Innovación Educativa</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:55px;">
+      </td>
+    </tr>
+  </table>
+
+  <!-- FECHA -->
+  <div class="folio">
+    {lugar_fecha}
+  </div>
+
+  <!-- TÍTULO -->
+  <h3 class="titulo">Constancia Diplomado en Educación Inclusiva</h3>
+
+  <!-- CUERPO -->
+  <div class="contenido">
+    <p>A quien corresponda:</p>
+
+    <p>
+      La Dirección de Docencia e Innovación Educativa del TecNM hace constar
+      que el(la) C. <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, participó como instructor(a)/facilitador(a)
+      del <strong>Diplomado en Educación Inclusiva para Profesores(as) del TecNM</strong>,
+      impartiendo el módulo <strong>"{nombre_modulo}"</strong> con una duración
+      de <strong>{horas_impartidas}</strong> horas.
+    </p>
+
+    <div class="bloque-datos">
+      <strong>DIPLOMADO:</strong> Educación Inclusiva para Profesores(as) del TecNM<br>
+      <strong>MÓDULO:</strong> "{nombre_modulo}"<br>
+      <strong>HORAS IMPARTIDAS:</strong> {horas_impartidas} horas
+    </div>
+
+    <p>
+      La presente constancia se expide en el marco del programa Estímulo al
+      Desempeño Docente (EDD), conforme al numeral 1.2.2.6: Instructor(a)/
+      Facilitador(a) del Diplomado en Educación Inclusiva para Profesores(as)
+      del TecNM.
+    </p>
+
+    <p>
+      Se extiende la presente para los fines académicos y administrativos que
+      al(la) interesado(a) convengan.
+    </p>
+  </div>
+
+  <!-- FIRMAS -->
+  <div class="atentamente">
+    A T E N T A M E N T E
+  </div>
+
+  <div class="firmas">
+    <table class="tabla-firmas">
+      <tr>
+        <!-- Jefe del Departamento del Docente -->
+        <td>
+          <div class="firma">
+            <img src="{firma_jefe}">
+            <div class="firma-nombre">{nombre_jefe}</div>
+            <div class="firma-cargo">Jefe(a) del Departamento</div>
+          </div>
+        </td>
+
+        <!-- Docente instructor/facilitador -->
+        <td>
+          <div class="firma">
+            <img src="{firma_docente}">
+            <div class="firma-nombre">{nombre_docente}</div>
+            <div class="firma-cargo">Instructor(a) / Facilitador(a)</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+
+</body>
+</html>

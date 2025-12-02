@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.25; /* MÁS COMPACTO */
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ENCABEZADO */
+    .encabezado { width: 100%; margin: 0; padding: 0; }
+    .encabezado td { vertical-align: middle; padding: 0; }
+    .encabezado img { display: block; margin: 0; }
+
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 8px 0 6px 0; /* reducido */
+      padding: 0;
+    }
+
+    .folio {
+      font-size: 9pt;
+      margin: 4px 0 0 0; /* reducido */
+      padding: 0;
+    }
+
+    /* CONTENIDO */
+    .contenido {
+      margin-top: 6px; /* menos espacio */
+      padding: 0;
+      text-align: justify;
+    }
+
+    .contenido p {
+      margin: 1px 0; /* ultra compacto */
+      padding: 0;
+    }
+
+    .lista-modalidades {
+      margin-top: 4px; /* antes tenía 5% */
+      margin-bottom: 2px;
+      padding: 0;
+    }
+
+    .lista-modalidades ul {
+      padding-left: 16px;
+      margin: 1px 0;  /* quitamos espacio vertical */
+    }
+
+    /* RESUMEN */
+    .resumen-modalidades {
+      margin-top: 4px;
+      font-size: 10pt;
+    }
+    .resumen-modalidades p {
+      margin: 1px 0;
+    }
+
+    /* FIRMA */
+    .firma {
+      margin-top: 25px; /* reducido de 45px */
+      text-align: center;
+      line-height: 1.1;
+    }
+    .firma img {
+      height: 60px; /* más compacto */
+      display: block;
+      margin: 0 auto -10px auto; /* quita espacio inferior */
+    }
+
+    /* VERIFICACIÓN */
+    .verificacion {
+      margin-top: 8px;
+      font-size: 8pt;
+      line-height: 1.1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:40px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>INSTITUTO TECNOLÓGICO DE CULIACÁN</strong></div>
+        <div><strong>DEPARTAMENTO DE SERVICIOS ESCOLARES</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:55px;">
+      </td>
+    </tr>
+  </table>
+
+  <div class="folio">
+    Folio: {folio}
+  </div>
+
+  <h3 class="titulo">Constancia de modalidades de atención</h3>
+
+  <div class="contenido">
+
+    <p>A quien corresponda:</p>
+
+    <p>
+      El Departamento de Servicios Escolares hace constar que el(la) C.
+      <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, atendió estudiantes en las diferentes
+      modalidades durante el año <strong>{anio}</strong>, correspondiente al
+      numeral 1.1.4 del programa Estímulo al Desempeño Docente (EDD), de
+      acuerdo con el siguiente detalle:
+    </p>
+
+    <div class="lista-modalidades">
+      {lista_modalidades}
+    </div>
+
+    <div class="resumen-modalidades">
+      <p>
+        Total de estudiantes por modalidad:
+        Escolarizada: <strong>{total_escolarizada}</strong> estudiantes.
+        No escolarizada: <strong>{total_no_escolarizada}</strong> estudiantes.
+        Mixta: <strong>{total_mixta}</strong> estudiantes.
+      </p>
+    </div>
+
+    <p>
+      Se extiende la presente para los fines académicos y administrativos que
+      al(la) interesado(a) convengan.
+    </p>
+
+    <p style="margin-top:2px;">
+      {lugar_fecha}
+    </p>
+  </div>
+
+  <div class="firma">
+    <img src="{firma_jefe}">
+    <div><strong>{nombre_jefe}</strong></div>
+    <div>Jefe(a) del Departamento de Servicios Escolares</div>
+  </div>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar:
+    {url_verificacion}
+  </div>
+
+</body>
+</html>

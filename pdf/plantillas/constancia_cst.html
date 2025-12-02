@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.4;
+      margin: 0;
+      padding: 0;
+    }
+    .encabezado {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border-bottom: 1px solid #000;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+    .folio {
+      font-size: 9pt;
+      margin-top: 6px;
+      text-align: right;
+    }
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 14px 0 10px 0;
+      padding: 0;
+      font-size: 14pt;
+      letter-spacing: 1px;
+    }
+    .contenido {
+      margin-top: 8px;
+      padding: 0;
+      text-align: justify;
+    }
+    .contenido p {
+      margin: 4px 0;
+      padding: 0;
+    }
+    .lista-sinodalias {
+      margin-top: 8px;
+      padding-left: 18px;
+    }
+    .lista-sinodalias ul {
+      margin: 4px 0;
+      padding-left: 18px;
+    }
+    .lista-sinodalias li {
+      margin: 2px 0;
+    }
+    .resumen {
+      margin-top: 8px;
+      font-size: 10pt;
+      font-style: italic;
+    }
+    .firma {
+      margin-top: 28px;
+      text-align: center;
+      line-height: 1.1;
+      padding: 0;
+    }
+    .firma img {
+      height: 60px;
+      display: block;
+      margin: 0 auto -8px auto;
+      padding: 0;
+    }
+    .firma-linea {
+      border-top: 1px solid #000;
+      width: 180px;
+      margin: 4px auto 2px auto;
+    }
+    .firma-nombre {
+      font-weight: bold;
+      font-size: 10pt;
+      text-transform: uppercase;
+    }
+    .firma-cargo {
+      font-size: 9pt;
+      color: #444;
+    }
+    .atentamente {
+      text-align: center;
+      margin-top: 18px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      font-size: 11pt;
+    }
+    .verificacion {
+      margin-top: 10px;
+      font-size: 8pt;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ENCABEZADO -->
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:50px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>INSTITUTO TECNOLÓGICO DE CULIACÁN</strong></div>
+        <div><strong>DEPARTAMENTO DE SERVICIOS ESCOLARES</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:55px;">
+      </td>
+    </tr>
+  </table>
+
+  <!-- FOLIO / FECHA -->
+  <div class="folio">
+    Folio: {folio}<br>
+    {lugar_fecha}
+  </div>
+
+  <!-- TÍTULO -->
+  <h3 class="titulo">Constancia de sinodal de titulación</h3>
+
+  <!-- CUERPO -->
+  <div class="contenido">
+    <p>A quien corresponda:</p>
+
+    <p>
+      El Departamento de Servicios Escolares hace constar que el(la) C.
+      <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, participó como sinodal en exámenes de
+      titulación de estudiantes del Tecnológico, de acuerdo con el siguiente
+      detalle:
+    </p>
+
+    <div class="lista-sinodalias">
+      {lista_sinodalias}
+    </div>
+
+    <p class="resumen">
+      En total, se registran <strong>{total_examenes}</strong> sinodalías
+      realizadas durante el periodo evaluado, en calidad de Secretario(a) o Vocal,
+      excluyendo vocalías suplentes.
+    </p>
+
+    <p>
+      Lo anterior se emite con base en el acta correspondiente de cada examen,
+      certificando que se cuenta con folio del acta, fecha del examen, nombre del
+      estudiante y programa educativo, en el marco del programa Estímulo al
+      Desempeño Docente (EDD).
+    </p>
+
+    <p>
+      Se extiende la presente para los fines académicos y administrativos que
+      al(la) interesado(a) convengan.
+    </p>
+  </div>
+
+  <!-- FIRMA -->
+  <div class="atentamente">
+    A T E N T A M E N T E
+  </div>
+
+  <div class="firma">
+    <img src="{firma_jefe}">
+    <div class="firma-nombre">{nombre_jefe}</div>
+    <div class="firma-cargo">Jefe(a) del Departamento de Servicios Escolares</div>
+  </div>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar:
+    {url_verificacion}
+  </div>
+
+</body>
+</html>

@@ -206,6 +206,20 @@ $jsData = json_encode([
     <main class="main-content" id="mainContent">
         <div class="content-wrapper">
             
+            <!-- Anuncio Cédula Profesional -->
+            <div class="cedula-banner">
+                <div class="cedula-icon-box">
+                    <i class='bx bxs-certification'></i>
+                </div>
+                <div class="cedula-content">
+                    <h3>Trámite de Cédula Profesional</h3>
+                    <p>Recuerda que es indispensable contar con tu Cédula Profesional actualizada para el ejercicio docente. Realiza tu trámite en línea.</p>
+                </div>
+                <a href="https://www.gob.mx/cedulaprofesional" target="_blank" class="cedula-btn">
+                    Sitio Oficial <i class='bx bx-link-external'></i>
+                </a>
+            </div>
+
             <!-- Identificación -->
             <section class="identificacion">
                 <h2>Identificación</h2>
@@ -253,6 +267,12 @@ $jsData = json_encode([
                 </div>
                 <div class="bar-wrap">
                     <div class="bar" id="bar"></div>
+                </div>
+
+                <!-- Aviso de puntaje no oficial -->
+                <div class="aviso-puntaje">
+                    <i class='bx bx-info-circle'></i>
+                    <span><strong>Importante:</strong> Este puntaje es una estimación preliminar y no representa el resultado oficial de la evaluación.</span>
                 </div>
             </section>
 

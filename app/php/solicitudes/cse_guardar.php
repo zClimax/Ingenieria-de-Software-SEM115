@@ -28,7 +28,7 @@ if ($sid <= 0) {
     exit('ID de solicitud inválido');
 }
 
-// 3) Validar solicitud CSE y que el jefe sea el aprobador
+// 3) Validar solicitud CSE / CSE2 y que el jefe sea el aprobador
 $st = $pdo->prepare("
   SELECT ID_SOLICITUD,
          TIPO_DOCUMENTO,
@@ -36,7 +36,7 @@ $st = $pdo->prepare("
   FROM dbo.SOLICITUD_DOCUMENTO
   WHERE ID_SOLICITUD=:sid
 ");
-$st->execute([':sid'=>$sid]);
+$st->execute([':sid' => $sid]);
 $S = $st->fetch(PDO::FETCH_ASSOC);
 
 if (!$S) {
@@ -44,9 +44,10 @@ if (!$S) {
     exit('Solicitud no encontrada');
 }
 
-if (($S['TIPO_DOCUMENTO'] ?? '') !== 'CSE') {
+$tipoDoc = $S['TIPO_DOCUMENTO'] ?? '';
+if (!in_array($tipoDoc, ['CSE','CSE2'], true)) {
     http_response_code(403);
-    exit('Esta solicitud no es de tipo CSE');
+    exit('Esta solicitud no es de tipo CSE/CSE2');
 }
 
 $depApr = (int)($S['ID_DEPARTAMENTO_APROBADOR'] ?? 0);
@@ -67,9 +68,20 @@ if ($periodo === '' || $nivel === '' || $clave === '' || $nombre === '') {
     exit;
 }
 
+// 4.1) Límite de 6 registros SOLO para CSE
+if ($tipoDoc === 'CSE') {
+    $cntSt = $pdo->prepare("SELECT COUNT(*) FROM dbo.DOCENTE_CARGA WHERE ID_SOLICITUD=:sid");
+    $cntSt->execute([':sid' => $sid]);
+    $cuantos = (int)$cntSt->fetchColumn();
+    if ($cuantos >= 6) {
+        header('Location: /siged/public/index.php?action=jefe_ver&id='.$sid.'&cse_err=limite');
+        exit;
+    }
+}
+
 // 5) Calcular ORDEN (siguiente consecutivo)
 $ordenSt = $pdo->prepare("SELECT ISNULL(MAX(ORDEN),0)+1 FROM dbo.DOCENTE_CARGA WHERE ID_SOLICITUD=:sid");
-$ordenSt->execute([':sid'=>$sid]);
+$ordenSt->execute([':sid' => $sid]);
 $orden = (int)($ordenSt->fetchColumn() ?: 1);
 
 // 6) Insertar en DOCENTE_CARGA

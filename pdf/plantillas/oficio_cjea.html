@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 10.5pt;
+      line-height: 1.22;
+      margin: 0;
+      padding: 0;
+    }
+
+    .encabezado {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border-bottom: 1px solid #000;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+
+    .meta {
+      font-size: 8.6pt;
+      margin: 4px 18px 0 18px;
+      text-align: right;
+      line-height: 1.15;
+    }
+    .meta p {
+      margin: 1px 0;
+      padding: 0;
+    }
+
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 10px 0 6px 0;
+      font-size: 12.8pt;
+      letter-spacing: .8px;
+      padding: 0;
+    }
+
+    .contenido {
+      margin: 6px 18px 0 18px;
+      text-align: justify;
+      padding: 0;
+    }
+    .contenido p {
+      margin: 3px 0;
+      padding: 0;
+    }
+
+    .bloque-datos {
+      margin: 8px 0 10px 0;
+      padding: 6px 12px;
+      border: 1px solid #999;
+      text-align: left;
+      font-size: 10pt;
+      line-height: 1.32;
+    }
+    .bloque-datos p {
+      margin: 2px 0;
+    }
+    .bloque-datos strong {
+      color: #003366;
+    }
+
+    .atentamente {
+      text-align: center;
+      margin-top: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      font-size: 10.5pt;
+    }
+
+    .firma {
+      margin-top: 18px;
+      text-align: center;
+      line-height: 1.1;
+      padding: 0;
+    }
+    .firma img {
+      height: 48px;
+      display: block;
+      margin: 0 auto -6px auto;
+      padding: 0;
+    }
+    .firma-linea {
+      border-top: 1px solid #000;
+      width: 180px;
+      margin: 3px auto 2px auto;
+    }
+    .firma-nombre {
+      font-weight: bold;
+      font-size: 9.7pt;
+      text-transform: uppercase;
+    }
+    .firma-cargo {
+      font-size: 8.7pt;
+      color: #444;
+    }
+
+    .verificacion {
+      margin: 6px 18px 0 18px;
+      font-size: 7.8pt;
+      text-align: left;
+      line-height: 1.1;
+    }
+  </style>
+</head>
+<body>
+
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:44px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>INSTITUTO TECNOLÓGICO DE CULIACÁN</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:48px;">
+      </td>
+    </tr>
+  </table>
+
+  <div class="meta">
+    <p>Folio: {folio}</p>
+    <p>{lugar_fecha}</p>
+  </div>
+
+  <h3 class="titulo">Oficio de comisión como jurado en evento académico</h3>
+
+  <div class="contenido">
+
+    <p>
+      Por este conducto se hace constar que el(la) C.
+      <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, adscrito(a) a este Tecnológico, ha sido
+      comisionado(a) como <strong>jurado</strong> en el evento académico
+      <strong>"{nombre_evento}"</strong>, a realizarse el día
+      <strong>{fecha_evento}</strong> en <strong>{lugar_evento}</strong>.
+    </p>
+
+    <div class="bloque-datos">
+      <p><strong>Nombre del evento:</strong> {nombre_evento}</p>
+      <p><strong>Fecha de realización:</strong> {fecha_evento}</p>
+      <p><strong>Lugar:</strong> {lugar_evento}</p>
+      <p>
+        <strong>Participación:</strong> Jurado en evento académico
+        (ciencias, innovación tecnológica, emprendimiento, concursos de tesis,
+        entre otros).
+      </p>
+    </div>
+
+    <p>
+      Lo anterior se emite en el marco de la participación como jurado en
+      eventos académicos (ciencias, innovación tecnológica, emprendimiento,
+      concursos de tesis, entre otros), para los fines académicos y
+      administrativos que al(la) interesado(a) convengan.
+    </p>
+
+  </div>
+
+  <div class="atentamente">
+    A T E N T A M E N T E
+  </div>
+
+  <div class="firma">
+    <img src="{firma_jefe}">
+    <div class="firma-nombre">{nombre_jefe}</div>
+    <div class="firma-cargo">Titular del Departamento Académico</div>
+  </div>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar:
+    {url_verificacion}
+  </div>
+
+</body>
+</html>

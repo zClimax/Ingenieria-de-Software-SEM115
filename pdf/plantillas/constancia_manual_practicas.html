@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.25;
+      margin: 0;
+      padding: 0;
+    }
+    .encabezado {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+    .folio {
+      font-size: 9pt;
+      margin: 4px 0 0 0;
+    }
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 8px 0 6px 0;
+      padding: 0;
+    }
+    .contenido {
+      margin-top: 6px;
+      padding: 0;
+      text-align: justify;
+    }
+    .contenido p {
+      margin: 2px 0;
+      padding: 0;
+    }
+    .firmas {
+      margin-top: 25px;
+    }
+    .tabla-firmas {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .tabla-firmas td {
+      width: 50%;
+      vertical-align: top;
+      text-align: center;
+      padding: 0 10px;
+    }
+    .firma {
+      text-align: center;
+      line-height: 1.1;
+      padding: 0;
+    }
+    .firma img {
+      height: 60px;
+      display: block;
+      margin: 0 auto -10px auto;
+      padding: 0;
+    }
+    .verificacion {
+      margin-top: 8px;
+      font-size: 8pt;
+      line-height: 1.1;
+    }
+  </style>
+</head>
+<body>
+
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:50px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>INSTITUTO TECNOLÓGICO DE CULIACÁN</strong></div>
+        <div><strong>DEPARTAMENTO ACADÉMICO</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:55px;">
+      </td>
+    </tr>
+  </table>
+
+  <div class="folio">
+    Folio: {folio}
+  </div>
+
+  <h3 class="titulo">Constancia de manual de prácticas</h3>
+
+  <div class="contenido">
+    <p>A quien corresponda:</p>
+
+    <p>
+      El Departamento Académico hace constar que el(la) C.
+      <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, elaboró el manual de prácticas
+      <strong>"{nombre_manual}"</strong> para planes de estudio 2009 y
+      posteriores, el cual cuenta con rúbrica de evaluación del estudiante
+      y está siendo utilizado actualmente por la academia.
+    </p>
+
+    <p>
+      La presente constancia se emite como constancia del trabajo terminado
+      con la rúbrica de evaluación del estudiante y que establece que el
+      manual está siendo utilizado por la academia, firmada por la persona
+      titular del Departamento Académico correspondiente y con Vo.Bo. de la
+      Subdirección Académica, en apego a los criterios establecidos en el
+      programa Estímulo al Desempeño Docente (EDD).
+    </p>
+
+    <p>
+      Se extiende la presente para los fines académicos y administrativos
+      que al(la) interesado(a) convengan.
+    </p>
+
+    <p style="margin-top:2px;">
+      {lugar_fecha}
+    </p>
+  </div>
+
+  <div class="firmas">
+    <table class="tabla-firmas">
+      <tr>
+        <!-- Izquierda: Titular del Departamento Académico -->
+        <td>
+          <div class="firma">
+            <img src="{firma_jefe}">
+            <div><strong>{nombre_jefe}</strong></div>
+            <div>Titular del Departamento Académico</div>
+          </div>
+        </td>
+
+        <!-- Derecha: Subdirectora Académica -->
+        <td>
+          <div class="firma">
+            <div style="text-align:center; margin:0 0 4pt 0; ;">firma_sub</div>
+            <div><strong>Bertha Lucía Patrón Arellano</strong></div>
+            <div>Subdirectora Académica</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar:
+    {url_verificacion}
+  </div>
+
+</body>
+</html>

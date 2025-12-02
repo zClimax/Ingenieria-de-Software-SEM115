@@ -133,6 +133,94 @@ body {
 }
 
 /* =========================================
+   ANUNCIO DE CEDULA PROFESIONAL
+   ========================================= */
+.cedula-banner {
+    background: #fff;
+    border-left: 5px solid #1976d2; /* Azul institucional */
+    border-radius: 8px;
+    padding: 20px 25px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cedula-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.cedula-icon-box {
+    background: #e3f2fd; /* Fondo azul muy claro */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cedula-icon-box i {
+    font-size: 28px;
+    color: #1976d2; /* Icono azul */
+}
+
+.cedula-content {
+    flex-grow: 1;
+}
+
+.cedula-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.cedula-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+}
+
+.cedula-btn {
+    background-color: #1976d2; /* Botón azul */
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s ease;
+    white-space: nowrap;
+}
+
+.cedula-btn:hover {
+    background-color: #1565c0; /* Azul más oscuro al hover */
+}
+
+@media (max-width: 768px) {
+    .cedula-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+    .cedula-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* =========================================
    SIDEBAR
    ========================================= */
 .sidebar {
@@ -871,4 +959,29 @@ section {
 
 .table-responsive::-webkit-scrollbar-thumb:hover {
     background: #a8b8d8;
+}
+
+/* =========================================
+   AVISO DE PUNTAJE (WARNING BOX)
+   ========================================= */
+.aviso-puntaje {
+    margin-top: 15px;
+    background-color: #fff8e1;
+    color: #b76e00;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.aviso-puntaje i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.aviso-puntaje strong {
+    font-weight: 700;
 }

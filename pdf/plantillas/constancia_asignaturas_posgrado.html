@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.25; /* MÁS COMPACTO */
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ENCABEZADO */
+    .encabezado {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+
+    .folio {
+      font-size: 9pt;
+      margin: 4px 0 0 0; 
+    }
+
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 8px 0 6px 0; 
+      padding: 0;
+    }
+
+    /* CONTENIDO */
+    .contenido {
+      margin-top: 6px; 
+      padding: 0;
+      text-align: justify;
+    }
+
+    .contenido p {
+      margin: 2px 0; 
+      padding: 0;
+    }
+
+    /* LISTA */
+    .lista-asignaturas {
+      margin-top: 4px; 
+      margin-bottom: 2px;
+      padding: 0;
+    }
+
+    .lista-asignaturas ul {
+      padding-left: 16px;
+      margin: 1px 0; 
+    }
+
+    /* FIRMA */
+    .firma {
+      margin-top: 25px; 
+      text-align: center;
+      line-height: 1.1;
+      padding: 0;
+    }
+
+    .firma img {
+      height: 60px; 
+      display: block;
+      margin: 0 auto -10px auto; 
+      padding: 0;
+    }
+    /* VERIFICACIÓN */
+    .verificacion {
+      margin-top: 8px; 
+      font-size: 8pt;
+      line-height: 1.1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:50px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>INSTITUTO TECNOLÓGICO DE CULIACÁN</strong></div>
+        <div><strong>DEPARTAMENTO DE SERVICIOS ESCOLARES</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:55px;">
+      </td>
+    </tr>
+  </table>
+
+  <div class="folio">
+    Folio: {folio}
+  </div>
+
+  <h3 class="titulo">Constancia de asignaturas de posgrado</h3>
+
+  <div class="contenido">
+
+    <p>A quien corresponda:</p>
+
+    <p>
+      El Departamento de Servicios Escolares hace constar que el(la) C.
+      <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, impartió las siguientes asignaturas de
+      posgrado durante el año <strong>{anio}</strong>:
+    </p>
+
+    <div class="lista-asignaturas">
+      {lista_asignaturas}
+    </div>
+
+    <p>
+      Se extiende la presente para los fines académicos y administrativos que
+      al(la) interesado(a) convengan.
+    </p>
+
+    <p style="margin-top:2px;"> 
+      {lugar_fecha}
+    </p>
+
+  </div>
+
+  <div class="firma">
+    <img src="{firma_jefe}">
+    <div class="firma-linea"></div>
+    <div><strong>{nombre_jefe}</strong></div>
+    <div>Jefe(a) del Departamento de Servicios Escolares</div>
+  </div>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar:
+    {url_verificacion}
+  </div>
+
+</body>
+</html>

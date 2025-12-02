@@ -83,35 +83,135 @@ $sol = [
 
     <?php
     // ====== FORMULARIOS ESPECÍFICOS POR TIPO ======
-    // ACI (Centro de Información): reutilizamos el CRUD (ci_form.php)
     if ($tipo === 'ACI') {
-      // ci_form.php espera $sol con llaves: id, tipo, estado, id_docente, dep_aprobador
+
       require __DIR__ . '/ci_form.php';
-    } else {
-      // Para otros tipos, puedes mostrar aquí instrucciones o un futuro formulario específico.
+  
+  } elseif ($tipo === 'RED') {
+  
+      require __DIR__ . '/dep_form.php';
+  
+  } elseif ($tipo === 'TUT') {
+  
+      require __DIR__ . '/tut_mount.php';
+  
+  }elseif ($tipo === 'CAE') {
+  
+      require __DIR__ . '/cae_form.php';
+  
+  } elseif ($tipo === 'CCA') {
+  
+      require __DIR__ . '/cca_form.php';
+  
+  } elseif ($tipo === 'CCE') {
+  
+      require __DIR__ . '/cce_form.php';
+  
+  } elseif ($tipo === 'CCID') {
+  
+      require __DIR__ . '/ccid_form.php';
+
+   } elseif ($tipo === 'CCO') {
+  
+      require __DIR__ . '/cco_form.php';
+  
+  } elseif ($tipo === 'CCUI') {
+  
+      require __DIR__ . '/ccui_form.php';  
+
+  } elseif ($tipo === 'CDEI') {
+  
+      require __DIR__ . '/cdei_form.php';  
+  
+  } elseif ($tipo === 'CDPC') {
+  
+      require __DIR__ . '/cdpc_form.php';
+      
+  } elseif ($tipo === 'CDPE') {
+  
+      require __DIR__ . '/cdpe_form.php';
+
+  } elseif ($tipo === 'CDRE') {
+  
+      require __DIR__ . '/cdre_form.php';
+
+   } elseif ($tipo === 'CEPA') {
+  
+      require __DIR__ . '/cepa_form.php';
+
+   } elseif ($tipo === 'CHA') {
+  
+      require __DIR__ . '/cha_form.php';
+
+   } elseif ($tipo === 'CI') {
+  
+      require __DIR__ . '/ci_form.php';
+
+   } elseif ($tipo === 'CIPC') {
+  
+      require __DIR__ . '/cipc_form.php';
+
+   } elseif ($tipo === 'CJEA') {
+  
+      require __DIR__ . '/cjea_form.php';
+
+   } elseif ($tipo === 'CLFG') {
+  
+      require __DIR__ . '/clfg_form.php';
+
+   } elseif ($tipo === 'CMDI') {
+  
+      require __DIR__ . '/cmdi_form.php';
+
+   } elseif ($tipo === 'CMP') {
+  
+      require __DIR__ . '/cmp_form.php';
+
+   } elseif ($tipo === 'CPFT') {
+  
+      require __DIR__ . '/cpft_form.php';
+
+   } elseif ($tipo === 'CPI') {
+  
+      require __DIR__ . '/cpi_form.php';
+
+
+   } elseif ($tipo === 'CPP') {
+  
+      require __DIR__ . '/cpp_form.php';
+
+   } elseif ($tipo === 'CSE') {
+  
+      require __DIR__ . '/cse_form.php';
+
+   } elseif ($tipo === 'CSEM') {
+  
+      require __DIR__ . '/csem_form.php';
+
+   } elseif ($tipo === 'CSEP') {
+  
+      require __DIR__ . '/csep_form.php';
+
+   } elseif ($tipo === 'CST') {
+  
+      require __DIR__ . '/cst_form.php';
+
+   } elseif ($tipo === 'LAD') {
+  
+      require __DIR__ . '/lad_form.php';
+
+   } elseif ($tipo === 'PASG') {
+  
+      require __DIR__ . '/pasg_form.php';
+ 
+  }else {
+  
       echo '<div class="card" style="padding:1rem;margin:.75rem 0">
               <h3 style="margin:0 0 .5rem">Campos específicos</h3>
               <p><em>No hay formulario estructurado para este tipo de documento.</em></p>
             </div>';
-    }
-    if ($tipo === 'RED'){
-      require __DIR__ . '/dep_form.php';
-    }else{
-            echo '<div class="card" style="padding:1rem;margin:.75rem 0">
-              <h3 style="margin:0 0 .5rem">Campos específicos</h3>
-              <p><em>No hay formulario estructurado para este tipo de documento.</em></p>
-            </div>';
-    }
-    if($tipo ==='TUT'){
-      require __DIR__ . '/tut_mount.php';
-    }else{
-        echo '<div class="card" style="padding:1rem;margin:.75rem 0">
-              <h3 style="margin:0 0 .5rem">Campos específicos</h3>
-              <p><em>No hay formulario estructurado para este tipo de documento.</em></p>
-            </div>';
-    }
-
-
+  }
+  
     ?>
 
     <form method="post" action="/siged/public/index.php?action=corr_aplicar" style="margin-top:1rem">

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.4;
+      margin: 0;
+      padding: 0;
+    }
+    .encabezado {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border-bottom: 1px solid #000;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+    .folio {
+      font-size: 9pt;
+      margin-top: 6px;
+      text-align: right;
+    }
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 14px 0 10px 0;
+      padding: 0;
+      font-size: 14pt;
+      letter-spacing: 1px;
+    }
+    .contenido {
+      margin-top: 8px;
+      padding: 0;
+      text-align: justify;
+    }
+    .contenido p {
+      margin: 4px 0;
+      padding: 0;
+    }
+    .bloque-datos {
+      margin: 12px 0 14px 0;
+      padding: 8px 14px;
+      border: 1px solid #999;
+      text-align: center;
+      line-height: 1.6;
+      font-size: 10.5pt;
+    }
+    .bloque-datos strong {
+      color: #003366;
+    }
+    .atentamente {
+      text-align: center;
+      margin-top: 18px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      font-size: 11pt;
+    }
+    .firmas {
+      margin-top: 24px;
+    }
+    .tabla-firmas {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .tabla-firmas td {
+      width: 50%;
+      vertical-align: top;
+      text-align: center;
+      padding: 0 10px;
+    }
+    .firma {
+      text-align: center;
+      line-height: 1.1;
+      padding: 0;
+    }
+    .firma img {
+      height: 60px;
+      display: block;
+      margin: 0 auto -8px auto;
+      padding: 0;
+    }
+    .firma-linea {
+      border-top: 1px solid #000;
+      width: 80%;
+      margin: 4px auto 2px auto;
+    }
+    .firma-nombre {
+      font-weight: bold;
+      font-size: 10pt;
+      text-transform: uppercase;
+    }
+    .firma-cargo {
+      font-size: 9pt;
+      color: #444;
+    }
+    .verificacion {
+      margin-top: 10px;
+      font-size: 8pt;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ENCABEZADO -->
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:50px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>INSTITUTO TECNOLÓGICO DE CULIACÁN</strong></div>
+        <div><strong>DEPARTAMENTO ACADÉMICO</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:55px;">
+      </td>
+    </tr>
+  </table>
+
+  <!-- FOLIO / FECHA EMISIÓN -->
+  <div class="folio">
+    Folio: {folio}<br>
+    {lugar_fecha}
+  </div>
+
+  <!-- TÍTULO -->
+  <h3 class="titulo">Constancia de participación en acta de examen</h3>
+
+  <!-- CUERPO -->
+  <div class="contenido">
+    <p>A quien corresponda:</p>
+
+    <p>
+      El Departamento Académico hace constar que el(la) C.
+      <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, participó en el acta de examen
+      <strong>{tipo_examen}</strong> de fecha <strong>{fecha_examen}</strong>,
+      del(la) estudiante <strong>{nombre_estudiante}</strong>, del programa
+      <strong>{programa}</strong>, fungiendo como
+      <strong>{rol_participacion}</strong>.
+    </p>
+
+    <div class="bloque-datos">
+      <strong>TIPO DE EXAMEN:</strong> {tipo_examen}<br>
+      <strong>FECHA DEL EXAMEN:</strong> {fecha_examen}<br>
+      <strong>ESTUDIANTE:</strong> {nombre_estudiante}<br>
+      <strong>PROGRAMA:</strong> {programa}<br>
+      <strong>ROL:</strong> {rol_participacion}
+    </div>
+
+    <p>
+      Lo anterior se emite en el marco del programa Estímulo al Desempeño
+      Docente (EDD), conforme al numeral 1.3.1:
+      Asesor(a) o Director(a) o Codirector(a) (solo posgrado).
+    </p>
+
+    <p>
+      Se extiende la presente para los fines académicos y administrativos que
+      al(la) interesado(a) convengan.
+    </p>
+  </div>
+
+  <!-- FIRMAS -->
+  <div class="atentamente">
+    A T E N T A M E N T E
+  </div>
+
+  <div class="firmas">
+    <table class="tabla-firmas">
+      <tr>
+        <!-- Jefe del Departamento Académico -->
+        <td>
+          <div class="firma">
+            <img src="{firma_jefe}">
+            <div class="firma-nombre">{nombre_jefe}</div>
+            <div class="firma-cargo">Titular del Departamento Académico</div>
+          </div>
+        </td>
+
+        <!-- Subdirección Académica -->
+        <td>
+          <div class="firma">
+            <div style="text-align:center; margin:0 0 4pt 0;">firma_sub</div>
+            <div class="firma-nombre">Bertha Lucía Patrón Arellano</div>
+            <div class="firma-cargo">Subdirectora Académica</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar:
+    {url_verificacion}
+  </div>
+
+</body>
+</html>

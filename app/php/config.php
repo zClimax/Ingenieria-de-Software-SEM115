@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 final class Config {
+
   // === Ajusta estos valores a tu entorno local ===
   public const DB_SERVER   = 'localhost';          // o 'localhost\\SQLEXPRESS'
   public const DB_NAME     = 'SIGED';

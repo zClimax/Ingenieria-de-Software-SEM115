@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.4;
+      margin: 0;
+      padding: 0;
+    }
+    .encabezado {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border-bottom: 1px solid #000;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+    .folio {
+      font-size: 9pt;
+      margin-top: 6px;
+      text-align: right;
+    }
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 14px 0 10px 0;
+      padding: 0;
+      font-size: 13pt;
+      letter-spacing: 1px;
+    }
+    .contenido {
+      margin-top: 8px;
+      padding: 0;
+      text-align: justify;
+    }
+    .contenido p {
+      margin: 4px 0;
+      padding: 0;
+    }
+    .bloque-datos {
+      margin: 12px 0 14px 0;
+      padding: 8px 14px;
+      border: 1px solid #999;
+      text-align: center;
+      line-height: 1.6;
+      font-size: 10.5pt;
+    }
+    .bloque-datos strong {
+      color: #003366;
+    }
+    .atentamente {
+      text-align: center;
+      margin-top: 18px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      font-size: 11pt;
+    }
+    .firmas {
+      margin-top: 24px;
+    }
+    .tabla-firmas {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .tabla-firmas td {
+      width: 50%;
+      vertical-align: top;
+      text-align: center;
+      padding: 0 10px;
+    }
+    .firma {
+      text-align: center;
+      line-height: 1.1;
+      padding: 0;
+    }
+    .firma img {
+      height: 60px;
+      display: block;
+      margin: 0 auto -8px auto;
+      padding: 0;
+    }
+    .firma-linea {
+      border-top: 1px solid #000;
+      width: 80%;
+      margin: 4px auto 2px auto;
+    }
+    .firma-nombre {
+      font-weight: bold;
+      font-size: 10pt;
+      text-transform: uppercase;
+    }
+    .firma-cargo {
+      font-size: 9pt;
+      color: #444;
+    }
+    .verificacion {
+      margin-top: 10px;
+      font-size: 8pt;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ENCABEZADO -->
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:50px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>{nombre_institucion}</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:55px;">
+      </td>
+    </tr>
+  </table>
+
+  <!-- FECHA / LUGAR -->
+  <div class="folio">
+    {lugar_fecha}
+  </div>
+
+  <!-- TÍTULO -->
+  <h3 class="titulo">Oficio de comisión de diplomado</h3>
+
+  <!-- CUERPO -->
+  <div class="contenido">
+    <p>
+      Por este medio, la persona Titular del Departamento correspondiente del
+      <strong>{nombre_institucion}</strong> hace constar que el(la) C.
+      <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, ha sido comisionado(a) como
+      instructor(a)/facilitador(a) del diplomado
+      <strong>"{nombre_diplomado}"</strong>, relacionado con el proyecto
+      estratégico <strong>{nombre_proyecto}</strong> del TecNM.
+    </p>
+
+    <div class="bloque-datos">
+      <strong>DIPLOMADO:</strong> "{nombre_diplomado}"<br>
+      <strong>PROYECTO ESTRATÉGICO:</strong> {nombre_proyecto}<br>
+      <strong>INSTRUCTOR(A)/FACILITADOR(A):</strong> {nombre_docente}
+    </div>
+
+    <p>
+      Lo anterior se emite conforme al numeral 1.2.2.7 del programa Estímulo al
+      Desempeño Docente (EDD): Instructor(a)/Facilitador(a) de diplomados
+      relacionados con los proyectos estratégicos del TecNM.
+    </p>
+
+    <p>
+      Se extiende el presente oficio de comisión para los fines académicos,
+      administrativos y de control interno que al(la) interesado(a) convengan.
+    </p>
+  </div>
+
+  <!-- FIRMAS -->
+  <div class="atentamente">
+    A T E N T A M E N T E
+  </div>
+
+  <div class="firmas">
+    <table class="tabla-firmas">
+      <tr>
+        <!-- Jefe del Departamento del Docente -->
+        <td>
+          <div class="firma">
+            <img src="{firma_jefe}">
+            <div class="firma-nombre">{nombre_jefe}</div>
+            <div class="firma-cargo">Jefe(a) del Departamento</div>
+          </div>
+        </td>
+
+        <!-- Docente comisionado -->
+        <td>
+          <div class="firma">
+            <img src="{firma_docente}">
+            <div class="firma-nombre">{nombre_docente}</div>
+            <div class="firma-cargo">Instructor(a) / Facilitador(a) comisionado(a)</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar:
+    {url_verificacion}
+  </div>
+
+</body>
+</html>

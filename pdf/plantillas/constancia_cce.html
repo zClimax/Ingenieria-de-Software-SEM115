@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 10.5pt;
+      line-height: 1.22;
+      margin: 0;
+      padding: 0;
+    }
+    .encabezado {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border-bottom: 1px solid #000;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+    .folio {
+      font-size: 8.5pt;
+      margin-top: 4px;
+      text-align: right;
+      line-height: 1.1;
+    }
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 10px 0 8px 0;
+      padding: 0;
+      font-size: 13pt;
+      letter-spacing: .5px;
+    }
+    .contenido {
+      margin-top: 4px;
+      padding: 0;
+      text-align: justify;
+    }
+    .contenido p {
+      margin: 3px 0;
+      padding: 0;
+    }
+    .bloque-datos {
+      margin: 8px 0 10px 0;
+      padding: 6px 10px;
+      border: 1px solid #999;
+      text-align: left;
+      line-height: 1.35;
+      font-size: 10pt;
+    }
+    .bloque-datos p {
+      margin: 2px 0;
+    }
+    .bloque-datos strong {
+      color: #003366;
+    }
+    .atentamente {
+      text-align: center;
+      margin-top: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      font-size: 10.5pt;
+    }
+    .firmas {
+      margin-top: 16px;
+    }
+    .tabla-firmas {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .tabla-firmas td {
+      width: 50%;
+      vertical-align: top;
+      text-align: center;
+      padding: 0 6px;
+    }
+    .firma {
+      text-align: center;
+      line-height: 1.1;
+      padding: 0;
+    }
+    .firma img {
+      height: 50px;
+      display: block;
+      margin: 0 auto -6px auto;
+      padding: 0;
+    }
+    .firma-linea {
+      border-top: 1px solid #000;
+      width: 80%;
+      margin: 3px auto 2px auto;
+    }
+    .firma-nombre {
+      font-weight: bold;
+      font-size: 9.7pt;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+    .firma-cargo {
+      font-size: 8.7pt;
+      color: #444;
+    }
+    .verificacion {
+      margin-top: 6px;
+      font-size: 7.8pt;
+      text-align: left;
+      line-height: 1.1;
+    }
+  </style>
+</head>
+<body>
+
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:46px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>INSTITUTO TECNOLÓGICO DE CULIACÁN</strong></div>
+        <div><strong>DEPARTAMENTO ACADÉMICO</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:50px;">
+      </td>
+    </tr>
+  </table>
+
+  <div class="folio">
+    Folio: {folio}<br>
+    {lugar_fecha}
+  </div>
+
+  <h3 class="titulo">Constancia de coordinación / colaboración en eventos</h3>
+
+  <div class="contenido">
+
+    <p>A quien corresponda:</p>
+
+    <p>
+      El Departamento Académico hace constar que el(la) C.
+      <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, participó en la
+      <strong>{tipo_participacion}</strong> del evento
+      <strong>"{nombre_evento}"</strong>, desempeñando las funciones de
+      <strong>{funciones}</strong> y desarrollando las siguientes actividades:
+    </p>
+
+    <div class="bloque-datos">
+      <p><strong>Evento:</strong> {nombre_evento}</p>
+      <p><strong>Tipo de participación:</strong> {tipo_participacion}</p>
+      <p><strong>Funciones desempeñadas:</strong><br>{funciones}</p>
+      <p><strong>Actividades desarrolladas:</strong><br>{actividades}</p>
+    </div>
+
+    <p>
+      Lo anterior se emite en el marco de la coordinación y colaboración en
+      concursos o eventos académicos, innovación tecnológica o emprendimiento
+      (InnovaTecNM, Copa de Ciencias, Robótica, mezclas de concreto, satélites,
+      entre otros), conforme al numeral 1.4.4 del programa Estímulo al
+      Desempeño Docente (EDD).
+    </p>
+
+    <p>
+      Se extiende la presente para los fines académicos y administrativos que
+      al(la) interesado(a) convengan.
+    </p>
+
+  </div>
+
+  <div class="atentamente">
+    A T E N T A M E N T E
+  </div>
+
+  <div class="firmas">
+    <table class="tabla-firmas">
+      <tr>
+        <td>
+          <div class="firma">
+            <img src="{firma_jefe}">
+            <div class="firma-nombre">{nombre_jefe}</div>
+            <div class="firma-cargo">Titular del Departamento Académico</div>
+          </div>
+        </td>
+
+        <td>
+          <div class="firma">
+            <div style="text-align:center; margin:0 0 3pt 0;">firma_sub</div>
+            <div class="firma-nombre">Bertha Lucía Patrón Arellano</div>
+            <div class="firma-cargo">Subdirectora Académica</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar:
+    {url_verificacion}
+  </div>
+
+</body>
+</html>

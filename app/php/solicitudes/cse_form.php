@@ -5,7 +5,13 @@ require_once __DIR__ . '/../utils/session.php';
 require_once __DIR__ . '/../config.php';
 
 // Este form se asume montado por cse_mount.php
-if (!isset($sol) || strtoupper($sol['tipo'] ?? '') !== 'CSE') {
+if (!isset($sol)) {
+    return;
+}
+
+$tipoDoc = strtoupper($sol['tipo'] ?? '');
+if (!in_array($tipoDoc, ['CSE', 'CSE2'], true)) {
+    // Solo se monta para CSE y CSE2
     return;
 }
 
@@ -20,45 +26,83 @@ $st = $pdo->prepare("
     WHERE ID_SOLICITUD = :sid
     ORDER BY ORDEN, ID_CARGA
 ");
-$st->execute([':sid'=>$sid]);
+$st->execute([':sid' => $sid]);
 $cargas = $st->fetchAll(PDO::FETCH_ASSOC);
+
+$isCSE   = ($tipoDoc === 'CSE');
+$maxCSE  = 6;
+$numRegs = count($cargas);
+$limiteAlcanzado = $isCSE && $numRegs >= $maxCSE;
+
+$titulo = $isCSE
+    ? 'Datos para Constancia de Servicios Escolares (CSE)'
+    : 'Datos para Constancia de séptima asignatura (CSE2)';
+
+$ayuda = $isCSE
+    ? 'En esta constancia solo se pueden registrar hasta 6 asignaturas. Si el docente tiene una séptima diferente, genera una solicitud CSE2 para las adicionales.'
+    : 'Esta constancia corresponde a asignaturas adicionales (a partir de la séptima diferente) conforme al rubro 1.1.2 de la convocatoria.';
+
+$err = $_GET['cse_err'] ?? '';
 ?>
 <section class="card" style="margin-top:1rem;padding:1rem 1.25rem">
-  <h3 style="margin:0 0 .75rem">Datos para Constancia de Servicios Escolares (CSE)</h3>
+  <h3 style="margin:0 0 .5rem"><?= htmlspecialchars($titulo) ?></h3>
+  <p style="margin:0 0 .75rem;font-size:.85rem;color:#4b5563">
+    <?= htmlspecialchars($ayuda) ?><br>
+    <?php if ($isCSE): ?>
+      <strong>Registros actuales:</strong> <?= (int)$numRegs ?> / <?= $maxCSE ?>.
+    <?php endif; ?>
+  </p>
 
-  <!-- Formulario para agregar registro de carga -->
-  <form method="post" action="/siged/public/index.php?action=cse_guardar" style="display:grid;gap:.75rem">
-    <input type="hidden" name="id" value="<?= $sid ?>">
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
-      <label>Periodo
-        <input type="text" name="periodo" required placeholder="p.ej. 2024-ENE-JUN">
-      </label>
-      <label>Nivel
-        <input type="text" name="nivel" required placeholder="Lic., Ing., Posgrado...">
-      </label>
+  <?php if ($err === 'campos'): ?>
+    <div class="alert" style="background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:.5rem;border-radius:.5rem;margin-bottom:.5rem">
+      <i class='bx bx-error-circle'></i> Completa todos los campos obligatorios antes de guardar.
     </div>
-
-    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem">
-      <label>Clave de materia
-        <input type="text" name="clave_materia" required placeholder="p.ej. MAT101">
-      </label>
-      <label>Nombre de materia
-        <input type="text" name="nombre_materia" required placeholder="p.ej. Cálculo Diferencial">
-      </label>
+  <?php elseif ($err === 'limite'): ?>
+    <div class="alert" style="background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:.5rem;border-radius:.5rem;margin-bottom:.5rem">
+      <i class='bx bx-error-circle'></i> Esta constancia CSE ya tiene 6 asignaturas registradas. Para una séptima diferente, genera una solicitud de tipo CSE2.
     </div>
+  <?php endif; ?>
 
-    <div style="display:grid;grid-template-columns:1fr;gap:.75rem;max-width:220px">
-      <label>Alumnos atendidos
-        <input type="number" name="alumnos" min="0" step="1" required value="0">
-      </label>
+  <?php if ($limiteAlcanzado): ?>
+    <div class="alert" style="background:#f9fafb;border:1px solid #e5e7eb;padding:.75rem;border-radius:.5rem;color:#374151;margin-bottom:.75rem">
+      Ya alcanzaste el máximo de <strong>6 asignaturas</strong> para esta solicitud CSE. 
+      Puedes eliminar alguna fila si necesitas corregirla, o generar un documento <strong>CSE2</strong> para registrar asignaturas adicionales.
     </div>
+  <?php else: ?>
+    <!-- Formulario para agregar registro de carga -->
+    <form method="post" action="/siged/public/index.php?action=cse_guardar" style="display:grid;gap:.75rem">
+      <input type="hidden" name="id" value="<?= $sid ?>">
 
-    <div style="display:flex;gap:.5rem;margin-top:.5rem">
-      <button type="submit" class="btn">Agregar registro</button>
-      <a class="btn" href="/siged/public/index.php?action=jefe_ver&id=<?= $sid ?>">Volver</a>
-    </div>
-  </form>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <label>Periodo
+          <input type="text" name="periodo" required placeholder="p.ej. 2024-ENE-JUN">
+        </label>
+        <label>Nivel
+          <input type="text" name="nivel" required placeholder="Lic., Ing., Posgrado...">
+        </label>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem">
+        <label>Clave de materia
+          <input type="text" name="clave_materia" required placeholder="p.ej. MAT101">
+        </label>
+        <label>Nombre de materia
+          <input type="text" name="nombre_materia" required placeholder="p.ej. Cálculo Diferencial">
+        </label>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr;gap:.75rem;max-width:220px">
+        <label>Alumnos atendidos
+          <input type="number" name="alumnos" min="0" step="1" required value="0">
+        </label>
+      </div>
+
+      <div style="display:flex;gap:.5rem;margin-top:.5rem">
+        <button type="submit" class="btn">Agregar registro</button>
+        <a class="btn" href="/siged/public/index.php?action=jefe_ver&id=<?= $sid ?>">Volver</a>
+      </div>
+    </form>
+  <?php endif; ?>
 
   <!-- Tabla de registros ya capturados -->
   <hr style="margin:1rem 0">

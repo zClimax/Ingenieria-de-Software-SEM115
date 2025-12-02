@@ -283,7 +283,123 @@ if (file_exists($rutaFisica)) {
                     require __DIR__ . '/clfg_form.php';
                     echo '</div>';
                 }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CSE2') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cse_mount.php';
+                    echo '</div>';
+                }
 
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CHA') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cha_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CSEP') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/csep_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CSEM') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/csem_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CPI') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cpi_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CMP') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cmp_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CMDI') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cmdi_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CCID') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/ccid_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CCUI') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/ccui_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CDPC') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cdpc_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CIPC') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cipc_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CPFT') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cpft_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CDRE') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cdre_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CDEI') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cdei_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CDPE') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cdpe_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CAE') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cae_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CST') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cst_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CCO') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cco_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CPP') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cpp_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CCE') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cce_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CJEA') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cjea_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CEPA') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cepa_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'PASG') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/pasg_mount.php';
+                    echo '</div>';
+                }
+                
                 ?>
 
                 <!-- Decisión (corregida para mandar siempre "decision") -->

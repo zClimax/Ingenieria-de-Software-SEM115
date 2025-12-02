@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Times New Roman", serif;
+      font-size: 10.5pt;
+      line-height: 1.18;
+      margin: 0;
+      padding: 0;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+    .folio {
+      font-size: 8.5pt;
+      margin-top: 4px;
+      text-align: right;
+      line-height: 1.1;
+    }
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 10px 0 8px 0;
+      font-size: 13pt;
+      letter-spacing: 0.5px;
+    }
+    .contenido {
+      margin-top: 4px;
+      text-align: justify;
+    }
+    .contenido p {
+      margin: 2px 0;
+      padding: 0;
+    }
+    .bloque-datos {
+      margin: 8px 0 10px 0;
+      padding: 6px 10px;
+      border: 1px solid #777;
+      text-align: center;
+      line-height: 1.35;
+      font-size: 10pt;
+    }
+    .atentamente {
+      text-align: center;
+      margin-top: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      font-size: 10.5pt;
+    }
+    .tabla-firmas {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+    }
+    .tabla-firmas td {
+      width: 50%;
+      vertical-align: top;
+      text-align: center;
+      padding: 0;
+    }
+    .firma img {
+      height: 50px;
+      display: block;
+      margin: 0 auto -6px auto;
+    }
+    .firma-nombre {
+      font-weight: bold;
+      font-size: 9.5pt;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .firma-cargo {
+      font-size: 8.8pt;
+    }
+    .verificacion {
+      margin-top: 6px;
+      font-size: 7.5pt;
+      line-height: 1.1;
+    }
+  </style>
+</head>
+<body>
+
+  <table class="encabezado" width="100%">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:42px;">
+      </td>
+      <td style="width:50%; text-align:center; font-size:10.5pt;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>INSTITUTO TECNOLÓGICO DE CULIACÁN</strong></div>
+        <div><strong>DEPARTAMENTO ACADÉMICO</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:45px;">
+      </td>
+    </tr>
+  </table>
+
+  <div class="folio">
+    Folio: {folio}<br>{lugar_fecha}
+  </div>
+
+  <h3 class="titulo">Constancia de asesoría en concursos y eventos académicos</h3>
+
+  <div class="contenido">
+
+    <p>A quien corresponda:</p>
+
+    <p>
+      El Departamento Académico hace constar que el(la) C.
+      <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, asesoró estudiantes en el
+      <strong>{tipo_evento}</strong> denominado
+      <strong>"{nombre_evento}"</strong>, celebrado en
+      <strong>{lugar_evento}</strong> del
+      <strong>{fecha_inicio}</strong> al <strong>{fecha_fin}</strong>.
+    </p>
+
+    <div class="bloque-datos">
+      <strong>TIPO DE ACTIVIDAD:</strong> {tipo_evento}<br>
+      <strong>NOMBRE DEL EVENTO:</strong> "{nombre_evento}"<br>
+      <strong>LUGAR:</strong> {lugar_evento}<br>
+      <strong>PERIODO:</strong> Del {fecha_inicio} al {fecha_fin}
+    </div>
+
+    <p>
+      Lo anterior se emite en el marco de la asesoría de estudiantes del TecNM
+      en concursos o eventos académicos de ciencias (ENECB-CEA, ANFEI, ANFECA,
+      entre otros), conforme al numeral 1.4.2 del programa Estímulo al
+      Desempeño Docente (EDD).
+    </p>
+
+    <p>Se extiende la presente para los fines académicos y administrativos que al(la) interesado(a) convengan.</p>
+
+  </div>
+
+  <div class="atentamente">A T E N T A M E N T E</div>
+
+  <table class="tabla-firmas">
+    <tr>
+      <td>
+        <div class="firma">
+          <img src="{firma_jefe}">
+          <div class="firma-nombre">{nombre_jefe}</div>
+          <div class="firma-cargo">Titular del Departamento Académico</div>
+        </div>
+      </td>
+      <td>
+        <div class="firma">
+          <div style="margin:0 0 2pt 0;">firma_sub</div>
+          <div class="firma-nombre">Bertha Lucía Patrón Arellano</div>
+          <div class="firma-cargo">Subdirectora Académica</div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar: {url_verificacion}
+  </div>
+
+</body>
+</html>

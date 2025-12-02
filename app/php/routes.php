@@ -126,15 +126,13 @@ function route(string $action): void {
       require __DIR__ . '/solicitudes/estr_guardar.php';
       break;
 
-    case 'tut_mount':
-      require __DIR__ . '/utils/roles.php';
-      require __DIR__ . '/solicitudes/tut_mount.php';
-      break;
-
+      case 'tut_mount':
+        require __DIR__ . '/solicitudes/tut_mount.php';
+        break;
+    
     case 'tut_guardar':
-      require __DIR__ . '/utils/roles.php';
-      require __DIR__ . '/solicitudes/tut_guardar.php';
-      break;
+        require __DIR__ . '/solicitudes/tut_guardar.php';
+        break;
 
     // ========================================
     // DOCENTE - TICKETS DE SOPORTE
@@ -284,7 +282,198 @@ function route(string $action): void {
       case 'clfg_guardar':
           require __DIR__ . '/solicitudes/clfg_guardar.php';
           break;
-  
+      
+      case 'cha_del':
+        require __DIR__ . '/solicitudes/cha_del.php';
+        break;
+
+      case 'cha_guardar':
+        require __DIR__ . '/solicitudes/cha_guardar.php';
+        break;
+      
+      case 'cha_mount':
+        require __DIR__ . '/solicitudes/cha_mount.php';
+        break;
+      
+        
+        case 'csep_mount':
+          require __DIR__ . '/solicitudes/csep_mount.php';
+          break;
+
+        case 'csep_guardar':
+          require __DIR__ . '/solicitudes/csep_guardar.php';
+          break;
+
+       case 'csep_del':
+          require __DIR__ . '/solicitudes/csep_del.php';
+          break;
+
+        case 'csem_mount':
+            require __DIR__ . '/solicitudes/csem_mount.php';
+            break;
+          
+        case 'csem_guardar':
+            require __DIR__ . '/solicitudes/csem_guardar.php';
+            break;
+          
+        case 'csem_del':
+            require __DIR__ . '/solicitudes/csem_del.php';
+            break;
+
+         case 'cpi_mount':
+              require __DIR__ . '/solicitudes/cpi_mount.php';
+              break;
+            
+         case 'cpi_guardar':
+              require __DIR__ . '/solicitudes/cpi_guardar.php';
+              break;
+              
+         case 'cmp_mount':
+               require __DIR__ . '/solicitudes/cmp_mount.php';
+                break;
+              
+         case 'cmp_guardar':
+              require __DIR__ . '/solicitudes/cmp_guardar.php';
+                break;
+
+        case 'cmdi_mount':
+                require __DIR__ . '/solicitudes/cmdi_mount.php';
+                  break;
+                
+        case 'cmdi_guardar':
+                 require __DIR__ . '/solicitudes/cmdi_guardar.php';
+                  break;
+
+        case 'ccid_mount':
+                  require __DIR__ . '/solicitudes/ccid_mount.php';
+                  break;
+                  
+         case 'ccid_guardar':
+                   require __DIR__ . '/solicitudes/ccid_guardar.php';
+                   break;
+
+         case 'ccui_mount':
+                  require __DIR__ . '/solicitudes/ccui_mount.php';
+                  break;
+                  
+         case 'ccui_guardar':
+                  require __DIR__ . '/solicitudes/ccui_guardar.php';
+                  break;
+         
+         case 'cdpc_mount':
+                   require __DIR__ . '/solicitudes/cdpc_mount.php';
+                   break;
+                  
+         case 'cdpc_guardar':
+                    require __DIR__ . '/solicitudes/cdpc_guardar.php';
+                    break;
+         
+         case 'cipc_mount':
+                     require __DIR__ . '/solicitudes/cipc_mount.php';
+                     break;
+                    
+        case 'cipc_guardar':
+                      require __DIR__ . '/solicitudes/cipc_guardar.php';
+                      break;
+         
+        case 'cpft_mount':
+                       require __DIR__ . '/solicitudes/cpft_mount.php';
+                       break;
+                      
+        case 'cpft_guardar':
+                        require __DIR__ . '/solicitudes/cpft_guardar.php';
+                        break;
+                                   
+        case 'cdre_mount':
+                        require __DIR__ . '/solicitudes/cdre_mount.php';
+                        break;
+                        
+       case 'cdre_guardar':
+                        require __DIR__ . '/solicitudes/cdre_guardar.php';
+                        break;
+
+       case 'cdei_mount':
+                        require __DIR__ . '/solicitudes/cdei_mount.php';
+                        break;
+                          
+       case 'cdei_guardar':
+                        require __DIR__ . '/solicitudes/cdei_guardar.php';
+                        break;
+                          
+       case 'cdpe_mount':
+                        require __DIR__ . '/solicitudes/cdpe_mount.php';
+                        break;
+                        
+        case 'cdpe_guardar':
+                        require __DIR__ . '/solicitudes/cdpe_guardar.php';
+                        break;
+       case 'cae_mount':
+                       require __DIR__ . '/solicitudes/cae_mount.php';
+                          break;
+                        
+       case 'cae_guardar':
+                       require __DIR__ . '/solicitudes/cae_guardar.php';
+                        break;
+
+       case 'cst_mount':
+                      require __DIR__ . '/solicitudes/cst_mount.php';
+                      break;
+                        
+       case 'cst_guardar':
+                       require __DIR__ . '/solicitudes/cst_guardar.php';
+                       break;
+                        
+        case 'cst_del':
+                      require __DIR__ . '/solicitudes/cst_del.php';
+                      break;
+
+        case 'cco_mount':
+                     require __DIR__ . '/solicitudes/cco_mount.php';
+                    break;
+                      
+         case 'cco_guardar':
+                    require __DIR__ . '/solicitudes/cco_guardar.php';
+                    break;
+
+         case 'cpp_mount':
+                    require __DIR__ . '/solicitudes/cpp_mount.php';
+                     break;
+                    
+         case 'cpp_guardar':
+                    require __DIR__ . '/solicitudes/cpp_guardar.php';
+                    break;
+                                                                                  
+         case 'cce_mount':
+                    require __DIR__ . '/solicitudes/cce_mount.php';
+                     break;
+                    
+        case 'cce_guardar':
+                     require __DIR__ . '/solicitudes/cce_guardar.php';
+                    break;
+        case 'cjea_mount':
+                    require __DIR__ . '/solicitudes/cjea_mount.php';
+                     break;
+                    
+        case 'cjea_guardar':
+                    require __DIR__ . '/solicitudes/cjea_guardar.php';
+                    break;
+         
+        case 'cepa_mount':
+                    require __DIR__ . '/solicitudes/cepa_mount.php';
+                    break;
+                    
+       case 'cepa_guardar':
+                    require __DIR__ . '/solicitudes/cepa_guardar.php';
+                    break;
+                                
+       case 'pasg_mount':
+                     require __DIR__ . '/solicitudes/pasg_mount.php';
+                      break;
+                    
+      case 'pasg_guardar':
+                    require __DIR__ . '/solicitudes/pasg_guardar.php';
+                    break;
+                    
 
     // ========================================
     // JEFE - CORRECCIONES
@@ -372,6 +561,28 @@ function route(string $action): void {
       requireLogin();
       require __DIR__ . '/../../pdf/plantillas/demo_tcpdf.php';
       break;
+
+
+
+    // ========================================
+    // SUBDIRECTOR ACADEMICO
+    // ========================================
+    case 'subd_login':
+      require __DIR__ . '/../php/subd_login.php';
+      break;
+  
+   case 'subd_auth':
+      require __DIR__ . '/../php/subd_auth.php';
+      break;
+   
+    case 'subd_docs':
+      require __DIR__ . '/../php/subd_docs.php';
+      break;
+  
+    case 'subd_firma_save':
+      require __DIR__ . '/../php/subd_firma_save.php';
+      break;
+  
 
     // ========================================
     // RUTA NO ENCONTRADA

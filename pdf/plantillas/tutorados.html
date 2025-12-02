@@ -53,13 +53,24 @@ Se extiende la presente, en la ciudad de Culiacán, Sinaloa, a los nueve días d
 para los fines que más convengan al interesado.
 </p>
 
-<div class="firma">
-  <p><b>ATENTAMENTE</b></p>
-  <p><b>{nombre_jefa_servicios}</b><br>JEFA DEL DEPTO. DE SERVICIOS ESCOLARES</p>
-    <div style="text-align:left; margin:0 0 4pt 0; ;">{path_firma_jefe_img}</div>
-  <p><b>Bertha Lucía Patrón Arellano</b><br>Subdirectora Académica</p>
-  <div style="text-align:left; margin:0 0 4pt 0; ;">{firma_sub}</div>
-</div>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:6pt; border-collapse:collapse; border:none;">
+  <tr>
+    <td style="width:50%; text-align:center; vertical-align:top; border:none;">
+      <img src="{firma_jefe_depto}" class="firma-img">
+      <div class="firma-nombre">{nombre_jefa_servicios}</div>
+      <div class="firma-puesto">JEFE DEL DEPARTAMENTO ACADÉMICO</div>
+    </td>
+
+    <td style="width:50%; text-align:center; vertical-align:top; border:none;">
+      <div style="position:relative; height:40px;">
+        {firma_sub}
+      </div>
+      <div class="firma-nombre">Bertha Lucía Patrón Arellano</div>
+      <div class="firma-puesto">SUBDIRECCIÓN ACADÉMICA</div>
+    </td>
+  </tr>
+</table>
+
 
 </body>
 </html>

@@ -63,9 +63,9 @@ $depApr = (int)($S['ID_DEPARTAMENTO_APROBADOR'] ?? 0);
 $echo('sol.tip=' . ($S['TIPO_DOCUMENTO'] ?? '?') . ' dep_apr='.$depApr.' est=' . ($S['ESTADO'] ?? '?'));
 
 // 4) Reglas de visibilidad para CSE
-if (($S['TIPO_DOCUMENTO'] ?? '') !== 'CSE') { 
-    $echo('no es CSE, no se monta'); 
-    return; 
+$tipoDoc = $S['TIPO_DOCUMENTO'] ?? '';
+if (!in_array($tipoDoc, ['CSE','CSE2'], true)) {
+    return;
 }
 if ($depApr === 0) { 
     $echo('ID_DEPARTAMENTO_APROBADOR es 0/NULL'); 
