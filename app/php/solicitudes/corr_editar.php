@@ -83,7 +83,7 @@ $sol = [
 
     <?php
     // ====== FORMULARIOS ESPECÍFICOS POR TIPO ======
-    if ($tipo === 'ACI') {
+    if ($tipo === 'CINF') {
 
       require __DIR__ . '/ci_form.php';
   
@@ -200,10 +200,28 @@ $sol = [
   
       require __DIR__ . '/lad_form.php';
 
-   } elseif ($tipo === 'PASG') {
+   }elseif ($tipo === 'CPPL') {
+  
+      require __DIR__ . '/cppl_form.php';
+
+   }elseif ($tipo === 'PASG') {
   
       require __DIR__ . '/pasg_form.php';
- 
+
+   }elseif ($tipo === 'CPPT') {
+  
+         require __DIR__ . '/cppt_form.php';
+  }elseif ($tipo === 'CMES') {
+  
+   require __DIR__ . '/cmes_form.php';
+ }elseif ($tipo === 'ORME') {
+  
+      require __DIR__ . '/orme_form.php';
+  
+  }elseif ($tipo === 'CMEL') {
+  
+      require __DIR__ . '/cmel_mount.php';
+  
   }else {
   
       echo '<div class="card" style="padding:1rem;margin:.75rem 0">

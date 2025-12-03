@@ -6,7 +6,7 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../utils/roles.php';
 
 // DESPUÉS (llaves normalizadas por el mount)
-if (!isset($sol) || ($sol['tipo'] ?? '') !== 'ACI') return;
+if (!isset($sol) || ($sol['tipo'] ?? '') !== 'CINF') return;
 
 $pdo = DB::conn();
 

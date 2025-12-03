@@ -1469,7 +1469,7 @@ if ($tipo === 'CHA') {
 
 
 /* ================== ACI (Constancia Centro de Información) ================== */
-if ($tipo === 'ACI') {
+if ($tipo === 'CINF') {
   $ROOT = str_replace('\\','/', dirname(__DIR__,3));
 
   // 1) Plantilla
@@ -1842,14 +1842,22 @@ if ($tipo === 'ESTR') {
 
 /* ================= TUT · Tutorados (Servicios Escolares) ================= */
 if ($tipo === 'TUT') {
+  $PROJ_ROOT = str_replace('\\','/', realpath(__DIR__.'/../../..'));
+
   $idSol = (int)($_GET['id'] ?? $_REQUEST['id'] ?? 0);
   if ($idSol <= 0) { http_response_code(400); exit('ID inválido'); }
 
-  // Cabecera: docente + aprobador
+  // 1) Cabecera: docente + aprobador
   $st = $pdo->prepare("
-    SELECT S.ID_SOLICITUD, S.ID_DOCENTE, S.ID_DEPARTAMENTO_APROBADOR, S.FOLIO,
-           D.NOMBRE_DOCENTE, D.APELLIDO_PATERNO_DOCENTE, D.APELLIDO_MATERNO_DOCENTE,
-           D.MATRICULA, D.CLAVE_EMPLEADO
+    SELECT S.ID_SOLICITUD,
+           S.ID_DOCENTE,
+           S.ID_DEPARTAMENTO_APROBADOR,
+           S.FOLIO,
+           D.NOMBRE_DOCENTE,
+           D.APELLIDO_PATERNO_DOCENTE,
+           D.APELLIDO_MATERNO_DOCENTE,
+           D.MATRICULA,
+           D.CLAVE_EMPLEADO
     FROM dbo.SOLICITUD_DOCUMENTO S
     JOIN dbo.DOCENTE D ON D.ID_DOCENTE = S.ID_DOCENTE
     WHERE S.ID_SOLICITUD = :id
@@ -1858,89 +1866,220 @@ if ($tipo === 'TUT') {
   $cab = $st->fetch(PDO::FETCH_ASSOC);
   if (!$cab) { http_response_code(404); exit('Solicitud no encontrada'); }
 
-  $depApr    = (int)$cab['ID_DEPARTAMENTO_APROBADOR']; // debe ser 14
-  $nombreDoc = trim(($cab['NOMBRE_DOCENTE'] ?? '').' '.($cab['APELLIDO_PATERNO_DOCENTE'] ?? '').' '.($cab['APELLIDO_MATERNO_DOCENTE'] ?? ''));
+  $depApr    = (int)($cab['ID_DEPARTAMENTO_APROBADOR'] ?? 0);
+  $nombreDoc = trim(
+      (string)($cab['NOMBRE_DOCENTE'] ?? '').' '.
+      (string)($cab['APELLIDO_PATERNO_DOCENTE'] ?? '').' '.
+      (string)($cab['APELLIDO_MATERNO_DOCENTE'] ?? '')
+  );
   $exped     = (string)($cab['MATRICULA'] ?: $cab['CLAVE_EMPLEADO'] ?: '—');
 
-  // Datos guardados por Jefe
+  // 2) Datos guardados por Jefe
   $r = $pdo->prepare("
-    SELECT TOP 1 TUT_EJ_2024, TUT_AD_2024, LUGAR, FECHA_EMISION
+    SELECT TOP 1
+           TUT_EJ_2024,
+           TUT_AD_2024,
+           LUGAR,
+           FECHA_EMISION
     FROM dbo.DOC_SE_TUTORADOS
-    WHERE ID_SOLICITUD=:id
+    WHERE ID_SOLICITUD = :id
     ORDER BY ID_TUT DESC
   ");
   $r->execute([':id'=>$idSol]);
-  $tu = $r->fetch(PDO::FETCH_ASSOC) ?: ['TUT_EJ_2024'=>0,'TUT_AD_2024'=>0,'LUGAR'=>'Culiacán, Sinaloa','FECHA_EMISION'=>null];
+  $tu = $r->fetch(PDO::FETCH_ASSOC) ?: [
+    'TUT_EJ_2024'   => 0,
+    'TUT_AD_2024'   => 0,
+    'LUGAR'         => 'Culiacán, Sinaloa',
+    'FECHA_EMISION' => null,
+  ];
 
-  // Jefa(e) Servicios Escolares y firma
-  if (!function_exists('siged_firma_abs_path')) require_once __DIR__ . '/../../pdf/firma_pdf.php';
-  $jefeNombre = (string)$pdo->query("
-    SELECT TOP 1 NOMBRE_COMPLETO
-    FROM dbo.USUARIOS
-    WHERE ID_ROL=2 AND ID_DEPARTAMENTO=14 AND ACTIVO=1
-    ORDER BY COALESCE(FECHA_FIRMA,'1900-01-01') DESC, ID_USUARIO DESC
-  ")->fetchColumn();
-  $idJefe = (int)$pdo->query("
-    SELECT TOP 1 ID_USUARIO
-    FROM dbo.USUARIOS
-    WHERE ID_ROL=2 AND ID_DEPARTAMENTO=14 AND ACTIVO=1
-    ORDER BY COALESCE(FECHA_FIRMA,'1900-01-01') DESC, ID_USUARIO DESC
-  ")->fetchColumn();
-  $firmaAbs = $idJefe ? siged_firma_abs_path($pdo,$idJefe) : '';
+  // 3) Jefe(a) Servicios Escolares: nombre + firma (path)
+  if (!function_exists('siged_firma_abs_path')) {
+    require_once __DIR__ . '/../../pdf/firma_pdf.php';
+  }
 
-  
-  // PDF cosmetics
+  // Si por alguna razón depApr viene en 0, forzamos 14 (Servicios Escolares)
+  if ($depApr <= 0) {
+    $depApr = 14;
+  }
+
+  $sj = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 2
+      AND ID_DEPARTAMENTO = :dep
+      AND ACTIVO = 1
+    ORDER BY COALESCE(FECHA_FIRMA,'1900-01-01') DESC, ID_USUARIO DESC
+  ");
+  $sj->execute([':dep' => $depApr]);
+  $jefe = $sj->fetch(PDO::FETCH_ASSOC);
+
+  $jefeNombre = $jefe ? (string)$jefe['NOMBRE_COMPLETO'] : 'Jefe(a) del Departamento de Servicios Escolares';
+
+  // Resolver ruta absoluta de la firma (solo PATH, nada de <img>)
+  $firmaJefeAbs = '';
+  if ($jefe) {
+    $rutaDb = trim((string)($jefe['RUTA_FIRMA'] ?? ''));  // p.ej. "storage/firmas/firma_10_....png"
+    if ($rutaDb !== '') {
+      $cand = $PROJ_ROOT.'/'.ltrim($rutaDb, '/');
+      if (is_readable($cand)) {
+        $firmaJefeAbs = $cand;
+      }
+    }
+
+    // Fallback: siged_firma_abs_path
+    if ($firmaJefeAbs === '' && function_exists('siged_firma_abs_path')) {
+      $aux = siged_firma_abs_path($pdo, (int)$jefe['ID_USUARIO']);
+      if ($aux) {
+        // Si viene relativa, la normalizamos
+        if ($aux[0] === '/' || preg_match('~^[A-Za-z]:[\\\/]~', $aux)) {
+          $cand = $aux;
+        } else {
+          $cand = $PROJ_ROOT.'/'.ltrim($aux, '/');
+        }
+        if (is_readable($cand)) {
+          $firmaJefeAbs = $cand;
+        }
+      }
+    }
+  }
+
+  // 4) PDF cosmetics
   $pdf->SetTextColor(0,0,0);
   $pdf->SetDrawColor(0,0,0);
   $pdf->SetLineWidth(0.25);
   $pdf->SetMargins(22,1,22);
   $pdf->SetAutoPageBreak(true,18);
 
-  $root   = str_replace('\\','/', realpath(__DIR__.'/../../..'));
+  $root   = $PROJ_ROOT;
   $tpl    = $root.'/pdf/plantillas/tutorados.html';
   $ASSETS = str_replace('\\','/', realpath($root.'/pdf/assets'));
-  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
-  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />';
+
+  $logoSep = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))
+    ? $ASSETS.'/logo_sep.png'
+    : '';
+
+// ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
+
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
+
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
+
   $html = file_exists($tpl) ? file_get_contents($tpl) : '<p>Plantilla no disponible.</p>';
 
-  $fechaTxt = $tu['FECHA_EMISION'] ? (new DateTime($tu['FECHA_EMISION']))->format('d/m/Y') : date('d/m/Y');
-  $firmaTag = ($firmaAbs && is_readable($firmaAbs))
-    ? '<img src="'.htmlspecialchars($firmaAbs,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />'
-    : '';
+  // 5) Fecha de emisión para texto
+  $fechaTxt = $tu['FECHA_EMISION']
+    ? (new DateTime($tu['FECHA_EMISION']))->format('d/m/Y')
+    : date('d/m/Y');
 
   $folio  = $cab['FOLIO'] ?: ('TUT-'.date('Y').'-'.$idSol);
   $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
 
-  // Reemplazos
+  // 6) Reemplazos ↔ placeholders de la plantilla
   $repl = [
-    '{logo_sep}'                  => $logoSep,
-    '{nombre_docente}'            => $nombreDoc,
-    '{expediente}'                => $exped,
-    '{tutorados_ene_jun_2024}'    => (string)(int)$tu['TUT_EJ_2024'],
-    '{tutorados_ago_dic_2024}'    => (string)(int)$tu['TUT_AD_2024'],
-    '{nombre_jefa_servicios}'     => ($jefeNombre ?: 'Jefa(e) de Servicios Escolares'),
-    '{path_firma_jefe_img}'       => $firmaTag,
-    '{firma_sub}'                 => $firma_sub,
+    '{logo_sep}'               => $logoSep,
+    '{nombre_docente}'         => $nombreDoc,
+    '{expediente}'             => $exped,
+    '{tutorados_ene_jun_2024}' => (string)(int)$tu['TUT_EJ_2024'],
+    '{tutorados_ago_dic_2024}' => (string)(int)$tu['TUT_AD_2024'],
+    // Ojo: aquí la plantilla espera un PATH, no un <img>
+    '{path_firma_jefe_img}'    => $firmaJefeAbs,
+    '{nombre_jefa_servicios}'  => $jefeNombre,
+    '{firma_sub}'              => $firma_sub,
+    // Por si luego usas estos en otra versión de plantilla
+    '{folio}'                  => $folio,
+    '{url_verificacion}'       => $urlVer,
   ];
   $html = strtr($html, $repl);
 
   $pdf->writeHTML($html, true, false, true, false, '');
 
-  // Guardar y servir
+  // 7) Guardar y servir
   $absOut = $root.'/storage/pdfs/SOL_'.$idSol.'_TUT.pdf';
-  if (!is_dir(dirname($absOut))) @mkdir(dirname($absOut),0777,true);
+  if (!is_dir(dirname($absOut))) {
+    @mkdir(dirname($absOut), 0777, true);
+  }
   $pdf->Output($absOut,'F');
 
   $webPath = '/siged/storage/pdfs/'.basename($absOut);
-  $pdo->prepare("UPDATE dbo.SOLICITUD_DOCUMENTO SET RUTA_PDF=:p WHERE ID_SOLICITUD=:id")
-      ->execute([':p'=>$webPath, ':id'=>$idSol]);
+  $pdo->prepare("
+      UPDATE dbo.SOLICITUD_DOCUMENTO
+      SET RUTA_PDF = :p, FOLIO = :f
+      WHERE ID_SOLICITUD = :id
+    ")
+    ->execute([
+      ':p'  => $webPath,
+      ':f'  => $folio,
+      ':id' => $idSol
+    ]);
 
   header('Content-Type: application/pdf');
   header('Content-Disposition: inline; filename="'.basename($absOut).'"');
   readfile($absOut);
   exit;
 }
+
 
 /* ============== LAD - Constancia de Liberación de Actividades Docentes ============== */
 if ($tipo === 'LAD') {
@@ -2364,10 +2503,72 @@ if ($tipo === 'CLFG') {
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
   $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
 
-  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" 
-  style="width:100px; height:auto; position:absolute; top:-20px;" />';
-  
+// ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
+
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
+
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
 
   // 8) Sustituir en plantilla
   $html = file_get_contents($tpl);
@@ -2517,8 +2718,72 @@ if ($tipo === 'CPI') {
   $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
   $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
-  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />';
+ // ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
+
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
+
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
   // 6) Reemplazo y render
   $html = file_get_contents($tpl);
   $repl = [
@@ -2635,10 +2900,72 @@ if ($tipo === 'CMP') {
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
   $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
 
-   // 3b) Firma Subdirección Académica (si la manejan como usuario fijo)
-   $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-   $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />'; 
- 
+// ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
+
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
+
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
 
   // 6) Reemplazo y render
   $html = file_get_contents($tpl);
@@ -2775,10 +3102,74 @@ if ($tipo === 'CMDI') {
   $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
   $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
-     // 3b) Firma Subdirección Académica (si la manejan como usuario fijo)
-     $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-     $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />'; 
-   
+
+
+  // ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
+
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
+
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
 
   // 6) Reemplazo y render
   $html = file_get_contents($tpl);
@@ -2944,9 +3335,72 @@ if ($tipo === 'CCID') {
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
   $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
 
-  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />';
+ // ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
 
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
+
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
   // 7) Folio y URL de verificación (si usas doc_verify)
   $folioExistente = (string)($row['FOLIO'] ?? '');
   $folio = $folioExistente !== '' ? $folioExistente : ('CCID-'.$anio.'-'.$sid);
@@ -3140,9 +3594,72 @@ if ($tipo === 'CCUI') {
   $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
 
 
-  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />';
+// ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
 
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
+
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
   // 10) Folio y URL de verificación (si aplican)
   $folioExistente = (string)($row['FOLIO'] ?? '');
   $folio = $folioExistente !== '' ? $folioExistente : ('CCUI-'.$anio.'-'.$sid);
@@ -3493,8 +4010,72 @@ if ($tipo === 'CIPC') {
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
   $logoTecNM = ($ASSETS && file_exists(filename: $ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
 
-  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />';
+// ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
+
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
+
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
   // 10) Folio y URL de verificación
   $folioExistente = (string)($row['FOLIO'] ?? '');
   $folio = $folioExistente !== '' ? $folioExistente : ('CIPC-'.$anio.'-'.$sid);
@@ -4333,10 +4914,72 @@ if ($tipo === 'CAE') {
   $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
   $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
-  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />';
+  // ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
+
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
 
 
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
   // 9) Reemplazos
   $html = file_get_contents($tpl);
 
@@ -4647,13 +5290,75 @@ if ($tipo === 'CCO') {
   $folio = $folioExistente !== '' ? $folioExistente : ('CCO-'.$anio.'-'.$sid);
   $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
 
+
+// ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
+
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
   // 7) Logos
   $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
   $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
-  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />';
- 
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
   // 8) Reemplazos
   $html = file_get_contents($tpl);
 
@@ -4807,9 +5512,72 @@ if ($tipo === 'CPP') {
   $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
   $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
-  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />';
- 
+// ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
+
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
+
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
   // 8) Reemplazos
   $html = file_get_contents($tpl);
 
@@ -4963,9 +5731,72 @@ if ($tipo === 'CCE') {
   $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
   $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
   $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
-  $firma_sub = ($ASSETS && file_exists($ASSETS.'/firma_sub.png'))   ? $ASSETS.'/firma_sub.png'  : '';
-  $firma_sub = '<img src="'.htmlspecialchars($firma_sub,ENT_QUOTES,'UTF-8').'" style="width:100px;height:auto;display:inline-block;" />';
- 
+ // ========== SUBDIRECCIÓN ACADÉMICA ==========
+$nombreSub = '';
+$firmaSub  = '';
+
+$qs = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3 AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+");
+$qs->execute();
+if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+    $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+    $abs2 = null;
+    if (function_exists('siged_firma_abs_path')) {
+        $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+    }
+
+    if ($abs2 && is_readable($abs2)) {
+        // Helper funcionó
+        $firmaSub = $abs2;
+    } else {
+        // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+        $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+        if ($rutaFirma !== '') {
+            $rutaFirma = str_replace('\\','/',$rutaFirma);
+            if ($rutaFirma[0] !== '/') {
+                $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+            }
+
+            // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+            $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+            $cand1   = $docRoot . $rutaFirma;
+
+            if (is_readable($cand1)) {
+                $firmaSub = $cand1;
+            } else {
+                // Candidato 2: PROJ_ROOT como raíz del proyecto
+                $rutaRel = $rutaFirma;
+                if (strpos($rutaFirma, '/siged/') === 0) {
+                    $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                }
+
+                $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                if (is_readable($cand2)) {
+                    $firmaSub = $cand2;
+                }
+            }
+        }
+    }
+}
+
+
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
   // 8) Reemplazos
   $html = file_get_contents($tpl);
 
@@ -5492,6 +6323,891 @@ if ($tipo === 'PASG') {
   readfile($abs); exit;
 }
 
+
+/* ================== CPPL (Desarrollo curricular 1.4.8) ================== */
+if ($tipo === 'CPPL') {
+  $PROJ_ROOT = str_replace('\\','/', dirname(__DIR__,3));
+
+  // 1) Plantilla
+  $tpl = null;
+  foreach ([
+    $PROJ_ROOT.'/pdf/plantillas/constancia_cppl.html',
+    $PROJ_ROOT.'/app/pdf/plantillas/constancia_cppl.html'
+  ] as $p) {
+    if (is_readable($p)) { $tpl = $p; break; }
+  }
+  if (!$tpl) {
+    http_response_code(500);
+    exit('Plantilla CPPL no encontrada');
+  }
+
+  // 2) Datos base del docente
+  $expediente = (string)($row['MATRICULA'] ?? $row['CLAVE_EMPLEADO'] ?? '—');
+  $nombreDoc  = $nombreDocente;
+  $anio       = date('Y');
+
+  // 3) Datos de desarrollo curricular
+  $q = $pdo->prepare("
+    SELECT TOP 1 TIPO_PART,
+                 NOMBRE_PROG,
+                 PERIODO
+    FROM dbo.DOC_DESARROLLO_CURRICULAR
+    WHERE ID_SOLICITUD = :sid
+    ORDER BY ID_CURR DESC
+  ");
+  $q->execute([':sid' => $sid]);
+  $C = $q->fetch(PDO::FETCH_ASSOC);
+
+  if (!$C) {
+    http_response_code(400);
+    exit('No hay datos de desarrollo curricular capturados para esta solicitud (CPPL).');
+  }
+
+  $tipoPart = trim((string)$C['TIPO_PART']);   // elaboración / actualización / seguimiento curricular
+  $nomProg  = trim((string)$C['NOMBRE_PROG']);
+  $periodo  = trim((string)$C['PERIODO']);
+
+  // 4) Departamento aprobador -> jefe firmante
+  $stApr = $pdo->prepare("
+    SELECT ID_DEPARTAMENTO_APROBADOR
+    FROM dbo.SOLICITUD_DOCUMENTO
+    WHERE ID_SOLICITUD = :sid
+  ");
+  $stApr->execute([':sid' => $sid]);
+  $depApr = (int)($stApr->fetchColumn() ?: 0);
+
+  if ($depApr === 0) {
+    $d = $pdo->prepare("
+      SELECT TOP 1 ID_DEPARTAMENTO_APROBADOR
+      FROM dbo.PLANTILLA_DOC
+      WHERE TIPO_DOCUMENTO='CPPL' AND ACTIVO=1
+      ORDER BY ID_PLANTILLA DESC
+    ");
+    $d->execute();
+    $depApr = (int)($d->fetchColumn() ?: 0);
+  }
+
+  $sj = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 2 AND ID_DEPARTAMENTO = :d AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+  ");
+  $sj->execute([':d' => $depApr]);
+  $jefe = $sj->fetch(PDO::FETCH_ASSOC);
+
+  $nombreJefe = $jefe ? (string)$jefe['NOMBRE_COMPLETO'] : 'Titular del Centro de Adscripción';
+  $firmaJefe  = '';
+  if ($jefe && function_exists('siged_firma_abs_path')) {
+    $absJ = siged_firma_abs_path($pdo, (int)$jefe['ID_USUARIO']);
+    if ($absJ && is_readable($absJ)) {
+      $firmaJefe = $absJ;
+    }
+  }
+
+  // 5) Lugar y fecha de emisión
+  $meses = [
+    1 => 'enero', 2 => 'febrero', 3 => 'marzo',     4 => 'abril',
+    5 => 'mayo',  6 => 'junio',   7 => 'julio',     8 => 'agosto',
+    9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
+  ];
+  $dia = (int)date('j');
+  $mes = $meses[(int)date('n')] ?? date('F');
+  $lugarFecha = 'Culiacán, Sinaloa, a '.$dia.' de '.$mes.' de '.$anio;
+
+  // 6) Folio + verificación
+  $folioExistente = (string)($row['FOLIO'] ?? '');
+  $folio = $folioExistente !== '' ? $folioExistente : ('CPPL-'.$anio.'-'.$sid);
+  $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
+
+  // 7) Logos
+  $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
+  // 8) Reemplazos
+  $html = file_get_contents($tpl);
+
+  $repl = [
+    '{logo_sep}'        => $logoSep,
+    '{logo_tecnm}'      => $logoTecNM,
+    '{folio}'           => $folio,
+    '{lugar_fecha}'     => $lugarFecha,
+
+    '{nombre_docente}'  => htmlspecialchars($nombreDoc, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{expediente}'      => htmlspecialchars($expediente, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+
+    '{tipo_participacion}' => htmlspecialchars($tipoPart, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{nombre_programa}'    => htmlspecialchars($nomProg, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{periodo}'            => htmlspecialchars($periodo, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+
+    '{nombre_jefe}'     => htmlspecialchars($nombreJefe, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{firma_jefe}'      => $firmaJefe,
+
+    '{url_verificacion}' => $urlVer,
+  ];
+
+  $html = strtr($html, $repl);
+
+  // 9) Render PDF
+  $pdf->SetFont('times','',11);
+  $pdf->writeHTML($html, true, false, true, false, '');
+
+  $filename = 'CPPL_'.$sid.'.pdf';
+  $abs      = $PROJ_ROOT.'/storage/pdfs/'.$filename;
+  $pdf->Output($abs, 'F');
+
+  $rutaWeb = '/siged/storage/pdfs/'.$filename;
+  if (empty($row['RUTA_PDF']) || $row['RUTA_PDF']!==$rutaWeb || empty($row['FOLIO'])) {
+    $pdo->prepare("
+      UPDATE dbo.SOLICITUD_DOCUMENTO
+      SET RUTA_PDF = :p,
+          FOLIO    = :f
+      WHERE ID_SOLICITUD = :sid
+    ")->execute([
+      ':p'   => $rutaWeb,
+      ':f'   => $folio,
+      ':sid' => $sid,
+    ]);
+  }
+
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: inline; filename="'.$filename.'"');
+  readfile($abs); exit;
+}
+
+/* ================== CPPT (Planes y programas TecNM 1.4.8.1.2) ================== */
+if ($tipo === 'CPPT') {
+  $PROJ_ROOT = str_replace('\\','/', dirname(__DIR__,3));
+
+  // 1) Plantilla
+  $tpl = null;
+  foreach ([
+    $PROJ_ROOT.'/pdf/plantillas/constancia_cppt.html',
+    $PROJ_ROOT.'/app/pdf/plantillas/constancia_cppt.html'
+  ] as $p) {
+    if (is_readable($p)) { $tpl = $p; break; }
+  }
+  if (!$tpl) {
+    http_response_code(500);
+    exit('Plantilla CPPT no encontrada');
+  }
+
+  // 2) Datos base del docente
+  $expediente = (string)($row['MATRICULA'] ?? $row['CLAVE_EMPLEADO'] ?? '—');
+  $nombreDoc  = $nombreDocente;
+  $anio       = date('Y');
+
+  // 3) Datos del documento (tabla DOC_PLANES_PROG_TECNM)
+  $q = $pdo->prepare("
+    SELECT TOP 1 TIPO_PART,
+                 NOMBRE_PROG
+    FROM dbo.DOC_PLANES_PROG_TECNM
+    WHERE ID_SOLICITUD = :sid
+    ORDER BY ID_PT DESC
+  ");
+  $q->execute([':sid' => $sid]);
+  $C = $q->fetch(PDO::FETCH_ASSOC);
+
+  if (!$C) {
+    http_response_code(400);
+    exit('No hay datos capturados para esta solicitud (CPPT).');
+  }
+
+  $tipoPart = trim((string)$C['TIPO_PART']);   // elaboración / actualización
+  $nomProg  = trim((string)$C['NOMBRE_PROG']);
+
+  // 4) Departamento aprobador -> jefe firmante
+  $stApr = $pdo->prepare("
+    SELECT ID_DEPARTAMENTO_APROBADOR
+    FROM dbo.SOLICITUD_DOCUMENTO
+    WHERE ID_SOLICITUD = :sid
+  ");
+  $stApr->execute([':sid' => $sid]);
+  $depApr = (int)($stApr->fetchColumn() ?: 0);
+
+  if ($depApr === 0) {
+    $d = $pdo->prepare("
+      SELECT TOP 1 ID_DEPARTAMENTO_APROBADOR
+      FROM dbo.PLANTILLA_DOC
+      WHERE TIPO_DOCUMENTO='CPPT' AND ACTIVO=1
+      ORDER BY ID_PLANTILLA DESC
+    ");
+    $d->execute();
+    $depApr = (int)($d->fetchColumn() ?: 0);
+  }
+
+  $sj = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 2 AND ID_DEPARTAMENTO = :d AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+  ");
+  $sj->execute([':d' => $depApr]);
+  $jefe = $sj->fetch(PDO::FETCH_ASSOC);
+
+  $nombreJefe = $jefe ? (string)$jefe['NOMBRE_COMPLETO'] : 'Titular del Centro de Adscripción';
+  $firmaJefe  = '';
+  if ($jefe && function_exists('siged_firma_abs_path')) {
+    $absJ = siged_firma_abs_path($pdo, (int)$jefe['ID_USUARIO']);
+    if ($absJ && is_readable($absJ)) {
+      $firmaJefe = $absJ;
+    }
+  }
+
+  // 5) Lugar y fecha
+  $meses = [
+    1 => 'enero', 2 => 'febrero', 3 => 'marzo',     4 => 'abril',
+    5 => 'mayo',  6 => 'junio',   7 => 'julio',     8 => 'agosto',
+    9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
+  ];
+  $dia = (int)date('j');
+  $mes = $meses[(int)date('n')] ?? date('F');
+  $lugarFecha = 'Culiacán, Sinaloa, a '.$dia.' de '.$mes.' de '.$anio;
+
+  // 6) Folio + URL verificación
+  $folioExistente = (string)($row['FOLIO'] ?? '');
+  $folio = $folioExistente !== '' ? $folioExistente : ('CPPT-'.$anio.'-'.$sid);
+  $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
+
+  // 7) Logos
+  $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
+  // 8) Reemplazos
+  $html = file_get_contents($tpl);
+  $repl = [
+    '{logo_sep}'           => $logoSep,
+    '{logo_tecnm}'         => $logoTecNM,
+    '{folio}'              => $folio,
+    '{lugar_fecha}'        => $lugarFecha,
+
+    '{nombre_docente}'     => htmlspecialchars($nombreDoc, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{expediente}'         => htmlspecialchars($expediente, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+
+    '{tipo_participacion}' => htmlspecialchars($tipoPart, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{nombre_programa}'    => htmlspecialchars($nomProg,  ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+
+    '{nombre_jefe}'        => htmlspecialchars($nombreJefe, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{firma_jefe}'         => $firmaJefe,
+    '{url_verificacion}'   => $urlVer,
+  ];
+  $html = strtr($html, $repl);
+
+  // 9) Render
+  $pdf->SetFont('times','',11);
+  $pdf->writeHTML($html, true, false, true, false, '');
+
+  $filename = 'CPPT_'.$sid.'.pdf';
+  $abs      = $PROJ_ROOT.'/storage/pdfs/'.$filename;
+  $pdf->Output($abs, 'F');
+
+  $rutaWeb = '/siged/storage/pdfs/'.$filename;
+  if (empty($row['RUTA_PDF']) || $row['RUTA_PDF']!==$rutaWeb || empty($row['FOLIO'])) {
+    $pdo->prepare("
+      UPDATE dbo.SOLICITUD_DOCUMENTO
+      SET RUTA_PDF = :p,
+          FOLIO    = :f
+      WHERE ID_SOLICITUD = :sid
+    ")->execute([
+      ':p'   => $rutaWeb,
+      ':f'   => $folio,
+      ':sid' => $sid,
+    ]);
+  }
+
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: inline; filename="'.$filename.'"');
+  readfile($abs); exit;
+}
+
+/* ================== CMES (Comisión módulos especialidad 1.4.8.2) ================== */
+if ($tipo === 'CMES') {
+  $PROJ_ROOT = str_replace('\\','/', dirname(__DIR__,3));
+
+  // 1) Plantilla
+  $tpl = null;
+  foreach ([
+    $PROJ_ROOT.'/pdf/plantillas/oficio_cmes.html',
+    $PROJ_ROOT.'/app/pdf/plantillas/oficio_cmes.html'
+  ] as $p) {
+    if (is_readable($p)) { $tpl = $p; break; }
+  }
+  if (!$tpl) {
+    http_response_code(500);
+    exit('Plantilla CMES no encontrada');
+  }
+
+  // 2) Datos base del docente
+  $expediente = (string)($row['MATRICULA'] ?? $row['CLAVE_EMPLEADO'] ?? '—');
+  $nombreDoc  = $nombreDocente;
+  $anio       = date('Y');
+
+  // 3) Datos específicos CMES
+  $q = $pdo->prepare("
+    SELECT TOP 1 PROGRAMA,
+                 FECHA_INICIO,
+                 FECHA_FIN
+    FROM dbo.DOC_COMISION_MOD_ESP
+    WHERE ID_SOLICITUD = :sid
+    ORDER BY ID_COMISION DESC
+  ");
+  $q->execute([':sid' => $sid]);
+  $C = $q->fetch(PDO::FETCH_ASSOC);
+
+  if (!$C) {
+    http_response_code(400);
+    exit('No hay datos de comisión de módulos de especialidad capturados para esta solicitud (CMES).');
+  }
+
+  $programa = trim((string)$C['PROGRAMA']);
+  $fiRaw    = (string)$C['FECHA_INICIO'];
+  $ffRaw    = (string)$C['FECHA_FIN'];
+
+  // Formato fechas dd/mm/aaaa
+  $fi = $fiRaw ? date('d/m/Y', strtotime($fiRaw)) : '';
+  $ff = $ffRaw ? date('d/m/Y', strtotime($ffRaw)) : '';
+
+  // 4) Departamento aprobador -> director/jefe firmante
+  $stApr = $pdo->prepare("
+    SELECT ID_DEPARTAMENTO_APROBADOR
+    FROM dbo.SOLICITUD_DOCUMENTO
+    WHERE ID_SOLICITUD = :sid
+  ");
+  $stApr->execute([':sid' => $sid]);
+  $depApr = (int)($stApr->fetchColumn() ?: 0);
+
+  if ($depApr === 0) {
+    $d = $pdo->prepare("
+      SELECT TOP 1 ID_DEPARTAMENTO_APROBADOR
+      FROM dbo.PLANTILLA_DOC
+      WHERE TIPO_DOCUMENTO='CMES' AND ACTIVO=1
+      ORDER BY ID_PLANTILLA DESC
+    ");
+    $d->execute();
+    $depApr = (int)($d->fetchColumn() ?: 0);
+  }
+
+  $sj = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 2 AND ID_DEPARTAMENTO = :d AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+  ");
+  $sj->execute([':d' => $depApr]);
+  $jefe = $sj->fetch(PDO::FETCH_ASSOC);
+
+  $nombreJefe = $jefe ? (string)$jefe['NOMBRE_COMPLETO'] : 'Director(a) del Instituto Tecnológico';
+  $firmaJefe  = '';
+  if ($jefe && function_exists('siged_firma_abs_path')) {
+    $absJ = siged_firma_abs_path($pdo, (int)$jefe['ID_USUARIO']);
+    if ($absJ && is_readable($absJ)) {
+      $firmaJefe = $absJ;
+    }
+  }
+
+  // 5) Lugar y fecha del oficio
+  $meses = [
+    1 => 'enero', 2 => 'febrero', 3 => 'marzo',     4 => 'abril',
+    5 => 'mayo',  6 => 'junio',   7 => 'julio',     8 => 'agosto',
+    9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
+  ];
+  $dia = (int)date('j');
+  $mes = $meses[(int)date('n')] ?? date('F');
+  $lugarFecha = 'Culiacán, Sinaloa, a '.$dia.' de '.$mes.' de '.$anio;
+
+  // 6) Folio + verificación
+  $folioExistente = (string)($row['FOLIO'] ?? '');
+  $folio = $folioExistente !== '' ? $folioExistente : ('CMES-'.$anio.'-'.$sid);
+  $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
+
+  // 7) Logos
+  $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
+ // ========== SUBDIRECCIÓN ACADÉMICA ==========
+ $nombreSub = '';
+ $firmaSub  = '';
+
+ $qs = $pdo->prepare("
+     SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO, RUTA_FIRMA
+     FROM dbo.USUARIOS
+     WHERE ID_ROL = 3 AND ACTIVO = 1
+     ORDER BY ID_USUARIO
+ ");
+ $qs->execute();
+ if ($s = $qs->fetch(PDO::FETCH_ASSOC)) {
+     $nombreSub = (string)$s['NOMBRE_COMPLETO'];
+
+     $abs2 = null;
+     if (function_exists('siged_firma_abs_path')) {
+         $abs2 = siged_firma_abs_path($pdo,(int)$s['ID_USUARIO']);
+     }
+
+     if ($abs2 && is_readable($abs2)) {
+         // Helper funcionó
+         $firmaSub = $abs2;
+     } else {
+         // Plan B: armar ruta absoluta a partir de RUTA_FIRMA
+         $rutaFirma = trim((string)($s['RUTA_FIRMA'] ?? ''));
+         if ($rutaFirma !== '') {
+             $rutaFirma = str_replace('\\','/',$rutaFirma);
+             if ($rutaFirma[0] !== '/') {
+                 $rutaFirma = '/'.$rutaFirma;  // "storage/..." -> "/storage/..."
+             }
+
+             // Candidato 1: DOCUMENT_ROOT + ruta (para cosas tipo "/siged/storage/...")
+             $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/\\');
+             $cand1   = $docRoot . $rutaFirma;
+
+             if (is_readable($cand1)) {
+                 $firmaSub = $cand1;
+             } else {
+                 // Candidato 2: PROJ_ROOT como raíz del proyecto
+                 $rutaRel = $rutaFirma;
+                 if (strpos($rutaFirma, '/siged/') === 0) {
+                     $rutaRel = substr($rutaFirma, strlen('/siged')); // deja "/storage/..."
+                 }
+
+                 $cand2 = rtrim($PROJ_ROOT,'/').$rutaRel;
+                 if (is_readable($cand2)) {
+                     $firmaSub = $cand2;
+                 }
+             }
+         }
+     }
+ }
+
+  // Path final para la firma: primero dinámica, luego fallback a PNG estático
+  $firmaImgPath = $firmaSub;
+  if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+      $firmaImgPath = $ASSETS.'/firma_sub.png';
+  }
+
+  $firma_sub = '';
+  if ($firmaImgPath !== '') {
+      $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                   'class="firma-img" style="position:absolute; top:-20px;" />';
+  }
+
+
+  // 8) Reemplazos en HTML
+  $html = file_get_contents($tpl);
+  $repl = [
+    '{logo_sep}'       => $logoSep,
+    '{logo_tecnm}'     => $logoTecNM,
+
+    '{folio}'          => $folio,
+    '{lugar_fecha}'    => $lugarFecha,
+
+    '{nombre_docente}' => htmlspecialchars($nombreDoc, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{expediente}'     => htmlspecialchars($expediente, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+
+    '{programa}'       => htmlspecialchars($programa, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{fecha_inicio}'   => $fi,
+    '{fecha_fin}'      => $ff,
+
+    '{firma_sub}'     => $firma_sub,
+    '{nombre_jefe}'    => htmlspecialchars($nombreJefe, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+
+    '{url_verificacion}' => $urlVer,
+  ];
+  $html = strtr($html, $repl);
+
+  // 9) Render y guardar
+  $pdf->SetFont('times','',11);
+  $pdf->writeHTML($html, true, false, true, false, '');
+
+  $filename = 'CMES_'.$sid.'.pdf';
+  $abs      = $PROJ_ROOT.'/storage/pdfs/'.$filename;
+  $pdf->Output($abs, 'F');
+
+  $rutaWeb = '/siged/storage/pdfs/'.$filename;
+  if (empty($row['RUTA_PDF']) || $row['RUTA_PDF']!==$rutaWeb || empty($row['FOLIO'])) {
+    $pdo->prepare("
+      UPDATE dbo.SOLICITUD_DOCUMENTO
+      SET RUTA_PDF = :p,
+          FOLIO    = :f
+      WHERE ID_SOLICITUD = :sid
+    ")->execute([
+      ':p'   => $rutaWeb,
+      ':f'   => $folio,
+      ':sid' => $sid,
+    ]);
+  }
+
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: inline; filename=\"'.$filename.'\"');
+  readfile($abs); exit;
+}
+
+
+/* ================== ORME (Oficio registro módulos especialidad) ================== */
+if ($tipo === 'ORME') {
+  $PROJ_ROOT = str_replace('\\','/', dirname(__DIR__,3));
+
+  // 1) Plantilla
+  $tpl = null;
+  foreach ([
+    $PROJ_ROOT.'/pdf/plantillas/oficio_orme.html',
+    $PROJ_ROOT.'/app/pdf/plantillas/oficio_orme.html'
+  ] as $p) {
+    if (is_readable($p)) { $tpl = $p; break; }
+  }
+  if (!$tpl) {
+    http_response_code(500);
+    exit('Plantilla ORME no encontrada');
+  }
+
+  // 2) Datos base del docente
+  $expediente = (string)($row['MATRICULA'] ?? $row['CLAVE_EMPLEADO'] ?? '—');
+  $nombreDoc  = $nombreDocente;
+  $anio       = date('Y');
+
+  // 3) Datos específicos ORME
+  $q = $pdo->prepare("
+    SELECT TOP 1 PROGRAMA,
+                 LISTA_MODULOS,
+                 FECHA_EMISION
+    FROM dbo.DOC_OFICIO_REG_MOD_ESP
+    WHERE ID_SOLICITUD = :sid
+    ORDER BY ID_OR DESC
+  ");
+  $q->execute([':sid' => $sid]);
+  $C = $q->fetch(PDO::FETCH_ASSOC);
+
+  if (!$C) {
+    http_response_code(400);
+    exit('No hay datos de registro de módulos de especialidad capturados para esta solicitud (ORME).');
+  }
+
+  $programa   = trim((string)$C['PROGRAMA']);
+  $modsRaw    = trim((string)$C['LISTA_MODULOS']);
+  $fEmision   = (string)$C['FECHA_EMISION'];
+
+  // Si quisieras usar la fecha de emisión en vez de hoy, puedes formatearla aquí.
+  // Para mantener consistencia con otros docs, sigo usando lugar_fecha con "hoy".
+
+  // Transformar lista de módulos a HTML; si viene ya formateada, la respetas.
+  // Aquí asumo texto con saltos de línea, lo paso a <ul><li>...</li></ul>
+  $listaModHtml = '';
+  if ($modsRaw !== '') {
+    $lineas = preg_split('/\r\n|\r|\n/', $modsRaw);
+    $items  = array_filter(array_map('trim', $lineas), fn($s) => $s !== '');
+    if ($items) {
+      $listaModHtml .= '<ul>';
+      foreach ($items as $m) {
+        $listaModHtml .= '<li>'.htmlspecialchars($m, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8').'</li>';
+      }
+      $listaModHtml .= '</ul>';
+    } else {
+      $listaModHtml = '<p>'.htmlspecialchars($modsRaw, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8').'</p>';
+    }
+  } else {
+    $listaModHtml = '<p>No se especificaron módulos en el registro.</p>';
+  }
+
+  // 4) Departamento aprobador -> jefe firmante (mismo depto que el docente)
+  $stApr = $pdo->prepare("
+    SELECT ID_DEPARTAMENTO_APROBADOR
+    FROM dbo.SOLICITUD_DOCUMENTO
+    WHERE ID_SOLICITUD = :sid
+  ");
+  $stApr->execute([':sid' => $sid]);
+  $depApr = (int)($stApr->fetchColumn() ?: 0);
+
+  if ($depApr === 0) {
+    $d = $pdo->prepare("
+      SELECT TOP 1 ID_DEPARTAMENTO_APROBADOR
+      FROM dbo.PLANTILLA_DOC
+      WHERE TIPO_DOCUMENTO='ORME' AND ACTIVO=1
+      ORDER BY ID_PLANTILLA DESC
+    ");
+    $d->execute();
+    $depApr = (int)($d->fetchColumn() ?: 0);
+  }
+
+  $sj = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 2 AND ID_DEPARTAMENTO = :d AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+  ");
+  $sj->execute([':d' => $depApr]);
+  $jefe = $sj->fetch(PDO::FETCH_ASSOC);
+
+  $nombreJefe = $jefe ? (string)$jefe['NOMBRE_COMPLETO'] : 'Jefe(a) de Departamento Académico';
+  $firmaJefe  = '';
+  if ($jefe && function_exists('siged_firma_abs_path')) {
+    $absJ = siged_firma_abs_path($pdo, (int)$jefe['ID_USUARIO']);
+    if ($absJ && is_readable($absJ)) {
+      $firmaJefe = $absJ;
+    }
+  }
+
+  // 5) Lugar y fecha tipo oficio
+  $meses = [
+    1 => 'enero', 2 => 'febrero', 3 => 'marzo',     4 => 'abril',
+    5 => 'mayo',  6 => 'junio',   7 => 'julio',     8 => 'agosto',
+    9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
+  ];
+  $dia = (int)date('j');
+  $mes = $meses[(int)date('n')] ?? date('F');
+  $lugarFecha = 'Culiacán, Sinaloa, a '.$dia.' de '.$mes.' de '.$anio;
+
+  // 6) Folio + verificación
+  $folioExistente = (string)($row['FOLIO'] ?? '');
+  $folio = $folioExistente !== '' ? $folioExistente : ('ORME-'.$anio.'-'.$sid);
+  $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
+
+  // 7) Logos
+  $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+
+  // 8) Reemplazos HTML
+  $html = file_get_contents($tpl);
+  $repl = [
+    '{logo_sep}'        => $logoSep,
+    '{logo_tecnm}'      => $logoTecNM,
+
+    '{folio}'           => $folio,
+    '{lugar_fecha}'     => $lugarFecha,
+
+    '{programa}'        => htmlspecialchars($programa, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{lista_modulos}'   => $listaModHtml,
+
+    '{firma_jefe}'      => $firmaJefe,
+    '{nombre_jefe}'     => htmlspecialchars($nombreJefe, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+
+    '{url_verificacion}' => $urlVer,
+  ];
+  $html = strtr($html, $repl);
+
+  // 9) Render y guardar
+  $pdf->SetFont('times','',11);
+  $pdf->writeHTML($html, true, false, true, false, '');
+
+  $filename = 'ORME_'.$sid.'.pdf';
+  $abs      = $PROJ_ROOT.'/storage/pdfs/'.$filename;
+  $pdf->Output($abs, 'F');
+
+  $rutaWeb = '/siged/storage/pdfs/'.$filename;
+  if (empty($row['RUTA_PDF']) || $row['RUTA_PDF']!==$rutaWeb || empty($row['FOLIO'])) {
+    $pdo->prepare("
+      UPDATE dbo.SOLICITUD_DOCUMENTO
+      SET RUTA_PDF = :p,
+          FOLIO    = :f
+      WHERE ID_SOLICITUD = :sid
+    ")->execute([
+      ':p'   => $rutaWeb,
+      ':f'   => $folio,
+      ':sid' => $sid,
+    ]);
+  }
+
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: inline; filename="'.$filename.'"');
+  readfile($abs); exit;
+}
+
+/* ================== CMEL (Constancia módulos especialidad 1.4.8.2.1) ================== */
+if ($tipo === 'CMEL') {
+  $PROJ_ROOT = str_replace('\\','/', dirname(__DIR__,3));
+
+  // 1) Plantilla
+  $tpl = null;
+  foreach ([
+    $PROJ_ROOT.'/pdf/plantillas/constancia_modulos_especialidad.html',
+    $PROJ_ROOT.'/app/pdf/plantillas/constancia_modulos_especialidad.html'
+  ] as $p) {
+    if (is_readable($p)) { $tpl = $p; break; }
+  }
+  if (!$tpl) {
+    http_response_code(500);
+    exit('Plantilla CMEL no encontrada');
+  }
+
+  // 2) Datos base del docente
+  $expediente = (string)($row['MATRICULA'] ?? $row['CLAVE_EMPLEADO'] ?? '—');
+  $nombreDoc  = $nombreDocente;
+  $anio       = date('Y');
+
+  // 3) Datos específicos CMEL
+  $q = $pdo->prepare("
+    SELECT TOP 1
+           PROGRAMA,
+           NOMBRE_MODULOS,
+           FECHA_EMISION
+    FROM dbo.DOC_CONST_MOD_ESP_LIC
+    WHERE ID_SOLICITUD = :sid
+    ORDER BY ID_CONST DESC
+  ");
+  $q->execute([':sid' => $sid]);
+  $C = $q->fetch(PDO::FETCH_ASSOC);
+
+  if (!$C) {
+    http_response_code(400);
+    exit('No hay datos de módulos de especialidad capturados para esta solicitud (CMEL).');
+  }
+
+  $programa   = trim((string)$C['PROGRAMA']);
+  $modsRaw    = trim((string)$C['NOMBRE_MODULOS']);
+  $fEmision   = (string)$C['FECHA_EMISION'];
+
+  $nombreModulos = htmlspecialchars($modsRaw, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+  $nombrePrograma = htmlspecialchars($programa, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+  // 4) Departamento aprobador -> Jefe de Departamento (firmante 1)
+  $stApr = $pdo->prepare("
+    SELECT ID_DEPARTAMENTO_APROBADOR
+    FROM dbo.SOLICITUD_DOCUMENTO
+    WHERE ID_SOLICITUD = :sid
+  ");
+  $stApr->execute([':sid' => $sid]);
+  $depApr = (int)($stApr->fetchColumn() ?: 0);
+
+  if ($depApr === 0) {
+    $d = $pdo->prepare("
+      SELECT TOP 1 ID_DEPARTAMENTO_APROBADOR
+      FROM dbo.PLANTILLA_DOC
+      WHERE TIPO_DOCUMENTO='CMEL' AND ACTIVO=1
+      ORDER BY ID_PLANTILLA DESC
+    ");
+    $d->execute();
+    $depApr = (int)($d->fetchColumn() ?: 0);
+  }
+
+  // Jefe de Departamento (ID_ROL=2)
+  $sj = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 2
+      AND ID_DEPARTAMENTO = :d
+      AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+  ");
+  $sj->execute([':d' => $depApr]);
+  $jefe = $sj->fetch(PDO::FETCH_ASSOC);
+
+  $nombreJefe = $jefe ? (string)$jefe['NOMBRE_COMPLETO'] : 'Titular del Departamento Académico';
+  $firmaJefe  = '';
+  if ($jefe && function_exists('siged_firma_abs_path')) {
+    $absJ = siged_firma_abs_path($pdo, (int)$jefe['ID_USUARIO']);
+    if ($absJ && is_readable($absJ)) {
+      $firmaJefe = $absJ;
+    }
+  }
+
+  // 5) Subdirección Académica (ID_ROL=3, ajusta al rol de tu SUBDIRECTOR_ACADEMICO)
+  $sub = null;
+  $ss = $pdo->prepare("
+    SELECT TOP 1 ID_USUARIO, NOMBRE_COMPLETO
+    FROM dbo.USUARIOS
+    WHERE ID_ROL = 3    -- 🔁 AJUSTA este ID_ROL al que uses para SUBDIRECTOR_ACADEMICO
+      AND ACTIVO = 1
+    ORDER BY ID_USUARIO
+  ");
+  $ss->execute();
+  $sub = $ss->fetch(PDO::FETCH_ASSOC);
+
+  $nombreSub = $sub ? (string)$sub['NOMBRE_COMPLETO'] : 'Subdirectora Académica';
+  $firmaSub  = '';
+  if ($sub && function_exists('siged_firma_abs_path')) {
+    $absS = siged_firma_abs_path($pdo, (int)$sub['ID_USUARIO']);
+    if ($absS && is_readable($absS)) {
+      $firmaSub = $absS;
+    }
+  }
+
+  // 6) Lugar y fecha (puedes usar FECHA_EMISION si quieres ser más estricto)
+  $meses = [
+    1 => 'enero', 2 => 'febrero', 3 => 'marzo',     4 => 'abril',
+    5 => 'mayo',  6 => 'junio',   7 => 'julio',     8 => 'agosto',
+    9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
+  ];
+
+  // Si quieres basarte en FECHA_EMISION:
+  $dtEmision = $fEmision ? strtotime($fEmision) : time();
+  $dia = (int)date('j', $dtEmision);
+  $mes = $meses[(int)date('n', $dtEmision)] ?? date('F', $dtEmision);
+  $anioEm = (int)date('Y', $dtEmision);
+
+  $lugarFecha = 'Culiacán, Sinaloa, a '.$dia.' de '.$mes.' de '.$anioEm;
+
+  // 7) Folio + verificación
+  $folioExistente = (string)($row['FOLIO'] ?? '');
+  $folio = $folioExistente !== '' ? $folioExistente : ('CMEL-'.$anioEm.'-'.$sid);
+  $urlVer = 'http://localhost/siged/public/index.php?action=doc_verify&folio='.$folio;
+
+  // 8) Logos
+  $ASSETS    = str_replace('\\','/', realpath($root.'/pdf/assets'));
+  $logoSep   = ($ASSETS && file_exists($ASSETS.'/logo_sep.png'))   ? $ASSETS.'/logo_sep.png'   : '';
+  $logoTecNM = ($ASSETS && file_exists($ASSETS.'/logo_tecnm.png')) ? $ASSETS.'/logo_tecnm.png' : '';
+ // Path final para la firma: primero dinámica, luego fallback a PNG estático
+ $firmaImgPath = $firmaSub;
+ if ($firmaImgPath === '' && $ASSETS && file_exists($ASSETS.'/firma_sub.png')) {
+     $firmaImgPath = $ASSETS.'/firma_sub.png';
+ }
+
+ $firma_sub = '';
+ if ($firmaImgPath !== '') {
+     $firma_sub = '<img src="'.htmlspecialchars($firmaImgPath,ENT_QUOTES,'UTF-8').'" '.
+                  'class="firma-img" style="position:absolute; top:-20px;" />';
+ }
+  // 9) Reemplazos HTML
+  $html = file_get_contents($tpl);
+  $repl = [
+    '{logo_sep}'        => $logoSep,
+    '{logo_tecnm}'      => $logoTecNM,
+
+    '{folio}'           => $folio,
+    '{lugar_fecha}'     => $lugarFecha,
+
+    '{nombre_docente}'  => htmlspecialchars($nombreDoc, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '{expediente}'      => htmlspecialchars($expediente, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+
+    '{nombre_modulos}'  => $nombreModulos,
+    '{programa}'        => $nombrePrograma,
+
+    '{firma_jefe}'      => $firmaJefe,
+    '{nombre_jefe}'     => htmlspecialchars($nombreJefe, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+
+    '{firma_sub}'       => $firma_sub,
+    '{nombre_sub}'      => htmlspecialchars($nombreSub, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+
+    '{url_verificacion}' => $urlVer,
+  ];
+  $html = strtr($html, $repl);
+
+
+  $pdf->SetFont('times','',11);
+  $pdf->writeHTML($html, true, false, true, false, '');
+
+  $filename = 'CMEL_'.$sid.'.pdf';
+  $abs      = $PROJ_ROOT.'/storage/pdfs/'.$filename;
+  $pdf->Output($abs, 'F');
+
+  $rutaWeb = '/siged/storage/pdfs/'.$filename;
+  if (empty($row['RUTA_PDF']) || $row['RUTA_PDF']!==$rutaWeb || empty($row['FOLIO'])) {
+    $pdo->prepare("
+      UPDATE dbo.SOLICITUD_DOCUMENTO
+      SET RUTA_PDF = :p,
+          FOLIO    = :f
+      WHERE ID_SOLICITUD = :sid
+    ")->execute([
+      ':p'   => $rutaWeb,
+      ':f'   => $folio,
+      ':sid' => $sid,
+    ]);
+  }
+
+  header('Content-Type: application/pdf');
+  header('Content-Disposition: inline; filename="'.$filename.'"');
+  readfile($abs); exit;
+}
 
 
 // ================== Otros tipos genéricos ==================

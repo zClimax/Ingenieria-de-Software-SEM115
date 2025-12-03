@@ -52,7 +52,7 @@ $depApr = (int)($S['ID_DEPARTAMENTO_APROBADOR'] ?? 0);
 $echo('sol.tip=' . ($S['TIPO_DOCUMENTO'] ?? '?') . ' dep_apr='.$depApr.' est=' . ($S['ESTADO'] ?? '?'));
 
 // 4) Reglas de visibilidad
-if (($S['TIPO_DOCUMENTO'] ?? '') !== 'ACI') { $echo('no es ACI, no se monta'); return; }
+if (($S['TIPO_DOCUMENTO'] ?? '') !== 'CINF') { $echo('no es ACI, no se monta'); return; }
 if ($depApr === 0)                          { $echo('ID_DEPARTAMENTO_APROBADOR es 0/NULL'); return; }
 if ($miDep !== $depApr)                     { $echo('departamento no coincide: jefe='.$miDep.' apr='.$depApr); return; }
 

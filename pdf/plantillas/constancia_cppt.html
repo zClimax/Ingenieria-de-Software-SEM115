@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 10.5pt;
+      line-height: 1.32;
+      margin: 0;
+      padding: 0;
+    }
+
+    .encabezado {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border-bottom: 1px solid #000;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+      padding: 0;
+    }
+
+    .folio {
+      font-size: 8.8pt;
+      margin: 6px 16px 0 16px;
+      text-align: right;
+      line-height: 1.15;
+    }
+    .folio p {
+      margin: 1px 0;
+      padding: 0;
+    }
+
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 12px 0 8px 0;
+      padding: 0;
+      font-size: 13pt;
+      letter-spacing: 1px;
+    }
+
+    .contenido {
+      margin: 8px 16px 0 16px;
+      text-align: justify;
+    }
+    .contenido p {
+      margin: 3px 0;
+      padding: 0;
+    }
+
+    .bloque-datos {
+      margin: 10px 0 12px 0;
+      padding: 6px 12px;
+      border: 1px solid #999;
+      text-align: left;
+      line-height: 1.34;
+      font-size: 10pt;
+    }
+    .bloque-datos p {
+      margin: 2px 0;
+      padding: 0;
+    }
+    .bloque-datos strong {
+      color: #003366;
+    }
+
+    .atentamente {
+      text-align: center;
+      margin-top: 18px;
+      font-weight: bold;
+      letter-spacing: 1.6px;
+      font-size: 10.5pt;
+    }
+
+    .firma {
+      margin-top: 20px;
+      text-align: center;
+      line-height: 1.05;
+    }
+    .firma img {
+      height: 50px;
+      display: block;
+      margin: 0 auto -6px auto;
+      padding: 0;
+    }
+    .firma-nombre {
+      font-weight: bold;
+      font-size: 9.8pt;
+      text-transform: uppercase;
+    }
+    .firma-cargo {
+      font-size: 8.8pt;
+      color: #444;
+    }
+
+    .verificacion {
+      margin: 8px 16px 0 16px;
+      font-size: 8pt;
+      text-align: left;
+      line-height: 1.15;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ENCABEZADO -->
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:44px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>DIRECCIÓN DE DOCENCIA E INNOVACIÓN EDUCATIVA</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:48px;">
+      </td>
+    </tr>
+  </table>
+
+  <!-- FOLIO / FECHA -->
+  <div class="folio">
+    <p>Folio: {folio}</p>
+    <p>{lugar_fecha}</p>
+  </div>
+
+  <!-- TÍTULO -->
+  <h3 class="titulo">Constancia de participación en planes y programas del TecNM</h3>
+
+  <!-- CUERPO -->
+  <div class="contenido">
+    <p>A quien corresponda:</p>
+
+    <p>
+      La Dirección de Docencia e Innovación Educativa del Tecnológico Nacional de México
+      hace constar que el(la) C. <strong>{nombre_docente}</strong>, con número de
+      expediente <strong>{expediente}</strong>, participó en la
+      <strong>{tipo_participacion}</strong> de planes y programas de estudios a nivel
+      nacional del programa <strong>"{nombre_programa}"</strong>.
+    </p>
+
+    <div class="bloque-datos">
+      <p><strong>Programa educativo:</strong> {nombre_programa}</p>
+      <p><strong>Tipo de participación:</strong> {tipo_participacion}</p>
+      <p>
+        <strong>Ámbito:</strong> Participación en la elaboración de planes y programas
+        de estudios a nivel nacional, conforme al numeral 1.4.8.1.2 del programa
+        Estímulo al Desempeño Docente (EDD).
+      </p>
+    </div>
+
+    <p>
+      Se extiende la presente para los fines académicos y administrativos que al(la)
+      interesado(a) convengan.
+    </p>
+  </div>
+
+  <!-- FIRMA -->
+  <div class="atentamente">
+    A T E N T A M E N T E
+  </div>
+
+  <div class="firma">
+    <img src="{firma_jefe}">
+    <div class="firma-nombre">{nombre_jefe}</div>
+    <div class="firma-cargo">Titular del Centro de Adscripción</div>
+  </div>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar:
+    {url_verificacion}
+  </div>
+
+</body>
+</html>

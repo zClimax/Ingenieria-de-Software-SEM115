@@ -23,6 +23,7 @@ $sql = "
 SELECT
   S.ID_SOLICITUD         AS id,
   S.TIPO_DOCUMENTO       AS tipo,
+  ET.NOMBRE              AS nombre_doc,
   S.ESTADO               AS estado,
   S.FECHA_CREACION       AS f_crea,
   S.FECHA_ENVIO          AS f_env,
@@ -32,6 +33,8 @@ SELECT
 FROM [SIGED].[dbo].[SOLICITUD_DOCUMENTO] S
 JOIN [SIGED].[dbo].[DOCENTE] D   ON D.ID_DOCENTE  = S.ID_DOCENTE
 JOIN [SIGED].[dbo].[USUARIOS] U  ON U.ID_USUARIO  = D.ID_USUARIO
+LEFT JOIN [SIGED].[dbo].[EDD_EVIDENCIA_TIPO] ET
+       ON ET.CODIGO = S.TIPO_DOCUMENTO  
 WHERE U.ID_USUARIO = :uid
 ORDER BY S.ID_SOLICITUD DESC";
 $st = $pdo->prepare($sql);
@@ -87,6 +90,12 @@ if (file_exists($rutaFisica)) {
   .fila-comentario.visible {
     display: table-row;
   }
+  .doc-nombre{
+  color:#374151;         
+  font-size:12px;
+  margin-top:4px;
+  line-height:1.2;
+}
   </style>
 </head>
 <body>
@@ -204,6 +213,7 @@ if (file_exists($rutaFisica)) {
                 $fE = $r['f_env']  ? substr((string)$r['f_env'],0,19)  : '—';
                 $fD = $r['f_dec']  ? substr((string)$r['f_dec'],0,19)  : '—';
                 $coment = trim((string)($r['comentario'] ?? ''));
+                $nombreDoc = trim((string)($r['nombre_doc'] ?? '')); 
               ?>
                 <tr data-status="<?= htmlspecialchars($estadoUp) ?>" data-id="<?= $id ?>">
                   <td>
@@ -217,6 +227,12 @@ if (file_exists($rutaFisica)) {
                   </td>
                   <td>
                     <span class="badge <?= $tClass ?>"><?= htmlspecialchars($tText) ?></span>
+                    <?php if ($nombreDoc !== ''): ?>
+                      <div class="doc-nombre tipo-<?= strtolower($tText) ?>">
+                          <i class='bx bxs-file-pdf'></i>
+                          <?= htmlspecialchars($nombreDoc) ?>
+                      </div>
+                    <?php endif; ?>
                   </td>
                   <td>
                     <span class="badge <?= $eClass ?>"><?= htmlspecialchars($eText) ?></span>

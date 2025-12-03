@@ -38,7 +38,7 @@ if ($depJefe <= 0) {
 }
 
 // 4) Autorización
-if (($S['TIPO_DOCUMENTO'] ?? '') !== 'ACI') { http_response_code(403); exit('Tipo no permitido'); }
+if (($S['TIPO_DOCUMENTO'] ?? '') !== 'CINF') { http_response_code(403); exit('Tipo no permitido'); }
 if ((int)$S['ID_DEPARTAMENTO_APROBADOR'] !== $depJefe) { http_response_code(403); exit('No tienes permisos sobre este documento'); }
 //if (($S['ESTADO'] ?? '') !== 'ENVIADA') { http_response_code(409); exit('La solicitud no está en estado ENVIADA'); }
 

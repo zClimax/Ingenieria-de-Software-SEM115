@@ -18,10 +18,6 @@ if ($uid <= 0) { http_response_code(403); exit('Sesión inválida'); }
 // ============================
 $DOCS_SUBDIR = [
   'LAD',
-  'CCA',
-  'CHA',
-  'CSE2',
-  'CSEP',
   'CCO',
   'TUT',
   'CCID',
@@ -127,14 +123,21 @@ if ($filtroTipo !== '' && in_array($filtroTipo, $DOCS_SUBDIR, true)) {
 }
 
 if ($qTexto !== '') {
+  // CORRECCIÓN: Usar nombres únicos para cada campo (:q1, :q2, etc.)
   $sql .= " AND (
-              D.NOMBRE_DOCENTE LIKE :q
-           OR D.APELLIDO_PATERNO_DOCENTE LIKE :q
-           OR D.APELLIDO_MATERNO_DOCENTE LIKE :q
-           OR S.FOLIO LIKE :q
-           OR S.TIPO_DOCUMENTO LIKE :q
+              D.NOMBRE_DOCENTE LIKE :q1
+           OR D.APELLIDO_PATERNO_DOCENTE LIKE :q2
+           OR D.APELLIDO_MATERNO_DOCENTE LIKE :q3
+           OR S.FOLIO LIKE :q4
+           OR S.TIPO_DOCUMENTO LIKE :q5
          )";
-  $params[':q'] = '%'.$qTexto.'%';
+  
+  $term = '%' . $qTexto . '%';
+  $params[':q1'] = $term;
+  $params[':q2'] = $term;
+  $params[':q3'] = $term;
+  $params[':q4'] = $term;
+  $params[':q5'] = $term;
 }
 
 $sql .= " ORDER BY S.FECHA_DECISION DESC, S.ID_SOLICITUD DESC";
@@ -150,38 +153,9 @@ $docs = $st->fetchAll(PDO::FETCH_ASSOC);
   <meta charset="utf-8">
   <title>SIGED · Documentos con firma del Subdirector</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/SIGED/public/css/MisSolicitudes.css">
+  <link rel="stylesheet" href="/SIGED/public/css/subd_docs.css">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    .firma-card {
-      display:flex;
-      align-items:flex-start;
-      gap:1rem;
-      padding:1rem 1.25rem;
-      background:#f9fafb;
-      border-radius:.75rem;
-      border:1px solid #e5e7eb;
-      margin-bottom:1.25rem;
-    }
-    .firma-preview {
-      width:200px;
-      height:80px;
-      border:1px dashed #cbd5f5;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:white;
-    }
-    .firma-preview img {
-      max-width:100%;
-      max-height:100%;
-      object-fit:contain;
-    }
-    .tabla-small th, .tabla-small td {
-      font-size:.85rem;
-    }
-  </style>
 </head>
 <body>
   <!-- HEADER -->
@@ -206,15 +180,9 @@ $docs = $st->fetchAll(PDO::FETCH_ASSOC);
     <nav class="sidebar-nav">
       <ul>
         <li>
-          <a href="/SIGED/public/index.php?action=home_subdirector" class="nav-link">
-            <img src="/SIGED/public/img/IconosSIged/Recurso 5Icono_usuario.png" alt="Inicio" class="nav-img">
-            <span class="nav-text">Inicio</span>
-          </a>
-        </li>
-        <li>
           <a href="/SIGED/public/index.php?action=subd_docs" class="nav-link active">
-            <img src="/SIGED/public/img/IconosSIged/Recurso 7Icono_tickets.png" alt="Docs" class="nav-img">
-            <span class="nav-text">Docs con mi firma</span>
+            <img src="/SIGED/public/img/IconosSIged/Recurso 5Icono_usuario.png" alt="Docs" class="nav-img">
+            <span class="nav-text">Inicio</span>
           </a>
         </li>
       </ul>
@@ -256,9 +224,14 @@ $docs = $st->fetchAll(PDO::FETCH_ASSOC);
                 action="/SIGED/public/index.php?action=subd_firma_save"
                 enctype="multipart/form-data"
                 style="margin-top:.75rem;display:flex;flex-wrap:wrap;gap:.75rem;align-items:center">
-            <input type="file" name="firma" accept="image/png,image/jpeg" required>
-            <button type="submit" class="btn">
-              <i class='bx bx-upload'></i> Subir / Actualizar firma
+            
+            <!-- Input estilizado -->
+            <input type="file" name="firma" accept="image/png,image/jpeg" required 
+                   style="padding: 8px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff;">
+            
+            <!-- BOTÓN ACTUALIZADO: Subir Firma -->
+            <button type="submit" class="button-azul-completo" style="width: auto; padding: 10px 20px;">
+              <i class='bx bx-cloud-upload'></i> Actualizar firma
             </button>
           </form>
 
@@ -300,8 +273,9 @@ $docs = $st->fetchAll(PDO::FETCH_ASSOC);
           </div>
 
           <div class="filtro-item" style="align-self:flex-end">
-            <button type="submit" class="btn">
-              <i class='bx bx-search'></i> Aplicar filtros
+            <!-- BOTÓN ACTUALIZADO: Aplicar Filtros -->
+            <button type="submit" class="button-azul-completo" style="width: auto; padding: 10px 20px;">
+              <i class='bx bx-search'></i> Buscar
             </button>
           </div>
         </form>
@@ -376,11 +350,12 @@ $docs = $st->fetchAll(PDO::FETCH_ASSOC);
                   </td>
                   <td>
                     <?php if ($rutaPdf): ?>
+                      <!-- BOTÓN ACTUALIZADO: Ver PDF -->
                       <a href="<?= htmlspecialchars($rutaPdf) ?>"
                          target="_blank"
-                         class="btn-icon btn-pdf"
-                         title="Ver PDF">
-                        <i class='bx bxs-file-pdf'></i>
+                         class="button-azul-completo"
+                         style="width: auto; padding: 6px 12px; font-size: 0.85rem; text-decoration: none; display: inline-flex;">
+                        <i class='bx bxs-file-pdf'></i> Ver PDF
                       </a>
                     <?php else: ?>
                       <span class="badge badge-borrador" style="font-size:.75rem">

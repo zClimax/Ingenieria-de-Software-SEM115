@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 10.3pt;
+      line-height: 1.32;
+      margin: 0;
+      padding: 0;
+    }
+    .encabezado {
+      width: 100%;
+      padding: 0 16px 3px 16px;
+      border-bottom: 1px solid #000;
+    }
+    .encabezado td {
+      vertical-align: middle;
+      padding: 0;
+    }
+    .encabezado img {
+      display: block;
+      margin: 0;
+    }
+
+    .meta {
+      font-size: 8.6pt;
+      margin: 5px 16px 0 16px;
+      line-height: 1.18;
+    }
+    .meta p {
+      margin: 1px 0;
+      padding: 0;
+    }
+
+    .asunto {
+      font-size: 9.8pt;
+      font-weight: bold;
+      margin: 8px 16px 0 16px;
+      line-height: 1.18;
+    }
+
+    .titulo {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 14px 0 8px 0;
+      font-size: 12.5pt;
+      letter-spacing: 1px;
+    }
+
+    .contenido {
+      margin: 6px 16px 0 16px;
+      text-align: justify;
+    }
+    .contenido p {
+      margin: 3px 0;
+      padding: 0;
+    }
+
+    .bloque-datos {
+      margin: 10px 0 12px 0;
+      padding: 6px 12px;
+      border: 1px solid #999;
+      font-size: 9.9pt;
+      line-height: 1.34;
+    }
+    .bloque-datos p {
+      margin: 2px 0;
+    }
+    .bloque-datos strong {
+      color: #003366;
+    }
+
+    .atentamente {
+      text-align: center;
+      margin-top: 18px;
+      font-weight: bold;
+      letter-spacing: 1.6px;
+      font-size: 10.3pt;
+    }
+
+    .firma {
+      margin-top: 18px;
+      text-align: center;
+      line-height: 1.05;
+    }
+    .firma img {
+      height: 54px;
+      display: block;
+      margin: 0 auto -6px auto;
+    }
+    .firma-nombre {
+      font-weight: bold;
+      font-size: 9.6pt;
+      text-transform: uppercase;
+    }
+    .firma-cargo {
+      font-size: 8.6pt;
+      color: #444;
+    }
+
+    .verificacion {
+      margin: 8px 16px 0 16px;
+      font-size: 7.8pt;
+      text-align: left;
+      line-height: 1.15;
+    }
+  </style>
+</head>
+
+<body>
+
+  <table class="encabezado">
+    <tr>
+      <td style="width:25%; text-align:left;">
+        <img src="{logo_sep}" style="height:46px;">
+      </td>
+      <td style="width:50%; text-align:center;">
+        <div><strong>TECNOLÓGICO NACIONAL DE MÉXICO</strong></div>
+        <div><strong>INSTITUTO TECNOLÓGICO DE CULIACÁN</strong></div>
+      </td>
+      <td style="width:25%; text-align:right;">
+        <img src="{logo_tecnm}" style="height:50px;">
+      </td>
+    </tr>
+  </table>
+
+  <div class="meta">
+    <p>Folio: {folio}</p>
+    <p>{lugar_fecha}</p>
+  </div>
+
+  <div class="asunto">
+    ASUNTO: Comisión para el diseño y elaboración de módulos de especialidad.
+  </div>
+
+  <h3 class="titulo">Oficio de comisión</h3>
+
+  <div class="contenido">
+    <p>
+      Por este conducto se hace constar que el(la) C.
+      <strong>{nombre_docente}</strong>, con número de expediente
+      <strong>{expediente}</strong>, ha sido comisionado(a) para el diseño y
+      elaboración de módulos de especialidad del programa
+      <strong>"{programa}"</strong>, durante el periodo comprendido del
+      <strong>{fecha_inicio}</strong> al <strong>{fecha_fin}</strong>.
+    </p>
+
+    <div class="bloque-datos">
+      <p><strong>Programa educativo:</strong> {programa}</p>
+      <p><strong>Periodo de la comisión:</strong> Del {fecha_inicio} al {fecha_fin}</p>
+      <p>
+        <strong>Fundamento:</strong> Participación en el diseño y elaboración de los módulos
+        de especialidad para los programas de licenciatura, conforme al numeral 1.4.8.2 del
+        programa Estímulo al Desempeño Docente (EDD).
+      </p>
+    </div>
+
+    <p>
+      Se extiende la presente comisión para los fines académicos y administrativos
+      correspondientes.
+    </p>
+  </div>
+
+  <div class="atentamente">
+    A T E N T A M E N T E
+  </div>
+
+  <div class="firma">
+    <div style="position:relative; height:25px;">
+        {firma_sub}
+      </div>
+    <div class="firma-nombre">Bertha Lucía Patrón Arellano</div>
+    <div class="firma-puesto">SUBDIRECCIÓN ACADÉMICA</div>
+  </div>
+
+  <div class="verificacion">
+    Para verificar la autenticidad de este documento, puede consultar:
+    {url_verificacion}
+  </div>
+
+</body>
+</html>

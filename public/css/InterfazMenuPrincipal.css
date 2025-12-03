@@ -474,6 +474,16 @@ section {
     justify-content: center;
     transition: transform 0.3s;
 }
+.texto-departamento {
+    color: #1976d2;           /* Azul institucional (o usa #666 para gris) */
+    font-weight: 900;         /* Un poco más grueso (seminegrita) */
+    font-size: 0.95rem;       /* Tamaño de letra */
+    text-transform: uppercase; /* Convertir a mayúsculas automáticamente */
+    letter-spacing: 0.5px;    /* Espaciado entre letras */
+    margin-top: 5px;          /* Separación superior */
+    /* border-top: 1px solid #eee; Opcional: una línea sutil arriba */
+    padding-top: 5px;
+}
 
 .avatar-container:hover {
     transform: scale(1.02);
@@ -985,3 +995,6 @@ section {
 .aviso-puntaje strong {
     font-weight: 700;
 }
+
+
+

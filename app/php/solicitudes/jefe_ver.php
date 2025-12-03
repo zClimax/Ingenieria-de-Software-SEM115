@@ -237,7 +237,7 @@ if (file_exists($rutaFisica)) {
             <?php if ($sol['estado'] === 'ENVIADA'): ?>
                 <?php
                 // ACI: formulario CI sólo si el tipo de documento es ACI
-                if (($sol['TIPO_DOCUMENTO'] ?? '') === 'ACI') {
+                if (($sol['TIPO_DOCUMENTO'] ?? '') === 'CINF') {
                     echo '<section class="content-section mounted-form-section">';
                     require __DIR__ . '/ci_form.php';
                     echo '</section>';
@@ -399,6 +399,32 @@ if (file_exists($rutaFisica)) {
                     require __DIR__ . '/pasg_mount.php';
                     echo '</div>';
                 }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CPPL') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cppl_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CPPT') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cppt_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CMES') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cmes_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'ORME') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/orme_mount.php';
+                    echo '</div>';
+                }
+                if (($sol['tipo'] ?? $sol['TIPO_DOCUMENTO'] ?? '') === 'CMEL') {
+                    echo '<div class="mounted-form-section">';
+                    require __DIR__ . '/cmel_mount.php';
+                    echo '</div>';
+                }
+                
                 
                 ?>
 

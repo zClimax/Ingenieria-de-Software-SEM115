@@ -11,18 +11,25 @@ $user = Session::user();
 $pdo  = DB::conn();
 $D    = Config::MAP['DOCENTE'];
 
-// Obtener datos del docente
-$sql = "SELECT * FROM {$D['TABLE']} WHERE {$D['ID_USR']} = :id_usr";
+// MODIFICACIÓN: Hacemos JOIN con USUARIOS y DEPARTAMENTO para obtener el nombre real
+$sql = "
+    SELECT D.*, DP.NOMBRE_DEPARTAMENTO
+    FROM {$D['TABLE']} D
+    INNER JOIN dbo.USUARIOS U ON U.ID_USUARIO = D.ID_USUARIO
+    LEFT JOIN dbo.DEPARTAMENTO DP ON DP.ID_DEPARTAMENTO = U.ID_DEPARTAMENTO
+    WHERE D.ID_USUARIO = :id_usr
+";
+
 $stmt = $pdo->prepare($sql);
 $stmt->execute([':id_usr' => $user['id']]);
 $docenteData = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
 $nombreCompleto = $user['nombre']; 
 $correo         = $user['correo']; 
-$departamento   = $docenteData['DEPARTAMENTO'] ?? 'Sistemas y Computación';
+$departamento   = $docenteData['NOMBRE_DEPARTAMENTO'] ?? 'Sin departamento asignado';
 
 // Mapeo de campos
-$rfc            = $docenteData[$D['RFC']]       ?? '—';
+$rfc            = $docenteData[$D['RFC']]       ?? '—';// filepath: c:\xampp\htdocs\SIGED\app\php\docente\home_docente.php
 $curp           = $docenteData[$D['CURP']]      ?? '—';
 $telefono       = $docenteData[$D['TEL']]       ?? '—';
 $claveEmpleado  = $docenteData[$D['CLAVE_EMPLEADO'] ?? 'CLAVE_EMPLEADO'] ?? '—';
@@ -234,7 +241,8 @@ $jsData = json_encode([
                     <div class="info-details">
                         <h3><?php echo htmlspecialchars($nombreCompleto); ?></h3>
                         <p><strong>Correo:</strong> <?php echo htmlspecialchars($correo); ?></p>
-                        <p><strong>Departamento:</strong> <?php echo htmlspecialchars($departamento); ?></p>
+                        
+                        <p class="texto-departamento"><?php echo htmlspecialchars($departamento); ?></p>
                     </div>
                 </div>
             </section>

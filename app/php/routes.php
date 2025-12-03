@@ -474,6 +474,46 @@ function route(string $action): void {
                     require __DIR__ . '/solicitudes/pasg_guardar.php';
                     break;
                     
+      case 'cppl_mount':
+                  require __DIR__ . '/solicitudes/cppl_mount.php';
+                  break;
+                    
+      case 'cppl_guardar':
+                  require __DIR__ . '/solicitudes/cppl_guardar.php';
+                  break;
+
+     case 'cppt_mount':
+                  require __DIR__ . '/solicitudes/cppt_mount.php';
+                  break;
+                  
+       case 'cppt_guardar':
+                  require __DIR__ . '/solicitudes/cppt_guardar.php';
+                  break;
+      case 'cmes_mount':
+                  require __DIR__ . '/solicitudes/cmes_mount.php';
+                  break;
+                  
+      case 'cmes_guardar':
+                  require __DIR__ . '/solicitudes/cmes_guardar.php';
+                  break;
+
+       case 'orme_mount':
+                  require __DIR__ . '/solicitudes/orme_mount.php';
+                  break;
+                  
+       case 'orme_guardar':
+                  require __DIR__ . '/solicitudes/orme_guardar.php';
+                 break;
+
+       case 'cmel_mount':
+                  require __DIR__ . '/solicitudes/cmel_mount.php';
+                  break;
+                
+       case 'cmel_guardar':
+                  require __DIR__ . '/solicitudes/cmel_guardar.php';
+                  break;
+                                                              
+
 
     // ========================================
     // JEFE - CORRECCIONES
