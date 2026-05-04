@@ -1,0 +1,40 @@
+# Dependencias PHP (regenerar con: composer install)
+/vendor/
+
+# Variables de entorno con credenciales
+.env
+.env.local
+
+# Archivos generados en runtime — datos de usuarios
+/storage/firmas/*
+/storage/fotos/*
+/storage/pdfs/*
+!/storage/firmas/.gitkeep
+!/storage/fotos/.gitkeep
+!/storage/pdfs/.gitkeep
+
+/public/storage/firmas/*
+/public/storage/fotos/*
+/public/storage/pdfs/*
+!/public/storage/firmas/.gitkeep
+!/public/storage/fotos/.gitkeep
+!/public/storage/pdfs/.gitkeep
+
+/app/uploads/evidencias/*
+!/app/uploads/evidencias/.gitkeep
+
+/app/pdf/salidas/*
+!/app/pdf/salidas/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
